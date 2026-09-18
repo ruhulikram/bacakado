@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💌 BacaKado
 
-## Getting Started
+> Platform web kado ucapan digital personal dan interaktif dengan estetika minimalis elegan khas Apple.
 
-First, run the development server:
+BacaKado memudahkan siapa saja membuat website kado digital beranimasi indah (amplop interaktif, kartu cerita & foto, musik pengiring, dan proteksi PIN rahasia) hanya dalam **5 menit langsung dari HP** tanpa keahlian teknis.
+
+---
+
+## ✨ Fitur Utama
+
+- **Editor Kado Interaktif:** Wizard 5 langkah yang intuitif, upload foto langsung ke Supabase Storage, dan live preview real-time.
+- **Pengalaman Penerima yang Elegan:** Desain *Apple Minimalist*, amplop arsitektural interaktif, audio otomatis, dan efek *champagne confetti*.
+- **Proteksi PIN Rahasia:** Kunci kado dengan PIN/tanggal spesial agar pesan hanya bisa dibuka oleh orang yang dituju.
+- **Sistem Balasan Pesan:** Penerima kado bisa langsung menulis pesan balasan yang tersimpan aman ke dasbor pengirim.
+- **Pembayaran QRIS Terintegrasi:** Terhubung dengan gateway pembayaran Mayar (Rp 4.000 / kado) dengan simulator lokal untuk kemudahan testing.
+- **Dasbor Pengirim:** Pantau status kado, jumlah views, dan kotak masuk pesan balasan dari penerima.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 16 (App Router) + React 19
+- **Bahasa:** TypeScript 5
+- **Styling:** Tailwind CSS v4 + Apple Minimalist Design System
+- **Database & Auth:** Supabase (PostgreSQL, Row Level Security, Storage)
+- **Payment Gateway:** Mayar.id (QRIS & E-Wallet)
+
+---
+
+## 🚀 Memulai (Quick Start)
+
+### 1. Clone & Install Dependensi
+
+```bash
+git clone https://github.com/ruhulikram/bacakado.git
+cd bacakado
+npm install
+```
+
+### 2. Konfigurasi Environment
+
+Salin file `.env.example` menjadi `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Isi variabel di `.env.local` sesuai kredensial Anda:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# Mayar Payment Gateway (Opsional untuk testing lokal — simulator aktif otomatis jika kosong)
+MAYAR_API_KEY=
+MAYAR_WEBHOOK_TOKEN=
+NEXT_PUBLIC_MAYAR_ENV=sandbox
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 3. Setup Database Supabase
+
+Jalankan seluruh query SQL dari file `supabase/schema.sql` di **Supabase SQL Editor** dashboard Anda.
+
+### 4. Jalankan Server Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 Lisensi
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private & Proprietary © BacaKado.
