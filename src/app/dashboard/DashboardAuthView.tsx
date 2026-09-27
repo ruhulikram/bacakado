@@ -1,41 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Sparkles } from "lucide-react";
 
 export function DashboardAuthView() {
-  const router = useRouter();
   const supabase = createClient();
-  const [tab, setTab] = useState<"masuk" | "daftar">("masuk");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    const fn =
-      tab === "daftar"
-        ? supabase.auth.signUp({ email, password })
-        : supabase.auth.signInWithPassword({ email, password });
-
-    const { error: authErr } = await fn;
-    if (authErr) {
-      setError(authErr.message);
-      setLoading(false);
-      return;
-    }
-
-    router.refresh();
-  }
 
   async function handleGoogle() {
     await supabase.auth.signInWithOAuth({
@@ -78,70 +48,6 @@ export function DashboardAuthView() {
           <p className="text-gray-500 text-xs mb-6">
             Masuk untuk melihat kado yang pernah kamu buat dan pesan balasan dari penerima
           </p>
-
-          <div className="flex bg-gray-100 rounded-xl p-1 mb-4">
-            <button
-              type="button"
-              onClick={() => setTab("masuk")}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                tab === "masuk"
-                  ? "bg-white shadow text-gray-900"
-                  : "text-gray-500"
-              }`}
-            >
-              Masuk
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("daftar")}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                tab === "daftar"
-                  ? "bg-white shadow text-gray-900"
-                  : "text-gray-500"
-              }`}
-            >
-              Daftar
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-3 mb-3">
-            <Input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="rounded-xl"
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="rounded-xl"
-            />
-
-            {error && <p className="text-red-500 text-xs text-left">{error}</p>}
-
-            <Button
-              type="submit"
-              disabled={loading || !email || password.length < 6}
-              className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-full h-11"
-            >
-              {loading
-                ? "Memproses..."
-                : tab === "masuk"
-                ? "Masuk ke Dashboard →"
-                : "Daftar Akun Baru →"}
-            </Button>
-          </form>
-
-          <div className="relative flex items-center my-4">
-            <div className="flex-1 border-t border-gray-200" />
-            <span className="px-3 text-gray-400 text-xs">atau</span>
-            <div className="flex-1 border-t border-gray-200" />
-          </div>
 
           <button
             type="button"

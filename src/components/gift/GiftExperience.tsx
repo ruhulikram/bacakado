@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
-import { Gift } from "@/lib/types";
+import { Card, Gift } from "@/lib/types";
+import { youtubeId } from "@/lib/utils";
 import { getTheme } from "@/lib/mock-data";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { recordView, submitReply } from "@/app/actions/tracking";
+import { unlockGift } from "@/app/actions/gift";
 
 type Stage = "cover" | "envelope" | "cards" | "closing";
 
@@ -20,8 +22,11 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   const [replyError, setReplyError] = useState("");
 
   // PIN Passcode Protection states
-  const hasPasscode = Boolean(gift.passcode && gift.passcode.trim().length > 0);
+  // Kartu kado ber-PIN tidak dikirim ke browser sampai PIN diverifikasi server.
+  const hasPasscode = Boolean(gift.has_passcode);
   const [passcodeUnlocked, setPasscodeUnlocked] = useState(!hasPasscode);
+  const [cards, setCards] = useState<Card[]>(gift.cards);
+  const [pinChecking, setPinChecking] = useState(false);
   const [inputPin, setInputPin] = useState("");
   const [pinError, setPinError] = useState("");
   const [showPinModal, setShowPinModal] = useState(false);
@@ -29,6 +34,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const viewRecorded = useRef(false);
   const theme = getTheme(gift.theme);
+  const ytId = youtubeId(gift.music_url);
 
   const isDarkTheme = gift.theme === "valentine";
 
@@ -47,14 +53,19 @@ export function GiftExperience({ gift }: { gift: Gift }) {
     setStage("envelope");
   }
 
-  function verifyPin() {
-    if (inputPin.trim().toLowerCase() === gift.passcode?.trim().toLowerCase()) {
+  async function verifyPin() {
+    if (pinChecking || !inputPin.trim()) return;
+    setPinChecking(true);
+    const res = await unlockGift(gift.slug, inputPin);
+    setPinChecking(false);
+    if (res.cards) {
+      setCards(res.cards);
       setPinError("");
       setPasscodeUnlocked(true);
       setShowPinModal(false);
       setStage("envelope");
     } else {
-      setPinError("PIN belum tepat. Coba ingat tanggal atau momen spesial ya.");
+      setPinError(res.error || "PIN belum tepat.");
     }
   }
 
@@ -68,7 +79,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   }
 
   function nextCard() {
-    if (cardIndex < gift.cards.length - 1) {
+    if (cardIndex < cards.length - 1) {
       setCardIndex((i) => i + 1);
     } else {
       setStage("closing");
@@ -107,15 +118,25 @@ export function GiftExperience({ gift }: { gift: Gift }) {
     }
   }
 
-  const sorted = [...gift.cards].sort((a, b) => a.order_index - b.order_index);
+  const sorted = [...cards].sort((a, b) => a.order_index - b.order_index);
   const currentCard = sorted[cardIndex];
 
   return (
     <div
       className={`min-h-screen bg-gradient-to-b ${theme.gradient} flex flex-col items-center justify-center p-6 relative overflow-hidden transition-colors duration-700`}
     >
-      {gift.music_url && (
+      {gift.music_url && !ytId && (
         <audio ref={audioRef} src={gift.music_url} loop preload="none" />
+      )}
+
+      {/* YouTube wajib menampilkan pemutarnya; dimuat setelah klik amplop agar autoplay diizinkan. */}
+      {ytId && envelopeOpen && (
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&loop=1&playlist=${ytId}&playsinline=1`}
+          title="Lagu latar"
+          allow="autoplay; encrypted-media"
+          className="fixed bottom-4 right-4 z-40 w-48 h-28 rounded-2xl shadow-lg border border-black/10"
+        />
       )}
 
       {/* ── COVER ──────────────────────────────────────────── */}
@@ -200,9 +221,10 @@ export function GiftExperience({ gift }: { gift: Gift }) {
 
             <button
               onClick={verifyPin}
+              disabled={pinChecking}
               className="w-full bg-neutral-900 hover:bg-black text-white font-medium py-2.5 rounded-full text-sm transition-all active:scale-[0.98] mb-2"
             >
-              Buka Surat
+              {pinChecking ? "Memeriksa..." : "Buka Surat"}
             </button>
 
             <button

@@ -18,7 +18,7 @@ export interface Gift {
   cards: Card[];
   status: "draft" | "published";
   is_premium?: boolean;
-  passcode?: string;
+  has_passcode?: boolean;
   view_count: number;
   like_count: number;
   is_public: boolean;

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GALLERY_MOCK } from "@/lib/mock-data";
+import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 
 export default function HomePage() {
   const featured = GALLERY_MOCK.slice(0, 3);
@@ -63,7 +64,7 @@ export default function HomePage() {
         </div>
 
         <p className="text-xs text-neutral-400">
-          Coba buat gratis di editor · Cuma <span className="text-neutral-700 font-semibold">Rp 4.000</span> saat terbitkan via QRIS
+          Coba buat gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
         </p>
       </section>
 
@@ -202,7 +203,7 @@ export default function HomePage() {
             Berikan kejutan yang akan ia kenang selalu.
           </h2>
           <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-10">
-            Hanya Rp 4.000 sekali bayar. Tanpa langganan, tanpa iklan.
+            Hanya {PREMIUM_PRICE_LABEL} sekali bayar. Tanpa langganan, tanpa iklan.
           </p>
           <Link
             href="/buat"

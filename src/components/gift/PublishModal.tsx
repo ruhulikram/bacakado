@@ -7,6 +7,7 @@ import { publishGift, DraftGift } from "@/app/actions/gift";
 import { initiatePayment, checkPaymentStatus } from "@/app/actions/payment";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 
 const DRAFT_KEY = "kadoin_pending_draft";
 
@@ -16,8 +17,21 @@ interface Props {
   onPublished: (slug: string) => void;
 }
 
+// Simpan kado sebagai draft lalu buat invoice Mayar. Kado baru terbit setelah lunas.
+async function startCheckout(
+  draft: DraftGift
+): Promise<{ giftId?: string; slug?: string; paymentUrl?: string; error?: string }> {
+  const pubRes = await publishGift(draft);
+  if (pubRes.error || !pubRes.giftId) return { error: pubRes.error || "Gagal menyiapkan kado" };
+
+  const payRes = await initiatePayment(pubRes.giftId);
+  if (payRes.error || !payRes.paymentUrl) {
+    return { error: payRes.error || "Gagal membuat tagihan pembayaran Mayar" };
+  }
+  return { giftId: pubRes.giftId, slug: pubRes.slug, paymentUrl: payRes.paymentUrl };
+}
+
 type ModalStage = "checkout" | "auth" | "payment_wait";
-type AuthTab = "daftar" | "masuk";
 
 export function PublishModal({ draft, onClose, onPublished }: Props) {
   const router = useRouter();
@@ -28,9 +42,6 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
   const [currentUser, setCurrentUser] = useState<unknown | null>(null);
 
   // Auth states
-  const [tab, setTab] = useState<AuthTab>("daftar");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -55,7 +66,6 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
     setError("");
     const updatedDraft: DraftGift = {
       ...draft,
-      isPremium: true,
       passcode: passcode.trim() ? passcode.trim() : undefined,
     };
 
@@ -72,39 +82,24 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
     setLoading(true);
     setError("");
 
-    // 1. Simpan kado sebagai draft terlebih dahulu
-    const pubRes = await publishGift(currentDraft, { isDraftOnly: true });
-    if (pubRes.error || !pubRes.giftId) {
-      setError(pubRes.error || "Gagal menyiapkan kado");
+    const res = await startCheckout(currentDraft);
+    if (res.error || !res.giftId || !res.paymentUrl) {
+      setError(res.error || "Gagal menyiapkan kado");
       setLoading(false);
       return;
     }
 
-    setActiveGiftId(pubRes.giftId);
-    setActiveSlug(pubRes.slug || null);
-
-    // 2. Buat invoice pembayaran Mayar
-    const payRes = await initiatePayment({
-      giftId: pubRes.giftId,
-      recipientName: currentDraft.recipientName,
-      passcode: currentDraft.passcode,
-    });
-
-    if (payRes.error || !payRes.paymentUrl) {
-      setError(payRes.error || "Gagal membuat tagihan pembayaran Mayar");
-      setLoading(false);
-      return;
-    }
-
-    setPaymentUrl(payRes.paymentUrl);
+    setActiveGiftId(res.giftId);
+    setActiveSlug(res.slug || null);
+    setPaymentUrl(res.paymentUrl);
     setLoading(false);
     setStage("payment_wait");
 
     // Buka link invoice Mayar di tab baru
-    window.open(payRes.paymentUrl, "_blank");
+    window.open(res.paymentUrl, "_blank");
 
     // Mulai polling status pembayaran tiap 2.5 detik
-    startPaymentPolling(pubRes.giftId, pubRes.slug || "");
+    startPaymentPolling(res.giftId, res.slug || "");
   }
 
   // Polling cek status bayar
@@ -134,36 +129,10 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
     }
   }
 
-  // Handle Login / Registrasi Email
-  async function handleEmailAuth() {
-    setError("");
-    setLoading(true);
-    const fn =
-      tab === "daftar"
-        ? supabase.auth.signUp({ email, password })
-        : supabase.auth.signInWithPassword({ email, password });
-
-    const { data, error: authErr } = await fn;
-    if (authErr) {
-      setError(authErr.message);
-      setLoading(false);
-      return;
-    }
-
-    setCurrentUser(data.user);
-    const updatedDraft: DraftGift = {
-      ...draft,
-      isPremium: true,
-      passcode: passcode.trim() ? passcode.trim() : undefined,
-    };
-    await executePublish(updatedDraft);
-  }
-
   // Handle Login Google
   async function handleGoogleAuth() {
     const updatedDraft: DraftGift = {
       ...draft,
-      isPremium: true,
       passcode: passcode.trim() ? passcode.trim() : undefined,
     };
     localStorage.setItem(DRAFT_KEY, JSON.stringify(updatedDraft));
@@ -209,7 +178,7 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
                   <p className="text-[11px] text-neutral-500 mt-0.5">Aktif permanen, tanpa batas waktu</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-xl font-semibold tracking-tight text-neutral-900">Rp 4.000</span>
+                  <span className="text-xl font-semibold tracking-tight text-neutral-900">{PREMIUM_PRICE_LABEL}</span>
                   <span className="text-[10px] block text-neutral-400">sekali bayar</span>
                 </div>
               </div>
@@ -259,7 +228,7 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
               disabled={loading}
               className="w-full bg-neutral-900 hover:bg-black text-white rounded-full h-12 font-medium text-sm transition-all active:scale-[0.98] shadow-sm"
             >
-              {loading ? "Menyiapkan Tagihan..." : "Lanjut Bayar Rp 4.000 via QRIS"}
+              {loading ? "Menyiapkan Tagihan..." : `Lanjut Bayar ${PREMIUM_PRICE_LABEL} via QRIS`}
             </Button>
 
             <p className="text-[11px] text-neutral-400 text-center mt-3">
@@ -279,58 +248,11 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
                 Masuk ke Akun
               </h2>
               <p className="text-xs text-neutral-500 mt-1">
-                Agar kado dan tautanmu tersimpan dengan aman di dasbor.
+                Masuk dengan Google agar kado dan tautanmu tersimpan aman di dasbor.
               </p>
             </div>
 
-            {/* Apple Segmented Control */}
-            <div className="flex bg-neutral-100 p-1 rounded-full mb-5">
-              {(["daftar", "masuk"] as AuthTab[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTab(t)}
-                  className={`flex-1 py-1.5 text-xs font-medium rounded-full transition-all ${
-                    tab === t ? "bg-white shadow-sm text-neutral-900" : "text-neutral-500 hover:text-neutral-900"
-                  }`}
-                >
-                  {t === "daftar" ? "Daftar Akun" : "Masuk"}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <Input
-                type="email"
-                placeholder="Alamat email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
-              />
-              <Input
-                type="password"
-                placeholder="Kata sandi (minimal 6 karakter)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
-                onKeyDown={(e) => e.key === "Enter" && handleEmailAuth()}
-              />
-            </div>
-
             {error && <p className="text-red-500 text-xs mb-3 text-center">{error}</p>}
-
-            <Button
-              onClick={handleEmailAuth}
-              disabled={loading || !email || password.length < 6}
-              className="w-full bg-neutral-900 hover:bg-black text-white rounded-full h-11 text-xs font-medium mb-3 transition-all active:scale-[0.98]"
-            >
-              {loading ? "Memproses..." : tab === "daftar" ? "Daftar & Lanjut Bayar" : "Masuk & Lanjut Bayar"}
-            </Button>
-
-            <div className="relative flex items-center my-4">
-              <div className="flex-1 border-t border-neutral-200/80" />
-              <span className="px-3 text-neutral-400 text-[11px]">atau</span>
-              <div className="flex-1 border-t border-neutral-200/80" />
-            </div>
 
             <button
               onClick={handleGoogleAuth}
@@ -342,7 +264,7 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              Lanjutkan dengan Google
+              Lanjutkan dengan Google & Bayar
             </button>
 
             <button
@@ -363,7 +285,7 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
               Menunggu Konfirmasi Pembayaran
             </h2>
             <p className="text-xs text-neutral-500 mb-6">
-              Total tagihan: <span className="font-semibold text-neutral-900">Rp 4.000</span>
+              Total tagihan: <span className="font-semibold text-neutral-900">{PREMIUM_PRICE_LABEL}</span>
             </p>
 
             <div className="bg-[#F5F5F7] rounded-2xl p-4 mb-5 text-xs text-left text-neutral-600 border border-neutral-200/60 space-y-2.5">
@@ -412,11 +334,9 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
   );
 }
 
-// Hook untuk menangani redirect dari OAuth Google
-export function usePendingPublish(
-  onPublished?: (slug: string, draft: DraftGift) => void
-) {
-  const router = useRouter();
+// Hook untuk menangani redirect dari OAuth Google: lanjutkan ke halaman bayar.
+// Setelah bayar, Mayar redirect ke /buat?payment_success=1 yang menampilkan link.
+export function usePendingPublish() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -427,16 +347,9 @@ export function usePendingPublish(
     localStorage.removeItem(DRAFT_KEY);
 
     const draft: DraftGift = JSON.parse(raw);
-    publishGift(draft).then(({ slug, error }) => {
-      if (slug) {
-        if (onPublished) {
-          onPublished(slug, draft);
-        } else {
-          router.push(`/${slug}`);
-        }
-      } else {
-        console.error("publish failed:", error);
-      }
+    startCheckout(draft).then(({ paymentUrl, error }) => {
+      if (paymentUrl) window.location.href = paymentUrl;
+      else alert(error || "Gagal menyiapkan pembayaran");
     });
-  }, [router, onPublished]);
+  }, []);
 }

@@ -1,11 +1,12 @@
 import { Gift } from "./types";
 
+// Instrumental bebas royalti (Pixabay Music). File mp3 disimpan di public/music/.
 export const MUSIC_OPTIONS = [
-  { id: "perfect", label: "Perfect – Ed Sheeran", url: "/music/perfect.mp3" },
-  { id: "a-thousand-years", label: "A Thousand Years – Christina Perri", url: "/music/a-thousand-years.mp3" },
-  { id: "can-t-help-falling", label: "Can't Help Falling in Love – Elvis Presley", url: "/music/cant-help-falling.mp3" },
-  { id: "selamat-ulang-tahun", label: "Selamat Ulang Tahun – Jamrud", url: "/music/selamat-ulang-tahun.mp3" },
-  { id: "hanya-rindu", label: "Hanya Rindu – Andmesh", url: "/music/hanya-rindu.mp3" },
+  { id: "piano-lembut", label: "Piano Lembut — romantis & tenang", url: "/music/piano-lembut.mp3" },
+  { id: "akustik-ceria", label: "Akustik Ceria — perayaan & ulang tahun", url: "/music/akustik-ceria.mp3" },
+  { id: "sinematik-haru", label: "Sinematik Haru — wisuda & pencapaian", url: "/music/sinematik-haru.mp3" },
+  { id: "hangat-keluarga", label: "Hangat Keluarga — lebaran & kebersamaan", url: "/music/hangat-keluarga.mp3" },
+  { id: "lofi-santai", label: "Lo-fi Santai — ringan & kekinian", url: "/music/lofi-santai.mp3" },
 ];
 
 export const THEME_OPTIONS = [
@@ -24,7 +25,7 @@ export const GALLERY_MOCK: Gift[] = [
     opening_text: "Ada sesuatu buat kamu, Rara 💌",
     theme: "ulang-tahun",
     closing_text: "Semoga hari-harimu selalu indah seperti dirimu. Selamat ulang tahun! 🎉",
-    music_url: "/music/perfect.mp3",
+    music_url: "/music/akustik-ceria.mp3",
     cards: [
       { id: "c1", order_index: 0, text_content: "Selamat ulang tahun, Rara! 🎂 Semoga panjang umur dan selalu bahagia.", image_url: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&h=300&fit=crop" },
       { id: "c2", order_index: 1, text_content: "Terima kasih sudah jadi orang yang paling spesial dalam hidupku. ❤️" },
@@ -61,7 +62,7 @@ export const GALLERY_MOCK: Gift[] = [
     opening_text: "Buat kamu yang selalu ada untukku 💑",
     theme: "anniversary",
     closing_text: "1 tahun bersama, dan aku semakin yakin kamu adalah orangnya. Sayang kamu. ❤️",
-    music_url: "/music/a-thousand-years.mp3",
+    music_url: "/music/sinematik-haru.mp3",
     cards: [
       { id: "c5", order_index: 0, text_content: "Tepat setahun yang lalu kita mulai perjalanan ini bersama.", image_url: "https://images.unsplash.com/photo-1522168637698-f490d9f2c82f?w=400&h=300&fit=crop" },
       { id: "c6", order_index: 1, text_content: "Terima kasih sudah sabar dan selalu pengertian. 💕" },

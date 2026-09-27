@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { markGiftPaid } from "@/lib/mayar";
+import { PREMIUM_PRICE, PREMIUM_PRICE_LABEL } from "@/lib/utils";
+
+const notFound = () => NextResponse.json({ error: "Not found" }, { status: 404 });
+const isProduction = process.env.NODE_ENV === "production";
 
 export async function GET(req: NextRequest) {
+  if (isProduction) return notFound();
   const { searchParams } = new URL(req.url);
   const invoiceId = searchParams.get("invoice_id") || "mock_inv";
   const giftId = searchParams.get("gift_id");
-  const amount = searchParams.get("amount") || "4000";
+  const amount = searchParams.get("amount") || String(PREMIUM_PRICE);
 
   const html = `
     <!DOCTYPE html>
@@ -54,7 +59,7 @@ export async function GET(req: NextRequest) {
           <input type="hidden" name="giftId" value="${giftId || ""}" />
           <input type="hidden" name="invoiceId" value="${invoiceId}" />
           <button type="submit" class="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded-full text-sm transition-transform active:scale-95 shadow-md shadow-pink-200">
-            Simulasikan Bayar Sukses (Rp 4.000) →
+            Simulasikan Bayar Sukses (${PREMIUM_PRICE_LABEL}) →
           </button>
         </form>
 
@@ -70,22 +75,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (isProduction) return notFound();
   try {
     const formData = await req.formData();
     const giftId = formData.get("giftId") as string;
-    const invoiceId = formData.get("invoiceId") as string;
 
-    if (giftId) {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      await supabase.rpc("mark_gift_paid", {
-        p_gift_id: giftId,
-        p_invoice_id: invoiceId,
-      });
-    }
+    if (giftId) await markGiftPaid(giftId);
 
     return NextResponse.redirect(
       new URL(`/buat?payment_success=1&gift_id=${giftId}`, req.url)

@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { MUSIC_OPTIONS, GALLERY_MOCK } from "@/lib/mock-data";
-import { Gift, Theme, UserGift } from "@/lib/types";
+import { Card, Gift, Theme, UserGift } from "@/lib/types";
+import { youtubeId } from "@/lib/utils";
 
 export interface DraftGift {
   recipientName: string;
@@ -11,8 +12,8 @@ export interface DraftGift {
   closingText: string;
   theme: Theme;
   musicId: string;
+  youtubeUrl?: string;
   cards: { text_content: string; image_url?: string }[];
-  isPremium?: boolean;
   passcode?: string;
 }
 
@@ -46,7 +47,7 @@ function mapRow(d: Record<string, unknown>): Gift {
       })),
     status: d.status as "draft" | "published",
     is_premium: Boolean(d.is_premium),
-    passcode: (d.passcode as string) || undefined,
+    has_passcode: Boolean(d.has_passcode),
     view_count: d.view_count as number,
     like_count: d.like_count as number,
     is_public: d.is_public as boolean,
@@ -55,9 +56,9 @@ function mapRow(d: Record<string, unknown>): Gift {
   };
 }
 
+// Selalu tersimpan sebagai draft; baru terbit setelah pembayaran terverifikasi (lib/mayar.ts).
 export async function publishGift(
-  draft: DraftGift,
-  options?: { isDraftOnly?: boolean }
+  draft: DraftGift
 ): Promise<{ slug?: string; giftId?: string; error?: string }> {
   const supabase = await createClient();
   const {
@@ -84,8 +85,12 @@ export async function publishGift(
     }
   }
 
-  const music = MUSIC_OPTIONS.find((m) => m.id === draft.musicId);
-  const isDraft = Boolean(options?.isDraftOnly);
+  // Hanya URL dari daftar preset atau link YouTube yang tervalidasi yang disimpan.
+  const ytId = youtubeId(draft.youtubeUrl);
+  if (draft.youtubeUrl?.trim() && !ytId) return { error: "Link YouTube tidak valid" };
+  const musicUrl = ytId
+    ? `https://www.youtube.com/watch?v=${ytId}`
+    : MUSIC_OPTIONS.find((m) => m.id === draft.musicId)?.url ?? null;
 
   const { data: gift, error: giftErr } = await supabase
     .from("gifts")
@@ -96,13 +101,9 @@ export async function publishGift(
         draft.openingText || `Ada sesuatu buat ${draft.recipientName} 💌`,
       theme: draft.theme,
       closing_text: draft.closingText || "Semoga harimu menyenangkan! 🎉",
-      music_url: music?.url ?? null,
+      music_url: musicUrl,
       slug,
-      status: isDraft ? "draft" : "published",
-      is_premium: Boolean(draft.isPremium),
-      passcode: draft.passcode?.trim() || null,
-      is_public: !draft.isPremium, // Premium default unlisted for privacy
-      published_at: isDraft ? null : new Date().toISOString(),
+      is_public: false, // Premium default unlisted for privacy
     })
     .select("id")
     .single();
@@ -126,7 +127,17 @@ export async function publishGift(
     }
   }
 
-  revalidatePath("/galeri");
+  if (draft.passcode?.trim()) {
+    const { error: pinErr } = await supabase.rpc("set_gift_passcode", {
+      p_gift_id: gift.id,
+      p_pin: draft.passcode,
+    });
+    if (pinErr) {
+      await supabase.from("gifts").delete().eq("id", gift.id);
+      return { error: pinErr.message };
+    }
+  }
+
   return { slug, giftId: gift.id };
 }
 
@@ -146,6 +157,23 @@ export async function getGiftBySlug(slug: string): Promise<Gift | null> {
   }
 
   return GALLERY_MOCK.find((g) => g.slug === slug) ?? null;
+}
+
+export async function unlockGift(
+  slug: string,
+  pin: string
+): Promise<{ cards?: Card[]; error?: string }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("unlock_gift", { p_slug: slug, p_pin: pin });
+  if (error) {
+    return {
+      error: error.message.includes("locked")
+        ? "Terlalu banyak percobaan. Coba lagi dalam 15 menit."
+        : "Gagal membuka kado",
+    };
+  }
+  if (!data) return { error: "PIN belum tepat. Coba ingat tanggal atau momen spesial ya." };
+  return { cards: data as Card[] };
 }
 
 export async function getGalleryGifts(): Promise<Gift[]> {

@@ -13,6 +13,7 @@ import { ShareSuccessModal } from "@/components/gift/ShareSuccessModal";
 import { CardImageUpload } from "@/components/gift/CardImageUpload";
 import { DraftGift } from "@/app/actions/gift";
 import { checkPaymentStatus } from "@/app/actions/payment";
+import { PREMIUM_PRICE_LABEL, youtubeId } from "@/lib/utils";
 
 type Step = "theme" | "pembuka" | "kartu" | "musik" | "preview";
 
@@ -39,6 +40,7 @@ export default function BuatPage() {
         checkPaymentStatus(giftId).then((res) => {
           if (res.isPaid && res.slug) {
             setPublishedSlug(res.slug);
+            if (res.recipientName) setRecipientName(res.recipientName);
             window.history.replaceState({}, "", "/buat");
           }
         });
@@ -46,13 +48,8 @@ export default function BuatPage() {
     }
   }, []);
 
-  // After Google OAuth redirect, auto-publish the pending draft and show share modal
-  usePendingPublish((slug, pendingDraft) => {
-    setPublishedSlug(slug);
-    if (pendingDraft?.recipientName) {
-      setRecipientName(pendingDraft.recipientName);
-    }
-  });
+  // After Google OAuth redirect, continue the pending draft to payment
+  usePendingPublish();
 
   const [step, setStep] = useState<Step>("theme");
   const [theme, setTheme] = useState<Theme>("ulang-tahun");
@@ -60,6 +57,9 @@ export default function BuatPage() {
   const [openingText, setOpeningText] = useState("");
   const [closingText, setClosingText] = useState("");
   const [musicId, setMusicId] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const useYoutube = musicId === "youtube";
+  const youtubeInvalid = useYoutube && Boolean(youtubeUrl.trim()) && !youtubeId(youtubeUrl);
   const [cards, setCards] = useState<Card[]>([
     { id: "1", order_index: 0, text_content: "" },
   ]);
@@ -73,6 +73,7 @@ export default function BuatPage() {
     closingText,
     theme,
     musicId,
+    youtubeUrl: useYoutube ? youtubeUrl : undefined,
     cards: cards.map((c) => ({ text_content: c.text_content, image_url: c.image_url })),
   };
 
@@ -83,7 +84,7 @@ export default function BuatPage() {
     opening_text: openingText || `Ada sesuatu buat ${recipientName || "kamu"}`,
     theme,
     closing_text: closingText || "Semoga hari-harimu selalu menyenangkan.",
-    music_url: MUSIC_OPTIONS.find((m) => m.id === musicId)?.url,
+    music_url: useYoutube ? youtubeUrl : MUSIC_OPTIONS.find((m) => m.id === musicId)?.url,
     cards: cards.filter((c) => c.text_content.trim()),
     status: "draft",
     is_premium: true,
@@ -378,6 +379,34 @@ export default function BuatPage() {
                   {musicId === m.id && <span>✓</span>}
                 </button>
               ))}
+
+              <button
+                onClick={() => setMusicId("youtube")}
+                className={`w-full text-left p-3.5 rounded-xl border transition-all text-xs flex justify-between items-center ${useYoutube
+                  ? "border-neutral-900 bg-neutral-50 font-medium text-neutral-900"
+                  : "border-transparent hover:bg-neutral-50 text-neutral-700"
+                  }`}
+              >
+                <span>Lagu pilihan sendiri dari YouTube</span>
+                {useYoutube && <span>✓</span>}
+              </button>
+
+              {useYoutube && (
+                <div className="px-1 pt-1">
+                  <Input
+                    type="url"
+                    placeholder="https://youtu.be/..."
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    className="rounded-xl text-xs h-10 border-neutral-200"
+                  />
+                  <p className={`text-[11px] mt-1.5 ${youtubeInvalid ? "text-red-500" : "text-neutral-400"}`}>
+                    {youtubeInvalid
+                      ? "Link belum dikenali. Salin link dari tombol Bagikan di YouTube."
+                      : "Diputar lewat pemutar YouTube kecil. Di beberapa HP, penerima perlu menekan play."}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3">
@@ -390,6 +419,7 @@ export default function BuatPage() {
               </Button>
               <Button
                 onClick={() => setStep("preview")}
+                disabled={useYoutube && !youtubeId(youtubeUrl)}
                 className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98]"
               >
                 Lihat Pratinjau →
@@ -429,7 +459,7 @@ export default function BuatPage() {
                 onClick={() => setShowPublish(true)}
                 className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98] shadow-sm"
               >
-                Terbitkan Kado (Rp 4.000)
+                Terbitkan Kado ({PREMIUM_PRICE_LABEL})
               </Button>
             </div>
           </div>

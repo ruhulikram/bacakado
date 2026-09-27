@@ -4,6 +4,9 @@
  * dan Local Simulator fallback jika API Key belum dipasang.
  */
 
+import { createAdminClient } from "@/lib/supabase/admin";
+import { PREMIUM_PRICE } from "@/lib/utils";
+
 export interface CreateInvoiceParams {
   giftId: string;
   userId: string;
@@ -25,6 +28,9 @@ export interface MayarInvoiceResult {
 const MAYAR_API_KEY = process.env.MAYAR_API_KEY?.trim() || "";
 const MAYAR_ENV = process.env.NEXT_PUBLIC_MAYAR_ENV || "sandbox";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+export { PREMIUM_PRICE };
 
 const BASE_URL =
   MAYAR_ENV === "production"
@@ -39,11 +45,14 @@ const BASE_URL =
 export async function createMayarInvoice(
   params: CreateInvoiceParams
 ): Promise<MayarInvoiceResult> {
-  const amount = params.amount || 4000;
+  const amount = params.amount || PREMIUM_PRICE;
   const redirectUrl = `${APP_URL}/buat?payment_success=1&gift_id=${params.giftId}`;
 
-  // Fallback simulator jika belum ada API Key
+  // Fallback simulator jika belum ada API Key (hanya di development)
   if (!MAYAR_API_KEY) {
+    if (IS_PRODUCTION) {
+      return { success: false, error: "Pembayaran belum dikonfigurasi (MAYAR_API_KEY kosong)" };
+    }
     const mockInvoiceId = `mock_inv_${Date.now()}`;
     const mockPaymentUrl = `/api/payment/mock?invoice_id=${mockInvoiceId}&gift_id=${params.giftId}&amount=${amount}`;
     return {
@@ -120,4 +129,68 @@ export function verifyMayarWebhookToken(tokenHeader: string | null): boolean {
   // Jika webhook token belum diset di .env.local, kita izinkan untuk kemudahan dev
   if (!secret) return true;
   return tokenHeader === secret;
+}
+
+export const isMockInvoice = (id: string) => id.startsWith("mock_inv_");
+
+/**
+ * Ambil status invoice langsung dari Mayar — sumber kebenaran pembayaran.
+ * Body webhook tidak pernah dipercaya begitu saja.
+ */
+async function getMayarInvoice(
+  invoiceId: string
+): Promise<{ paid: boolean; amount: number } | null> {
+  if (!MAYAR_API_KEY) return null;
+  try {
+    const res = await fetch(`${BASE_URL}/invoice/${encodeURIComponent(invoiceId)}`, {
+      headers: { Authorization: `Bearer ${MAYAR_API_KEY}` },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const inv = (await res.json()).data;
+    return {
+      paid: String(inv?.status).toLowerCase() === "paid",
+      amount: Number(inv?.amount) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Tandai kado lunas + terbit. Hanya dipanggil setelah pembayaran terverifikasi. */
+export async function markGiftPaid(giftId: string) {
+  const db = createAdminClient();
+  const now = new Date().toISOString();
+  // Gift dulu: kalau gagal, payment tetap pending dan bisa di-retry.
+  const { error } = await db
+    .from("gifts")
+    .update({ is_premium: true, status: "published", published_at: now })
+    .eq("id", giftId);
+  if (error) throw error;
+  await db.from("payments").update({ status: "paid", paid_at: now }).eq("gift_id", giftId);
+}
+
+/**
+ * Cek pembayaran terakhir sebuah kado ke Mayar; tandai lunas bila sudah dibayar.
+ * Idempoten — aman dipanggil dari polling maupun webhook.
+ */
+export async function settlePayment(giftId: string): Promise<boolean> {
+  const db = createAdminClient();
+  const { data: payment } = await db
+    .from("payments")
+    .select("mayar_invoice_id, amount, status")
+    .eq("gift_id", giftId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!payment?.mayar_invoice_id) return false;
+  if (payment.status === "paid") return true;
+  if (isMockInvoice(payment.mayar_invoice_id)) return false; // mock ditandai via /api/payment/mock
+
+  const invoice = await getMayarInvoice(payment.mayar_invoice_id);
+  if (!invoice?.paid || invoice.amount < Number(payment.amount)) return false;
+
+  await markGiftPaid(giftId);
+  return true;
 }
