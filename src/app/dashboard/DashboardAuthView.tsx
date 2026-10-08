@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Sparkles } from "lucide-react";
+import { IosEmoji } from "@/components/ui/IosEmoji";
 
 export function DashboardAuthView() {
   const supabase = createClient();
@@ -17,19 +17,19 @@ export function DashboardAuthView() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-between">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-between">
+      <header className="bg-white/80 backdrop-blur-md border-b border-neutral-200/60 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
             href="/"
-            className="font-bold text-gray-900 text-xl tracking-tight flex items-center gap-1.5"
+            className="font-bold text-neutral-900 text-xl tracking-tight flex items-center gap-2"
           >
-            <span>💌</span>
+            <IosEmoji symbol="💌" size={22} />
             <span>BacaKado</span>
           </Link>
           <Link
             href="/"
-            className="text-xs font-medium text-gray-500 hover:text-gray-900"
+            className="text-xs font-semibold text-neutral-500 hover:text-neutral-900 transition-colors"
           >
             ← Kembali ke Beranda
           </Link>
@@ -37,12 +37,12 @@ export function DashboardAuthView() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-sm border border-gray-100 shadow-xl text-center">
-          <div className="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-pink-500">
-            <Sparkles className="w-7 h-7" />
+        <div className="bg-white rounded-3xl p-7 sm:p-9 w-full max-w-sm border border-neutral-200/80 shadow-xl text-center">
+          <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-2xs">
+            <IosEmoji symbol="💌" size={32} />
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+          <h1 className="font-serif italic text-3xl font-medium text-neutral-900 mb-1">
             Kado Saya
           </h1>
           <p className="text-gray-500 text-xs mb-6">

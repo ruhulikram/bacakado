@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GALLERY_MOCK } from "@/lib/mock-data";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
+import { IosEmoji } from "@/components/ui/IosEmoji";
 
 export default function HomePage() {
   const featured = GALLERY_MOCK.slice(0, 3);
@@ -11,8 +12,9 @@ export default function HomePage() {
       {/* ── Apple-Grade Minimalist Navbar ─────────────────────── */}
       <nav className="sticky top-0 z-40 apple-glass">
         <div className="max-w-5xl mx-auto px-6 h-13 flex items-center justify-between">
-          <Link href="/" className="text-sm font-semibold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity">
-            BacaKado
+          <Link href="/" className="text-sm font-semibold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity flex items-center gap-1.5">
+            <IosEmoji symbol="💌" size={17} />
+            <span>BacaKado</span>
           </Link>
 
           <div className="flex items-center gap-6">
@@ -72,8 +74,8 @@ export default function HomePage() {
       <section className="px-6 pb-24 max-w-4xl mx-auto">
         <div className="relative rounded-3xl bg-[#F5F5F7] border border-neutral-200/70 p-6 sm:p-12 overflow-hidden">
           <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl shadow-neutral-200/50 border border-neutral-200/80 p-6 sm:p-8 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-center text-xl mx-auto mb-4">
-              ✉️
+            <div className="w-12 h-12 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-center mx-auto mb-4">
+              <IosEmoji symbol="💌" size={28} />
             </div>
             <p className="text-[11px] uppercase tracking-widest text-neutral-400 font-semibold mb-1">
               Pratinjau Kado

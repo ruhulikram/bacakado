@@ -21,12 +21,13 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
 
 | Layer | Teknologi | Keterangan |
 |---|---|---|
-| **Framework** | Next.js 16.3.5 (App Router) + React 19.2.8 | Server Actions, SSR & Dynamic Routes |
+| **Framework** | Next.js 16.3.5 (App Router) + React 19.2.8 | Server Actions, SSR & Dynamic Routes (Turbopack) |
 | **Proxy / Session** | `src/proxy.ts` (@supabase/ssr) | Auto-refresh session token cookies di setiap request Next.js |
-| **Bahasa** | TypeScript 5 | Type-safe (lulus `tsc --noEmit` tanpa error) |
-| **Styling** | Tailwind CSS v4 + Apple Minimalist Design System | Palet monokrom titanium, hairline borders, frosted glass (`apple-glass`), tanpa warna gradien norak |
-| **Tipografi** | `Plus Jakarta Sans` (Apple-style tracking & hierarchy) & `Instrument Serif` | Di-load lewat `next/font/google` di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx) |
-| **Animasi** | CSS Transitions + Apple-style champagne confetti | Animasi pembukaan amplop minimalis & transisi kartu fluid |
+| **Bahasa** | TypeScript 5 | Type-safe (lulus `tsc --noEmit` dan `next build` 100% tanpa error) |
+| **Styling & UI System** | Tailwind CSS v4 + Aesthetic Emotional Gift Design System | Palet hangat/romantis/gold/galaxy, polaroid frames, washi tape, segel lilin 3D, piringan vinyl, dan kaca buram (`apple-glass`) |
+| **Tipografi** | `Plus Jakarta Sans` & `Instrument Serif` | Di-load lewat `next/font/google` di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx) |
+| **iOS Emoji System** | `<IosEmoji />`, `<EmojiText />`, `<IosEmojiBar />` ([IosEmoji.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/IosEmoji.tsx)) | 32 aset Apple Retina PNG 160x160 (`public/emojis/ios/`), rendering 100% konsisten di Android/Windows/iOS, auto-parser teks & toolbar penyisip emoji di editor |
+| **Animasi & Interaktivitas** | CSS 3D Keyframes + `canvas-confetti` | Animasi buka amplop 3D 180°, segel lilin meletup, piringan vinyl 360°, partikel melayang dinamis, dan confetti multi-gelombang |
 | **Backend / DB** | Supabase (PostgreSQL, Auth, RLS, Storage) + `pgcrypto` | Terhubung aktif ke project `dgrdgjbysivubxifvlaf` |
 | **Payment Gateway** | Mayar.id (QRIS Rp 5.000) | Settlement terverifikasi langsung via Mayar API & Admin Service Role |
 
@@ -64,54 +65,64 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
 ## 4. Status Fitur Terimplementasi (Current Progress)
 
 ### ✅ Selesai & Berfungsi Penuh
-1. **Landing Page ([src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)):**
-   - Mengusung standar **Apple Minimalist Design** (monokrom titanium, hairline border, kaca buram `apple-glass`).
-   - Hero section berwibawa dengan tipografi serif elegan dan tombol CTA *"Bikin Kado"*.
-   - Menampilkan label harga dinamis `{PREMIUM_PRICE_LABEL}` (Rp 5.000).
-   - Tombol *"Lihat contoh kado"* langsung membuka preview demo `/untuk-rara`.
-   - Visual showcase mockup kartu presisi, bagian alur 3 langkah (*01, 02, 03*), dan footer monokrom bersih.
-2. **Gift Experience Penerima ([src/components/gift/GiftExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/GiftExperience.tsx)):**
-   - Alur 4 tahap: `cover` ➔ `envelope` (amplop arsitektural minimalis) ➔ `cards` (kartu foto & narasi teks) ➔ `closing` (champagne confetti + pesan penutup).
-   - **Gembok PIN Rahasia Server-Side:** Jika kado memiliki `has_passcode = true`, konten kartu ucapan tidak dikirim ke browser sebelum diverifikasi oleh database via RPC `unlock_gift`. Dilengkapi proteksi brute-force (kunci 15 menit jika 5x berturut-turut salah).
-   - **Audio Ganda:** Mendukung file audio lokal instrumental bebas royalti (`<audio>`) atau pemutar tersemat YouTube (`<iframe>` playsinline + autoplay begitu amplop dibuka).
-   - Form balasan langsung dari penerima ke pengirim tersimpan otomatis ke tabel `replies`.
-   - Tombol viral loop *"Bikin Punyamu Sendiri"*.
-   - Fallback otomatis ke data mock ([src/lib/mock-data.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/mock-data.ts)) jika diakses via demo slug.
-3. **Editor Kado Pembuat ([src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)):**
+
+1. **Pengalaman Membuka Kado Emosional & Menawan ([GiftExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/GiftExperience.tsx)):**
+   - **Atmosfer Ambience Melayang ([FloatingAmbience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/FloatingAmbience.tsx)):** Partikel dinamis mengikuti tema:
+     - *Romantis/Pacar:* Kelopak mawar berguguran (🌸) & hati bercahaya melayang (💕).
+     - *Ulang Tahun:* Kilauan confetti emas & bintang perayaan (✨/🎉).
+     - *Wisuda:* Bintang kejora berkilau (⭐/✨).
+     - *Midnight Galaxy:* Bintang ungu/indigo & pendar hati neon.
+     - Didukung *ambient radial glow* hangat di tengah latar.
+   - **Animasi Buka Amplop 3D ([Envelope3D.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/Envelope3D.tsx)):**
+     - Perspektif 3D realistis dengan bayangan lipatan saku depan.
+     - Segel lilin (*wax seal embossed*) 3D (*Ruby, Gold, Emerald*) dengan inisial penerima.
+     - Sentuhan pada segel memicu letupan sparkle, penutup amplop berputar 180° (`rotateX(180deg)`), dan surat meluncur naik dari saku amplop.
+   - **Dek Kartu Foto Polaroid & Scrapbook ([PolaroidCardDeck.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PolaroidCardDeck.tsx)):**
+     - Proporsi Polaroid fisik dengan selotip *washi tape* dekoratif.
+     - Efek tumpukan kartu bertingkat (*stacked deck*) dengan kemiringan organik (-1.5° s/d +1.8°).
+     - Kartu tanpa foto otomatis bertransformasi menjadi lembaran surat cinta klasik bertinta lembut (*Love Letter note*).
+     - Indikator progres hati interaktif dan navigasi antar-kartu yang mulus.
+   - **Pemutar Musik Vinyl Aesthetic ([VinylMusicPlayer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/VinylMusicPlayer.tsx)):**
+     - Piringan hitam berputar 360° secara otomatis saat amplop terbuka.
+     - Equalizer soundwave visualizer animasi aktif saat musik berjalan.
+     - Mini pill Spotify-style dengan kontrol Play/Pause dan Mute/Unmute.
+     - Terintegrasi sempurna untuk file audio lokal (`public/music/`) maupun video YouTube.
+   - **Selebrasi Penutup & Interaksi Balasan ([ClosingExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ClosingExperience.tsx)):**
+     - Pesta kembang api confetti multi-gelombang (*champagne gold & rose pink*).
+     - Tombol interaktif **"Kirim Peluk & Cinta" (❤️)** dengan counter cinta instan & letupan hati.
+     - Desain kartu pos balas ucapan langsung tersimpan ke database.
+     - Tombol putar ulang kado dari awal dan viral CTA button *"Bikin Kado Personal Punyamu Sendiri ↗"*.
+   - **Gembok PIN Rahasia Server-Side:** Jika kado ber-PIN, kartu ucapan tidak dikirim ke browser sebelum diverifikasi oleh database via RPC `unlock_gift` (dilengkapi proteksi brute-force lockout 15 menit).
+
+2. **Editor Kado Pembuat Lengkap ([src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)):**
    - Wizard 5 langkah: Nuansa ➔ Pesan Awal ➔ Kartu Ucapan & Foto ➔ Musik Latar ➔ Pratinjau Interaktif.
-   - Pilihan musik: Instrumental Bebas Royalti (Pixabay) atau link YouTube kustom dengan validasi regex (`youtubeId`) realtime.
-   - Upload foto kartu asli ([src/components/gift/CardImageUpload.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/CardImageUpload.tsx)) terintegrasi ke Supabase Storage `gift-images` (dengan opsi fallback link URL).
-   - Pratinjau interaktif real-time di step 5 persis seperti yang dilihat penerima kado.
-4. **Publish Modal & Checkout Sheet ([src/components/gift/PublishModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PublishModal.tsx)):**
-   - Didesain seperti **Apple Pay / Apple Store Receipt**:
-     - *Stage 1 (Checkout):* Ringkasan tagihan Rp 5.000 (`PREMIUM_PRICE_LABEL`), daftar benefit kado, dan input opsional PIN/Passcode proteksi.
-     - *Stage 2 (Google-First Auth Gate):* Delayed Login disederhanakan — cukup 1 sentuhan *"Lanjutkan dengan Google & Bayar"* tanpa form email/password yang memperlambat konversi. Draf disimpan di `localStorage` dan dieksekusi via `usePendingPublish`.
-     - *Stage 3 (Payment Waiting):* Membuka invoice QRIS Mayar di tab baru, polling otomatis setiap 2.5 detik untuk mendeteksi konfirmasi pembayaran, serta tombol verifikasi manual *"Saya Sudah Bayar"*.
-5. **Modal Berbagi Sukses ([src/components/gift/ShareSuccessModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ShareSuccessModal.tsx)):**
-   - Selebrasi champagne confetti begitu pembayaran berhasil diverifikasi.
-   - Tombol 1-klik salin tautan kado (dengan feedback status tersalin).
-   - Tombol 1-klik kirim langsung ke WhatsApp dengan template pesan ucapan manis yang sudah terformat.
-   - Tombol akses langsung ke halaman kado dan navigasi ke dasbor pengguna.
-6. **Session Proxy ([src/proxy.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/proxy.ts)):**
-   - Proxy/middleware untuk me-refresh cookie session token Supabase di setiap request Next.js agar sesi pengguna tidak hilang saat navigasi antar Server Actions/Components.
+   - **Rekomendasi Pesan Cepat (*Quick Presets*):** Tombol ide pesan instan (*Ulang Tahun, Romantis, Wisuda, Sahabat*) untuk autofill kalimat pembuka & penutup yang menyentuh.
+   - **Pemutar Pratinjau Audio Langsung:** Pembuat kado bisa mendengarkan (*Dengar / Jeda*) cuplikan instrumen langsung di langkah 4 sebelum menentukan pilihan.
+   - **Pratinjau Mockup Smartphone Interaktif:** Pratinjau di langkah 5 dibungkus dalam bingkai smartphone realistis berlayar lengkung dan *Dynamic Island*.
+   - Upload foto asli terintegrasi ke Supabase Storage `gift-images` ([CardImageUpload.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/CardImageUpload.tsx)).
 
-### 🟡 Berfungsi Penuh (Dijadwalkan untuk Refresh Gaya Apple Minimalist)
-1. **Dashboard "Kado Saya" ([src/app/dashboard/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/page.tsx)):**
-   - Dilengkapi login gate Google-First ([DashboardAuthView.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardAuthView.tsx)).
-   - Menampilkan metrik: Total Kado Dibuat, Total Dibuka, dan Balasan Masuk.
-   - Tab Daftar Kado (salin link, share WhatsApp, lihat kado, hapus kado) dan Tab Kotak Masuk Balasan.
-   - *Status UI:* Fungsional 100%, siap diselaraskan dari styling warna lama ke Apple Minimalist Design System.
-2. **Galeri Kado ([src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx)):**
-   - Menampilkan kado-kado publik beserta metrik view count dan kartu.
-   - *Status UI:* Fungsional 100%, siap diselaraskan dari styling warna lama ke Apple Minimalist Design System.
+3. **Landing Page ([src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)):**
+   - Hero section berwibawa dengan tipografi elegan dan CTA *"Bikin Kado Sekarang"*.
+   - Label harga dinamis `{PREMIUM_PRICE_LABEL}` (Rp 5.000).
+   - Tombol *"Lihat contoh kado"* langsung membuka preview demo `/untuk-rara`.
+   - Visual showcase kado, alur 3 langkah (*01, 02, 03*), dan footer bersih.
 
-### 💌 Arsitektur Sistem Balasan (Gift Replies Flow)
-- **Titik Pengiriman:** Tahap penutup (*closing stage*) di [GiftExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/GiftExperience.tsx) setelah semua kartu selesai dibuka dan confetti meledak.
-- **Data yang Dikirim:** Penerima memasukkan `Nama` dan `Pesan Balasan`.
-- **Eksekusi Server:** Ditangani oleh Server Action `submitReply` ([src/app/actions/tracking.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/actions/tracking.ts)).
-- **Penyimpanan:** Tersimpan di tabel `replies` PostgreSQL Supabase (`gift_id`, `sender_name`, `message`, `created_at`).
-- **Hak Akses & Privasi (RLS):** Siapa saja yang membuka kado publik boleh mengirim balasan (`INSERT`), namun **hanya pemilik akun pembuat kado (`auth.uid() = user_id`) yang berhak membaca (`SELECT`)** seluruh balasan yang masuk.
-- **Tampilan Pembuat:** Pembuat kado dapat membaca seluruh balasan masuk di [Dasbor Kado Saya](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/page.tsx) pada tab **"Pesan Balasan"** lengkap dengan identitas pengirim, tanggal kirim, kado yang dituju, serta teks balasannya.
+4. **Galeri Kado ([src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx)):**
+   - Menampilkan kado-kado publik dalam format kartu foto Polaroid modern.
+   - Metrik interaksi: jumlah pembukaan (*view count*) dan suka (*like count*).
+   - Navbar terpadu dan responsif.
+
+5. **Publish Modal & Checkout Sheet ([src/components/gift/PublishModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PublishModal.tsx)):**
+   - *Stage 1 (Checkout):* Ringkasan tagihan Rp 5.000 (`PREMIUM_PRICE_LABEL`), daftar benefit, dan opsi gembok PIN rahasia.
+   - *Stage 2 (Google-First Auth Gate):* Delayed Login 1-klik Google OAuth tanpa form password rumit. Draf disimpan aman di `localStorage`.
+   - *Stage 3 (Payment Waiting):* Membuka invoice QRIS Mayar di tab baru, polling otomatis tiap 2.5 detik, dan verifikasi manual *"Saya Sudah Bayar"*.
+
+6. **Modal Berbagi Sukses ([src/components/gift/ShareSuccessModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ShareSuccessModal.tsx)):**
+   - Selebrasi confetti saat verifikasi pembayaran berhasil.
+   - Tombol 1-klik salin tautan kado dan 1-klik kirim ke WhatsApp dengan pesan manis yang sudah diformat.
+
+7. **Session Proxy ([src/proxy.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/proxy.ts)):**
+   - Proxy/middleware untuk me-refresh cookie session token Supabase di setiap request Next.js agar sesi pengguna tidak hilang saat navigasi Server Actions/Components.
 
 ---
 
@@ -144,18 +155,19 @@ Berikut daftar status tugas pengembangan:
 - [ ] Pastikan seluruh query dari [supabase/schema.sql](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/supabase/schema.sql) (tabel `gift_passcodes`, trigger `protect_gift_paid_fields`, RPC `unlock_gift`, `set_gift_passcode`, dan migrasi `payments`) telah dieksekusi di Supabase SQL Editor proyek aktif `dgrdgjbysivubxifvlaf`.
 - [ ] Masukkan `SUPABASE_SERVICE_ROLE_KEY` ke `.env.local` dan environment variables hosting.
 
-### 2. Penyeragaman Apple Minimalist UI (Dasbor & Galeri)
-- [ ] Refactor UI [src/app/dashboard/DashboardClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardClient.tsx) ke palet monokrom titanium, hairline borders, dan pill buttons khas Apple.
-- [ ] Refactor UI [src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx) menghapus CSS variables lama (`--k-warm-white`, `--k-midnight`) dan menerapkan gaya showcase yang konsisten.
+### 2. Penyeragaman Tampilan Dasbor
+- [x] Refactor UI [src/app/dashboard/DashboardClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardClient.tsx) dan [DashboardAuthView.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardAuthView.tsx) agar selaras dengan palet estetika baru, kartu bergaya polaroid/koleksi, `<IosEmoji />`, dan pill buttons.
+- [x] Refactor UI [src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx) menghapus CSS variables lama dan menerapkan gaya showcase Polaroid yang konsisten.
 
 ### 3. Peningkatan Sistem Balasan (Gift Replies Roadmap)
+- [x] **Reaksi Cepat (Peluk & Cinta):** Tombol reaksi instan love counter (+burst heart particles) di penutup kado.
 - [ ] **Notifikasi Email Otomatis (Resend):** Kirim notifikasi instan ke email pembuat kado saat penerima mengirimkan balasan dari halaman kado.
 - [ ] **Opsi Balas via WhatsApp:** Tambahkan tombol opsional bagi penerima untuk mengirimkan balasan langsung ke WhatsApp pengirim kado (jika nomor WA diinput pembuat).
-- [ ] **Reaksi Cepat / Audio:** Eksplorasi tombol emoji reaction (❤️, 🥹, 🥳) atau upload voice note singkat dari penerima kado.
 
 ### 4. Aset Audio Fisik & Custom Audio
-- [x] Musik instrumental bebas royalti (Pixabay) di folder `public/music/` (`piano-lembut.mp3`, `akustik-ceria.mp3`, `sinematik-haru.mp3`, `hangat-keluarga.mp3`, `lofi-santai.mp3`).
-- [x] Fitur pemutar lagu YouTube kustom via input link video.
+- [x] Musik instrumental bebas royalti lengkap di folder `public/music/` (`piano-lembut.mp3`, `akustik-ceria.mp3`, `sinematik-haru.mp3`, `hangat-keluarga.mp3`, `lofi-santai.mp3`).
+- [x] Fitur pemutar lagu YouTube kustom via input link video tersinkronisasi piringan vinyl.
+- [x] Tombol pratinjau dengar audio langsung di editor pembuatan kado.
 
 ### 5. Keamanan & Proteksi Pembayaran (Security Hardening)
 - [x] Trigger database `protect_gift_paid_fields` mencegah manipulasi client.
@@ -181,6 +193,11 @@ Berikut daftar status tugas pengembangan:
 - **Galeri Kado:** [src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx)
 - **Komponen Gift Experience:**
   - Pengalaman Membuka Kado: [src/components/gift/GiftExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/GiftExperience.tsx)
+  - Partikel Melayang Dinamis: [src/components/gift/FloatingAmbience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/FloatingAmbience.tsx)
+  - Animasi Amplop 3D & Segel Lilin: [src/components/gift/Envelope3D.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/Envelope3D.tsx)
+  - Dek Kartu Polaroid & Scrapbook: [src/components/gift/PolaroidCardDeck.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PolaroidCardDeck.tsx)
+  - Pemutar Musik Piringan Vinyl: [src/components/gift/VinylMusicPlayer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/VinylMusicPlayer.tsx)
+  - Selebrasi & Balasan Penutup: [src/components/gift/ClosingExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ClosingExperience.tsx)
   - Modal Checkout & Pembayaran: [src/components/gift/PublishModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PublishModal.tsx)
   - Modal Sukses Berbagi: [src/components/gift/ShareSuccessModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ShareSuccessModal.tsx)
   - Unggah Foto Kartu: [src/components/gift/CardImageUpload.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/CardImageUpload.tsx)
@@ -193,13 +210,17 @@ Berikut daftar status tugas pengembangan:
   - Supabase Admin Client: [src/lib/supabase/admin.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/supabase/admin.ts)
   - Webhook Endpoint: [src/app/api/webhooks/mayar/route.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/api/webhooks/mayar/route.ts)
   - Simulator Pembayaran Lokal: [src/app/api/payment/mock/route.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/api/payment/mock/route.ts)
+- **Aset & Styling Global:**
+  - Komponen iOS Emoji: [src/components/ui/IosEmoji.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/IosEmoji.tsx)
+  - Aset Emoji Apple Retina: `public/emojis/ios/` (24 PNG 160x160: `love-letter`, `rose`, `cake`, `heart`, dll)
+  - File Musik MP3 Lokal: `public/music/` (`piano-lembut.mp3`, `akustik-ceria.mp3`, dll)
+  - Animasi & Keyframes Global: [src/app/globals.css](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/globals.css)
 - **Middleware & Utility:**
   - Session Proxy: [src/proxy.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/proxy.ts)
   - Utility & Format Harga: [src/lib/utils.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/utils.ts)
 - **Data & Tipe:**
   - Upload Supabase Storage: [src/lib/supabase/storage.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/supabase/storage.ts)
-  - Mock Data & Pilihan Lagu: [src/lib/mock-data.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/mock-data.ts)
+  - Mock Data, Tema & Pilihan Lagu: [src/lib/mock-data.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/mock-data.ts)
   - Definisi TypeScript: [src/lib/types.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/types.ts)
 - **Skema Database & Migrasi:** [supabase/schema.sql](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/supabase/schema.sql)
 - **Konfigurasi Lingkungan:** [.env.local](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/.env.local)
-

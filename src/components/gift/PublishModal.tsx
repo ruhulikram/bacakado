@@ -8,6 +8,7 @@ import { initiatePayment, checkPaymentStatus } from "@/app/actions/payment";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
+import { IosEmoji } from "@/components/ui/IosEmoji";
 
 const DRAFT_KEY = "kadoin_pending_draft";
 
@@ -159,8 +160,9 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
         {stage === "checkout" && (
           <div>
             <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Aktivasi Kado
+              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1 flex items-center gap-1.5">
+                <IosEmoji symbol="✨" size={13} />
+                <span>Aktivasi Kado</span>
               </p>
               <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
                 Ringkasan Penerbitan
@@ -171,10 +173,13 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
             </div>
 
             {/* Receipt Summary Card */}
-            <div className="bg-[#F5F5F7] rounded-2xl p-5 mb-5 border border-neutral-200/60">
+            <div className="bg-[#FAF8F5] rounded-2xl p-5 mb-5 border border-neutral-200/60">
               <div className="flex justify-between items-baseline mb-4 pb-3 border-b border-neutral-200/80">
                 <div>
-                  <h3 className="font-medium text-neutral-900 text-sm">Akses Kado Digital</h3>
+                  <h3 className="font-medium text-neutral-900 text-sm flex items-center gap-1.5">
+                    <IosEmoji symbol="💌" size={15} />
+                    <span>Akses Kado Digital</span>
+                  </h3>
                   <p className="text-[11px] text-neutral-500 mt-0.5">Aktif permanen, tanpa batas waktu</p>
                 </div>
                 <div className="text-right">
@@ -185,27 +190,28 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
 
               <div className="space-y-2 text-xs text-neutral-600">
                 <div className="flex items-center gap-2">
-                  <span className="text-neutral-900 text-sm">✓</span>
+                  <span className="text-rose-500 text-sm">✓</span>
                   <span>Semua kartu foto & teks ucapan</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-neutral-900 text-sm">✓</span>
+                  <span className="text-rose-500 text-sm">✓</span>
                   <span>Tautan pribadi & bebas dari tanda air</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-neutral-900 text-sm">✓</span>
+                  <span className="text-rose-500 text-sm">✓</span>
                   <span>Pemutaran audio otomatis beresolusi penuh</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-neutral-900 text-sm">✓</span>
+                  <span className="text-rose-500 text-sm">✓</span>
                   <span>Penerima dapat mengirim balasan langsung</span>
                 </div>
               </div>
 
               {/* Input PIN Rahasia (Opsional) */}
               <div className="mt-4 pt-4 border-t border-neutral-200/80">
-                <label className="block text-xs font-medium text-neutral-700 mb-1.5">
-                  Proteksi Kunci PIN (Opsional)
+                <label className="text-xs font-medium text-neutral-700 mb-1.5 flex items-center gap-1.5">
+                  <IosEmoji symbol="🔒" size={13} />
+                  <span>Proteksi Kunci PIN (Opsional)</span>
                 </label>
                 <Input
                   type="text"

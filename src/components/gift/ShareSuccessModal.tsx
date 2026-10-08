@@ -5,6 +5,7 @@ import Link from "next/link";
 import confetti from "canvas-confetti";
 import { Check, Copy, ExternalLink, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { IosEmoji } from "@/components/ui/IosEmoji";
 
 interface ShareSuccessModalProps {
   slug: string;
@@ -52,16 +53,16 @@ export function ShareSuccessModal({
   }
 
   const waMessage = encodeURIComponent(
-    `Hai ${recipientName}! Ada surat kado spesial buat kamu nih. Buka di sini ya:\n${fullUrl}`
+    `Hai ${recipientName}! Ada surat kado spesial buat kamu nih 💌 Buka di sini ya:\n${fullUrl}`
   );
   const waUrl = `https://api.whatsapp.com/send?text=${waMessage}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl p-7 sm:p-8 w-full max-w-md shadow-2xl border border-black/[0.08] relative text-center">
-        {/* Minimal Checkmark Icon */}
-        <div className="w-14 h-14 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-900 border border-neutral-200/80">
-          <Check className="w-6 h-6 stroke-[2.5]" />
+        {/* Aesthetic Icon */}
+        <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-2xs">
+          <IosEmoji symbol="💌" size={32} />
         </div>
 
         <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">

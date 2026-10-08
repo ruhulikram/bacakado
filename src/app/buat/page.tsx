@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { THEME_OPTIONS, MUSIC_OPTIONS } from "@/lib/mock-data";
 import { Card, Theme } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { CardImageUpload } from "@/components/gift/CardImageUpload";
 import { DraftGift } from "@/app/actions/gift";
 import { checkPaymentStatus } from "@/app/actions/payment";
 import { PREMIUM_PRICE_LABEL, youtubeId } from "@/lib/utils";
+import { Play, Pause, Volume2, Sparkles, Heart, Smartphone } from "lucide-react";
+import { IosEmoji, IosEmojiBar } from "@/components/ui/IosEmoji";
 
 type Step = "theme" | "pembuka" | "kartu" | "musik" | "preview";
 
@@ -26,6 +28,33 @@ const STEP_LABELS: Record<Step, string> = {
   musik: "Audio Latar",
   preview: "Pratinjau",
 };
+
+const PRESETS = [
+  {
+    icon: "🎂",
+    label: "Ulang Tahun",
+    opening: (name: string) => `Ada kejutan spesial buat kamu di hari bahagia ini, ${name || "kamu"} 🎂✨`,
+    closing: "Selamat ulang tahun! Semoga segala harapan dan impianmu terwujud. Bangga banget sama kamu, teruslah bahagia! 🎉",
+  },
+  {
+    icon: "🌹",
+    label: "Romantis / Pacar",
+    opening: (name: string) => `Sebuah surat kecil penuh cinta buat orang paling spesial dalam hidupku, ${name || "kamu"} ❤️`,
+    closing: "Terima kasih sudah selalu ada dan melengkapi setiap hariku. Aku semakin bersyukur memilikimu. Sayang kamu selamanya. 🌹",
+  },
+  {
+    icon: "🎓",
+    label: "Wisuda & Prestasi",
+    opening: (name: string) => `Selamat atas kelulusanmu! Ada hadiah kecil buat perjuangan hebatmu, ${name || "kamu"} 🎓`,
+    closing: "Perjalanan baru menantimu. Bangga luar biasa atas kerja kerasmu selama ini. Terus bersinar ya! ✨",
+  },
+  {
+    icon: "🤍",
+    label: "Sahabat Dekat",
+    opening: (name: string) => `Buat sahabat terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} 💌`,
+    closing: "Terima kasih atas tawa, cerita, dan dukungan yang gak pernah ada habisnya. Sahabatan selamanya ya! ✨",
+  },
+];
 
 export default function BuatPage() {
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
@@ -58,6 +87,9 @@ export default function BuatPage() {
   const [closingText, setClosingText] = useState("");
   const [musicId, setMusicId] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [previewPlayingId, setPreviewPlayingId] = useState<string | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const useYoutube = musicId === "youtube";
   const youtubeInvalid = useYoutube && Boolean(youtubeUrl.trim()) && !youtubeId(youtubeUrl);
   const [cards, setCards] = useState<Card[]>([
@@ -66,6 +98,41 @@ export default function BuatPage() {
   const [showPublish, setShowPublish] = useState(false);
 
   const stepIndex = STEPS.indexOf(step);
+
+  // Audio preview handler in Step 4
+  function toggleAudioPreview(id: string, url: string) {
+    if (previewPlayingId === id) {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
+      }
+      setPreviewPlayingId(null);
+    } else {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
+      }
+      const audio = new Audio(url);
+      audio.volume = 0.6;
+      audio.play().then(() => {
+        previewAudioRef.current = audio;
+        setPreviewPlayingId(id);
+        audio.onended = () => setPreviewPlayingId(null);
+      }).catch(() => {});
+    }
+  }
+
+  // Stop audio preview when changing steps
+  useEffect(() => {
+    return () => {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause();
+      }
+    };
+  }, [step]);
+
+  function applyPreset(preset: typeof PRESETS[0]) {
+    setOpeningText(preset.opening(recipientName));
+    setClosingText(preset.closing);
+  }
 
   const draft: DraftGift = {
     recipientName,
@@ -114,16 +181,17 @@ export default function BuatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F]">
-      {/* ── Apple-Grade Minimalist Navbar ─────────────────────── */}
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1D1D1F]">
+      {/* ── Navbar ───────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 apple-glass">
-        <div className="max-w-3xl mx-auto px-6 h-13 flex items-center justify-between">
-          <a href="/" className="text-xs font-semibold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity">
-            BacaKado
+        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
+          <a href="/" className="text-xs font-bold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity flex items-center gap-1.5">
+            <IosEmoji symbol="💌" size={18} />
+            <span>BacaKado</span>
           </a>
 
           {/* Minimalist Progress Pill */}
-          <div className="flex items-center gap-1.5 bg-neutral-100 px-3 py-1 rounded-full text-[11px] font-medium text-neutral-600">
+          <div className="flex items-center gap-1.5 bg-neutral-100/90 px-3.5 py-1.5 rounded-full text-[11px] font-medium text-neutral-600 border border-neutral-200/60 shadow-2xs">
             <span>{stepIndex + 1} dari 5</span>
             <span className="text-neutral-300">·</span>
             <span className="text-neutral-900 font-semibold">{STEP_LABELS[step]}</span>
@@ -141,15 +209,16 @@ export default function BuatPage() {
         {/* ── STEP 1: TEMA / NUANSA ────────────────────────────── */}
         {step === "theme" && (
           <div className="animate-in fade-in duration-300">
-            <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah 1
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+            <div className="mb-6 text-center sm:text-left">
+              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
+                <Sparkles size={12} />
+                <span>Langkah 1 dari 5</span>
+              </span>
+              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
                 Pilih Nuansa Kado
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Menentukan palet warna dan atmosfer visual halaman kado.
+                Atur palet warna visual, partikel melayang, dan segel lilin amplop.
               </p>
             </div>
 
@@ -160,21 +229,24 @@ export default function BuatPage() {
                   <button
                     key={t.id}
                     onClick={() => setTheme(t.id as Theme)}
-                    className={`bg-gradient-to-b ${t.gradient} p-5 rounded-2xl text-left border transition-all relative ${isSelected
-                      ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 shadow-sm"
-                      : "border-neutral-200/70 hover:border-neutral-400 opacity-90 hover:opacity-100"
-                      }`}
+                    className={`bg-gradient-to-b ${t.gradient} p-5 rounded-3xl text-left border transition-all relative ${
+                      isSelected
+                        ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 shadow-md scale-[1.01]"
+                        : "border-neutral-200/80 hover:border-neutral-400 opacity-90 hover:opacity-100 shadow-2xs"
+                    }`}
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <span className="text-xl">{t.emoji}</span>
+                      <div className="w-10 h-10 rounded-2xl bg-white/80 shadow-2xs flex items-center justify-center">
+                        <IosEmoji symbol={t.emoji} size={22} />
+                      </div>
                       {isSelected && (
-                        <span className="text-xs font-semibold text-neutral-900 bg-white/80 px-2 py-0.5 rounded-full">
-                          Dipilih
+                        <span className="text-[11px] font-bold text-neutral-900 bg-white/95 px-2.5 py-0.5 rounded-full shadow-2xs border border-black/5">
+                          Dipilih ✓
                         </span>
                       )}
                     </div>
                     <p className={`font-semibold text-sm ${t.textColor}`}>{t.label}</p>
-                    <p className="text-xs text-neutral-500">{t.subtitle}</p>
+                    <p className="text-xs opacity-75 mt-0.5">{t.subtitle}</p>
                   </button>
                 );
               })}
@@ -182,7 +254,7 @@ export default function BuatPage() {
 
             <Button
               onClick={() => setStep("pembuka")}
-              className="w-full bg-neutral-900 hover:bg-black text-white rounded-full h-11 text-xs font-medium transition-all active:scale-[0.98]"
+              className="w-full bg-neutral-900 hover:bg-black text-white rounded-full h-12 text-xs font-semibold transition-all active:scale-[0.98] shadow-sm"
             >
               Lanjutkan ke Pesan Awal →
             </Button>
@@ -192,56 +264,89 @@ export default function BuatPage() {
         {/* ── STEP 2: PEMBUKA & PENUTUP ────────────────────────── */}
         {step === "pembuka" && (
           <div className="animate-in fade-in duration-300">
-            <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah 2
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+            <div className="mb-6 text-center sm:text-left">
+              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
+                <Sparkles size={12} />
+                <span>Langkah 2 dari 5</span>
+              </span>
+              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
                 Pesan Awal & Penutup
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Tulis nama penerima dan pengantar sebelum amplop dibuka.
+                Tulis nama penerima dan kalimat sebelum amplop dibuka.
               </p>
             </div>
 
-            <div className="space-y-4 mb-8 bg-white p-6 rounded-2xl border border-neutral-200/70 shadow-sm">
+            {/* Quick Presets Inspiration */}
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2">
+                💡 Ide Pesan Cepat (Klik untuk Pasang):
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {PRESETS.map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => applyPreset(p)}
+                    className="text-xs px-3.5 py-1.5 rounded-full bg-white border border-neutral-200/80 hover:border-rose-300 hover:bg-rose-50/50 text-neutral-700 font-medium transition-all shadow-2xs active:scale-95 flex items-center gap-1.5"
+                  >
+                    <IosEmoji symbol={p.icon} size={14} />
+                    <span>{p.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-8 bg-white p-6 rounded-3xl border border-neutral-200/70 shadow-sm">
               <div>
-                <label className="text-xs font-medium text-neutral-700 block mb-1.5">
+                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
                   Nama Penerima
                 </label>
                 <Input
                   placeholder="Misal: Rara, Dimas, atau panggilan sayang"
                   value={recipientName}
                   onChange={(e) => setRecipientName(e.target.value)}
-                  className="rounded-xl text-xs h-10 border-neutral-200 focus-visible:ring-neutral-900"
+                  className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-medium text-neutral-700 block mb-1.5">
+                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
                   Kalimat Sampul Kado
                 </label>
                 <Input
-                  placeholder={`Ada sesuatu buat ${recipientName || "kamu"}`}
+                  placeholder={`Ada sesuatu buat ${recipientName || "kamu"} 💌`}
                   value={openingText}
                   onChange={(e) => setOpeningText(e.target.value)}
-                  className="rounded-xl text-xs h-10 border-neutral-200 focus-visible:ring-neutral-900"
+                  className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
+                />
+                <IosEmojiBar
+                  onSelect={(emoji) =>
+                    setOpeningText((prev) => (prev ? `${prev} ${emoji}` : emoji))
+                  }
+                  className="mt-1.5"
                 />
                 <p className="text-[11px] text-neutral-400 mt-1">
-                  Kalimat yang dilihat pertama kali di layar pembuka.
+                  Kalimat yang dilihat pertama kali sebelum amplop dibuka.
                 </p>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-neutral-700 block mb-1.5">
+                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
                   Pesan Penutup
                 </label>
                 <Textarea
-                  placeholder="Pesan manis setelah semua kartu selesai dibuka..."
+                  placeholder="Pesan manis setelah semua kartu foto selesai dibuka..."
                   value={closingText}
                   onChange={(e) => setClosingText(e.target.value)}
                   className="rounded-xl text-xs resize-none border-neutral-200 focus-visible:ring-neutral-900"
                   rows={3}
+                />
+                <IosEmojiBar
+                  onSelect={(emoji) =>
+                    setClosingText((prev) => (prev ? `${prev} ${emoji}` : emoji))
+                  }
+                  className="mt-1.5"
                 />
               </div>
             </div>
@@ -250,14 +355,14 @@ export default function BuatPage() {
               <Button
                 variant="outline"
                 onClick={() => setStep("theme")}
-                className="rounded-full h-11 flex-1 text-xs font-medium border-neutral-200 hover:bg-neutral-50"
+                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
               >
                 ← Kembali
               </Button>
               <Button
                 onClick={() => setStep("kartu")}
                 disabled={!recipientName.trim()}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98]"
+                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
               >
                 Lanjut ke Kartu Cerita →
               </Button>
@@ -268,29 +373,31 @@ export default function BuatPage() {
         {/* ── STEP 3: SUSUN KARTU ──────────────────────────────── */}
         {step === "kartu" && (
           <div className="animate-in fade-in duration-300">
-            <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah 3
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Kartu Foto & Pesan
+            <div className="mb-6 text-center sm:text-left">
+              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
+                <Sparkles size={12} />
+                <span>Langkah 3 dari 5</span>
+              </span>
+              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
+                Kartu Foto & Narasi
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Tiap kartu akan digeser satu per satu layaknya membalik album kenangan.
+                Tiap kartu akan dibingkai seperti foto Polaroid fisik dengan washi tape.
               </p>
             </div>
 
             <div className="space-y-4 mb-4">
               {cards.map((card, i) => (
-                <div key={card.id} className="bg-white rounded-2xl p-5 border border-neutral-200/70 shadow-sm">
+                <div key={card.id} className="bg-white rounded-3xl p-5 border border-neutral-200/80 shadow-sm relative">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-neutral-500 tracking-wide uppercase">
-                      Kartu {i + 1}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-700 tracking-wide uppercase">
+                      <IosEmoji symbol="📷" size={13} />
+                      <span>Kartu Polaroid {i + 1}</span>
                     </span>
                     {cards.length > 1 && (
                       <button
                         onClick={() => removeCard(card.id)}
-                        className="text-neutral-400 text-xs hover:text-red-600 transition-colors"
+                        className="text-neutral-400 text-xs hover:text-red-600 transition-colors font-medium"
                       >
                         Hapus
                       </button>
@@ -298,11 +405,22 @@ export default function BuatPage() {
                   </div>
 
                   <Textarea
-                    placeholder="Tuliskan ucapan atau kenangan untuk kartu ini..."
+                    placeholder="Tuliskan ucapan kenangan untuk foto ini..."
                     value={card.text_content}
                     onChange={(e) => updateCard(card.id, "text_content", e.target.value)}
-                    className="resize-none rounded-xl text-xs mb-3 border-neutral-200 focus-visible:ring-neutral-900"
+                    className="resize-none rounded-xl text-xs mb-1.5 border-neutral-200 focus-visible:ring-neutral-900"
                     rows={3}
+                  />
+
+                  <IosEmojiBar
+                    onSelect={(emoji) =>
+                      updateCard(
+                        card.id,
+                        "text_content",
+                        card.text_content ? `${card.text_content} ${emoji}` : emoji
+                      )
+                    }
+                    className="mb-3"
                   />
 
                   <CardImageUpload
@@ -315,23 +433,24 @@ export default function BuatPage() {
 
             <button
               onClick={addCard}
-              className="w-full border border-dashed border-neutral-300 hover:border-neutral-400 bg-white hover:bg-neutral-50 rounded-2xl py-3.5 text-neutral-700 font-medium text-xs transition-colors mb-6"
+              className="w-full border-2 border-dashed border-neutral-300 hover:border-neutral-500 bg-white hover:bg-neutral-50/50 rounded-3xl py-4 text-neutral-700 font-semibold text-xs transition-all mb-6 flex items-center justify-center gap-1.5 shadow-2xs"
             >
-              + Tambah Kartu Lainnya
+              <span>+</span>
+              <span>Tambah Kartu Kenangan Lainnya</span>
             </button>
 
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => setStep("pembuka")}
-                className="rounded-full h-11 flex-1 text-xs font-medium border-neutral-200 hover:bg-neutral-50"
+                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
               >
                 ← Kembali
               </Button>
               <Button
                 onClick={() => setStep("musik")}
                 disabled={cards.every((c) => !c.text_content.trim())}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98]"
+                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
               >
                 Lanjut ke Musik →
               </Button>
@@ -342,57 +461,90 @@ export default function BuatPage() {
         {/* ── STEP 4: PILIH MUSIK ──────────────────────────────── */}
         {step === "musik" && (
           <div className="animate-in fade-in duration-300">
-            <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah 4
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
+            <div className="mb-6 text-center sm:text-left">
+              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
+                <Sparkles size={12} />
+                <span>Langkah 4 dari 5</span>
+              </span>
+              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
                 Pilih Audio Latar
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Musik akan mulai diputar secara lembut begitu amplop dibuka penerima.
+                Musik akan diputar lewat piringan vinyl begitu amplop dibuka penerima.
               </p>
             </div>
 
-            <div className="space-y-2 mb-8 bg-white p-4 rounded-2xl border border-neutral-200/70 shadow-sm">
-              <button
+            <div className="space-y-2 mb-8 bg-white p-4 rounded-3xl border border-neutral-200/80 shadow-sm">
+              <div
                 onClick={() => setMusicId("")}
-                className={`w-full text-left p-3.5 rounded-xl border transition-all text-xs flex justify-between items-center ${musicId === ""
-                  ? "border-neutral-900 bg-neutral-50 font-medium text-neutral-900"
-                  : "border-transparent hover:bg-neutral-50 text-neutral-500"
-                  }`}
+                className={`w-full text-left p-3.5 rounded-2xl border transition-all text-xs flex justify-between items-center cursor-pointer ${
+                  musicId === ""
+                    ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900"
+                    : "border-transparent hover:bg-neutral-50 text-neutral-500"
+                }`}
               >
                 <span>Tanpa musik latar</span>
                 {musicId === "" && <span>✓</span>}
-              </button>
+              </div>
 
-              {MUSIC_OPTIONS.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => setMusicId(m.id)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all text-xs flex justify-between items-center ${musicId === m.id
-                    ? "border-neutral-900 bg-neutral-50 font-medium text-neutral-900"
-                    : "border-transparent hover:bg-neutral-50 text-neutral-700"
+              {MUSIC_OPTIONS.map((m) => {
+                const isSelected = musicId === m.id;
+                const isPlaying = previewPlayingId === m.id;
+                return (
+                  <div
+                    key={m.id}
+                    className={`p-3.5 rounded-2xl border transition-all text-xs flex items-center justify-between gap-3 ${
+                      isSelected
+                        ? "border-neutral-900 bg-neutral-50/80 font-semibold text-neutral-900"
+                        : "border-transparent hover:bg-neutral-50 text-neutral-700"
                     }`}
-                >
-                  <span className="truncate pr-4">{m.label}</span>
-                  {musicId === m.id && <span>✓</span>}
-                </button>
-              ))}
+                  >
+                    <div
+                      onClick={() => setMusicId(m.id)}
+                      className="flex-1 min-w-0 cursor-pointer flex items-center gap-2"
+                    >
+                      <span className="truncate">{m.label}</span>
+                      {isSelected && <span className="text-rose-500 font-bold">✓</span>}
+                    </div>
 
-              <button
+                    {/* Preview Listen Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleAudioPreview(m.id, m.url);
+                      }}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+                        isPlaying
+                          ? "bg-rose-500 text-white shadow-xs"
+                          : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
+                      }`}
+                      title={isPlaying ? "Jeda contoh lagu" : "Dengarkan contoh lagu"}
+                    >
+                      {isPlaying ? <Pause size={12} /> : <Play size={12} />}
+                      <span>{isPlaying ? "Jeda" : "Dengar"}</span>
+                    </button>
+                  </div>
+                );
+              })}
+
+              <div
                 onClick={() => setMusicId("youtube")}
-                className={`w-full text-left p-3.5 rounded-xl border transition-all text-xs flex justify-between items-center ${useYoutube
-                  ? "border-neutral-900 bg-neutral-50 font-medium text-neutral-900"
-                  : "border-transparent hover:bg-neutral-50 text-neutral-700"
-                  }`}
+                className={`w-full text-left p-3.5 rounded-2xl border transition-all text-xs flex justify-between items-center cursor-pointer ${
+                  useYoutube
+                    ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900"
+                    : "border-transparent hover:bg-neutral-50 text-neutral-700"
+                }`}
               >
-                <span>Lagu pilihan sendiri dari YouTube</span>
+                <div className="flex items-center gap-1.5">
+                  <span>Lagu pilihan sendiri dari YouTube</span>
+                  <IosEmoji symbol="🎵" size={14} />
+                </div>
                 {useYoutube && <span>✓</span>}
-              </button>
+              </div>
 
               {useYoutube && (
-                <div className="px-1 pt-1">
+                <div className="px-2 pt-2 pb-1">
                   <Input
                     type="url"
                     placeholder="https://youtu.be/..."
@@ -403,7 +555,7 @@ export default function BuatPage() {
                   <p className={`text-[11px] mt-1.5 ${youtubeInvalid ? "text-red-500" : "text-neutral-400"}`}>
                     {youtubeInvalid
                       ? "Link belum dikenali. Salin link dari tombol Bagikan di YouTube."
-                      : "Diputar lewat pemutar YouTube kecil. Di beberapa HP, penerima perlu menekan play."}
+                      : "Akan diselaraskan dengan pemutar vinyl aesthetic di layar penerima."}
                   </p>
                 </div>
               )}
@@ -413,16 +565,16 @@ export default function BuatPage() {
               <Button
                 variant="outline"
                 onClick={() => setStep("kartu")}
-                className="rounded-full h-11 flex-1 text-xs font-medium border-neutral-200 hover:bg-neutral-50"
+                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
               >
                 ← Kembali
               </Button>
               <Button
                 onClick={() => setStep("preview")}
                 disabled={useYoutube && !youtubeId(youtubeUrl)}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98]"
+                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
               >
-                Lihat Pratinjau →
+                Lihat Pratinjau Kado →
               </Button>
             </div>
           </div>
@@ -431,35 +583,47 @@ export default function BuatPage() {
         {/* ── STEP 5: PRATINJAU LANGSUNG ───────────────────────── */}
         {step === "preview" && (
           <div className="animate-in fade-in duration-300">
-            <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah 5
-              </p>
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Pratinjau Kado
+            <div className="mb-6 text-center">
+              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
+                <Sparkles size={12} />
+                <span>Langkah 5 dari 5</span>
+              </span>
+              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
+                Pratinjau Kado Interaktif
               </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Begini persis tampilan yang akan dinikmati oleh {recipientName || "penerima"}.
+              <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+                Coba ketuk segel lilin untuk membuka amplop persis seperti yang akan dialami {recipientName || "penerima"}.
               </p>
             </div>
 
-            <div className="rounded-3xl overflow-hidden shadow-2xl border border-neutral-200/80 mb-6 h-[520px] relative">
-              <GiftExperience gift={previewGift} />
+            {/* Realistic Smartphone Mockup Bezel */}
+            <div className="max-w-sm mx-auto mb-8 rounded-[44px] p-2.5 bg-neutral-900 shadow-2xl border-4 border-neutral-800 relative">
+              {/* Dynamic Island / Notch */}
+              <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-neutral-950 rounded-full z-50 pointer-events-none flex items-center justify-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 mr-2" />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-950" />
+              </div>
+
+              {/* Smartphone Screen Viewport */}
+              <div className="rounded-[36px] overflow-hidden bg-white h-[580px] relative border border-neutral-800">
+                <GiftExperience gift={previewGift} />
+              </div>
             </div>
 
             <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => setStep("musik")}
-                className="rounded-full h-11 flex-1 text-xs font-medium border-neutral-200 hover:bg-neutral-50"
+                className="rounded-full h-12 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
               >
                 ← Ubah Konten
               </Button>
               <Button
                 onClick={() => setShowPublish(true)}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-medium transition-all active:scale-[0.98] shadow-sm"
+                className="bg-neutral-900 hover:bg-black text-white rounded-full h-12 flex-1 text-xs font-semibold transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2"
               >
-                Terbitkan Kado ({PREMIUM_PRICE_LABEL})
+                <span>Terbitkan Kado ({PREMIUM_PRICE_LABEL})</span>
+                <Sparkles size={14} className="text-amber-300" />
               </Button>
             </div>
           </div>
