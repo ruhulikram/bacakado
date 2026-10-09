@@ -177,16 +177,20 @@ export async function unlockGift(
 }
 
 export async function getGalleryGifts(): Promise<Gift[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("gifts")
-    .select("*, cards(*)")
-    .eq("status", "published")
-    .eq("is_public", true)
-    .order("view_count", { ascending: false })
-    .limit(20);
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("gifts")
+      .select("*, cards(*)")
+      .eq("status", "published")
+      .eq("is_public", true)
+      .order("view_count", { ascending: false })
+      .limit(20);
 
-  return (data ?? []).map((d) => mapRow(d as Record<string, unknown>));
+    return (data ?? []).map((d) => mapRow(d as Record<string, unknown>));
+  } catch {
+    return GALLERY_MOCK;
+  }
 }
 
 function mapUserGiftRow(d: Record<string, unknown>): UserGift {

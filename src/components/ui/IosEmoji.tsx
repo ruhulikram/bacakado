@@ -95,6 +95,7 @@ interface IosEmojiProps {
   size?: number;
   className?: string;
   alt?: string;
+  loading?: "lazy" | "eager";
 }
 
 export function IosEmoji({
@@ -103,6 +104,7 @@ export function IosEmoji({
   size = 20,
   className = "",
   alt,
+  loading = "eager",
 }: IosEmojiProps) {
   const key = symbol || name || "";
   const src = IOS_EMOJI_MAP[key];
@@ -125,7 +127,8 @@ export function IosEmoji({
       alt={alt || symbol || name || "emoji"}
       width={size}
       height={size}
-      loading="lazy"
+      loading={loading}
+      decoding="async"
       draggable={false}
       className={`inline-block select-none align-middle object-contain ${className}`}
       style={{
