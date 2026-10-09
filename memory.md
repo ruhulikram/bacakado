@@ -186,6 +186,7 @@ Berikut daftar status tugas pengembangan:
 ## 7. Peta File Utama (Quick Reference)
 
 - **PRD Dokumen:** [kado-ucapan-digital-PRD.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/kado-ucapan-digital-PRD.md)
+- **Panduan Standar Desain UI & Elemen:** [element.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/element.md)
 - **Halaman Utama (Landing Page):** [src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)
 - **Editor Kado (Buat):** [src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)
 - **Halaman Kado Dinamis (Penerima):** [src/app/[slug]/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/[slug]/page.tsx)
