@@ -152,17 +152,44 @@
     font-style: italic;
   }
   .apple-glass {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.6); /* bright top edge: light catching material (Apple HIG) */
+  }
+  .apple-glass-floating {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 
+      0 12px 32px -8px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.04),
+      inset 0 1px 1px rgba(255, 255, 255, 0.8);
   }
   .apple-glass-dark {
     background: rgba(22, 22, 23, 0.85);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
   }
+
+  /* ── Apple Fluid Motion & Feedback Utilities (SKILL.md) ─────── */
+  .touch-fluid {
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-apple-spring {
+    transition: transform 120ms cubic-bezier(0.32, 0.72, 0, 1), box-shadow 120ms ease;
+  }
+  .btn-apple-spring:active {
+    transform: scale(0.96);
+  }
+
 
   /* ── Aesthetic Floating & Ambient Keyframes ───────────────── */
   @keyframes spin-slow {
@@ -335,5 +362,19 @@
       rgba(255, 255, 255, 0.12) 220deg,
       transparent 260deg
     );
+  }
+
+  /* ── Reduced Motion (SKILL.md Principle 14) ───────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-spin-slow,
+    .animate-float-gentle,
+    .animate-envelope-bob,
+    .animate-wax-glow,
+    .animate-star-pulse {
+      animation: none !important;
+    }
+    .btn-apple-spring {
+      transition: none !important;
+    }
   }
 }

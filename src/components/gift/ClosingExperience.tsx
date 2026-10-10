@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { submitReply } from "@/app/actions/tracking";
 import { IosEmoji, EmojiText } from "@/components/ui/IosEmoji";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface ClosingExperienceProps {
   giftId: string;
@@ -54,10 +55,11 @@ export function ClosingExperience({
   }, []);
 
   function handleSendLove() {
+    triggerHaptic("burst");
     setLoveCount((c) => c + 1);
     confetti({
-      particleCount: 16,
-      spread: 45,
+      particleCount: 18,
+      spread: 50,
       origin: { y: 0.8 },
       colors: ["#F43F5E", "#E11D48", "#FDA4AF"],
     });
@@ -70,8 +72,10 @@ export function ClosingExperience({
     const res = await submitReply(giftId, replyName, replyMsg);
     setSubmitting(false);
     if (res.error) {
+      triggerHaptic("error");
       setReplyError(res.error);
     } else {
+      triggerHaptic("success");
       setReplySent(true);
       confetti({
         particleCount: 40,
@@ -114,9 +118,9 @@ export function ClosingExperience({
           </p>
           <button
             onClick={handleSendLove}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all active:scale-95 shadow-2xs"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all active:scale-95 btn-apple-spring shadow-2xs"
           >
-            <Heart size={15} className={`fill-rose-500 ${loveCount > 0 ? "scale-110" : ""}`} />
+            <Heart size={15} className={`fill-rose-500 transition-transform ${loveCount > 0 ? "scale-110" : ""}`} />
             <span>Kirim Peluk & Cinta</span>
             {loveCount > 0 && (
               <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
@@ -173,7 +177,7 @@ export function ClosingExperience({
             <button
               onClick={handleSendReply}
               disabled={submitting || !replyName.trim() || !replyMsg.trim()}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all active:scale-95 disabled:opacity-40 shadow-xs"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all active:scale-95 btn-apple-spring disabled:opacity-40 shadow-xs"
             >
               <Send size={12} />
               <span>{submitting ? "Mengirim Surat..." : "Kirim Surat Balasan"}</span>
@@ -185,8 +189,11 @@ export function ClosingExperience({
       {/* Action Links */}
       <div className="flex flex-col items-center gap-3">
         <button
-          onClick={onReset}
-          className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-800 font-medium transition-colors"
+          onClick={() => {
+            triggerHaptic("selection");
+            onReset();
+          }}
+          className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-800 font-medium transition-colors btn-apple-spring"
         >
           <RotateCcw size={12} />
           <span>Buka & Putar Ulang Kado dari Awal</span>
@@ -195,7 +202,8 @@ export function ClosingExperience({
         {/* Viral Loop CTA */}
         <a
           href="/buat"
-          className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 shadow-md transition-all active:scale-98 group"
+          onClick={() => triggerHaptic("light")}
+          className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 shadow-md transition-all active:scale-98 btn-apple-spring group"
         >
           <Sparkles size={14} className="text-amber-200 animate-spin-slow" />
           <span>Bikin Kado Personal Punyamu Sendiri</span>

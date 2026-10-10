@@ -12,8 +12,8 @@ import { Envelope3D } from "@/components/gift/Envelope3D";
 import { PolaroidCardDeck } from "@/components/gift/PolaroidCardDeck";
 import { ClosingExperience } from "@/components/gift/ClosingExperience";
 import { Lock, Sparkles, Heart } from "lucide-react";
-
 import { IosEmoji, EmojiText } from "@/components/ui/IosEmoji";
+import { triggerHaptic } from "@/lib/haptics";
 
 type Stage = "cover" | "envelope" | "cards" | "closing";
 
@@ -42,6 +42,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   }, [gift.id]);
 
   function handleStartOpen() {
+    triggerHaptic("light");
     if (hasPasscode && !passcodeUnlocked) {
       setShowPinModal(true);
       return;
@@ -52,15 +53,18 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   async function verifyPin() {
     if (pinChecking || !inputPin.trim()) return;
     setPinChecking(true);
+    triggerHaptic("selection");
     const res = await unlockGift(gift.slug, inputPin);
     setPinChecking(false);
     if (res.cards) {
+      triggerHaptic("success");
       setCards(res.cards);
       setPinError("");
       setPasscodeUnlocked(true);
       setShowPinModal(false);
       setStage("envelope");
     } else {
+      triggerHaptic("error");
       setPinError(res.error || "PIN belum tepat. Coba masukkan tanggal spesial.");
     }
   }
@@ -71,6 +75,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
   }
 
   function handleReset() {
+    triggerHaptic("selection");
     setStage("cover");
     setMusicTrigger(false);
   }
@@ -141,7 +146,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
 
           <button
             onClick={handleStartOpen}
-            className={`font-semibold px-8 py-3.5 rounded-full text-xs sm:text-sm transition-all active:scale-95 shadow-md flex items-center gap-2 mx-auto ${
+            className={`font-semibold px-8 py-3.5 rounded-full text-xs sm:text-sm transition-all active:scale-95 btn-apple-spring shadow-md flex items-center gap-2 mx-auto ${
               isDarkTheme
                 ? "bg-white hover:bg-neutral-100 text-neutral-950 shadow-white/10"
                 : "bg-neutral-900 hover:bg-black text-white shadow-neutral-400/30"
@@ -195,14 +200,17 @@ export function GiftExperience({ gift }: { gift: Gift }) {
             <button
               onClick={verifyPin}
               disabled={pinChecking}
-              className="w-full bg-neutral-900 hover:bg-black text-white font-semibold py-3 rounded-full text-xs transition-all active:scale-95 mb-2 shadow-xs"
+              className="w-full bg-neutral-900 hover:bg-black text-white font-semibold py-3 rounded-full text-xs transition-all active:scale-95 btn-apple-spring mb-2 shadow-xs"
             >
               {pinChecking ? "Membuka Kunci..." : "Buka Surat Sekarang"}
             </button>
 
             <button
-              onClick={() => setShowPinModal(false)}
-              className="text-xs text-neutral-400 hover:text-neutral-700 block mx-auto mt-2 transition-colors"
+              onClick={() => {
+                triggerHaptic("selection");
+                setShowPinModal(false);
+              }}
+              className="text-xs text-neutral-400 hover:text-neutral-700 block mx-auto mt-2 transition-colors btn-apple-spring"
             >
               Kembali
             </button>

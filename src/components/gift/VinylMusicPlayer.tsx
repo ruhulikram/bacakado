@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX, Play, Pause, Music } from "lucide-react";
 import { youtubeId } from "@/lib/utils";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface VinylMusicPlayerProps {
   musicUrl?: string;
@@ -46,6 +47,7 @@ export function VinylMusicPlayer({
   if (!musicUrl) return null;
 
   function togglePlay() {
+    triggerHaptic("selection");
     if (ytId) {
       setIsPlaying((prev) => !prev);
       return;
@@ -61,6 +63,7 @@ export function VinylMusicPlayer({
   }
 
   function toggleMute() {
+    triggerHaptic("selection");
     if (audioRef.current) {
       audioRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
@@ -117,12 +120,12 @@ export function VinylMusicPlayer({
         </div>
       )}
 
-      {/* Floating Spotify-Style Pill Widget */}
+      {/* Floating Spotify-Style Pill Widget with Apple Glass Floating */}
       <div
-        className={`flex items-center gap-2.5 p-2 pr-3.5 rounded-full backdrop-blur-xl border shadow-lg transition-all ${
+        className={`flex items-center gap-2.5 p-2 pr-3.5 rounded-full border shadow-lg transition-all ${
           isDark
-            ? "bg-[#16161D]/85 border-white/10 text-white shadow-black/40"
-            : "bg-white/85 border-black/10 text-neutral-900 shadow-neutral-300/40"
+            ? "apple-glass-dark text-white shadow-black/40"
+            : "apple-glass-floating text-neutral-900"
         }`}
       >
         {/* Rotating Mini Vinyl Record */}

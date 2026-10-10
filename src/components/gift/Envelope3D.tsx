@@ -3,6 +3,7 @@
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import { IosEmoji } from "@/components/ui/IosEmoji";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface Envelope3DProps {
   recipientName: string;
@@ -27,10 +28,13 @@ export function Envelope3D({
     if (opening) return;
     setOpening(true);
 
-    // Micro sparkle burst at wax seal position
+    // Multimodal audio-tactile haptic burst on supported devices (SKILL.md Principle 13)
+    triggerHaptic("burst");
+
+    // Micro sparkle burst at wax seal position on exact frame
     confetti({
-      particleCount: 28,
-      spread: 60,
+      particleCount: 32,
+      spread: 65,
       origin: { y: 0.55 },
       ticks: 120,
       colors:
@@ -42,7 +46,7 @@ export function Envelope3D({
     // Allow flap & rising letter animation to complete before switching view
     setTimeout(() => {
       onOpen();
-    }, 950);
+    }, 900);
   }
 
   const initial = recipientName.trim().slice(0, 1).toUpperCase() || "💌";

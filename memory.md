@@ -142,6 +142,20 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
    - Panduan terpusat sintesis Standar Web (WCAG 2.1, 8-point spacing rhythm, 44×44px mobile touch targets) x Apple iOS HIG (squircle curves, `apple-glass`, tipografi ganda Plus Jakarta Sans & Instrument Serif Italic).
    - Spesifikasi teknis elemen kado kustom: amplop 3D & segel lilin, dek polaroid scrapbook, piringan vinyl 360°, partikel melayang, love reaction counter & form kartu pos balasan, skala iOS emoji, cheat sheet Tailwind CSS, serta pedoman Do & Don't.
 
+10. **Implementasi Apple Fluid Interface & Multimodal Haptics ([SKILL.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/SKILL.md) & [haptics.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/haptics.ts)):**
+    - **Direct Manipulation 1:1 Drag & Flick ([PolaroidCardDeck.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PolaroidCardDeck.tsx)):**
+      - Jari/kursor dapat langsung menggeser kartu polaroid secara mulus 1:1 (`pointermove` + `setPointerCapture`).
+      - Dilengkapi rumus momentum projection Apple WWDC 2018 (`project(velocity, 0.998)`) untuk lemparan cepat (*flick*), dan rumus *rubber-banding* elastis di kartu pertama/terakhir.
+      - Kartu yang diintip di bawahnya (*peeking layers*) membesar secara dinamis saat kartu atas ditarik, menghadirkan kedalaman 3D fisik nyata.
+    - **Multimodal Feedback (Visual + Audio + Haptics):**
+      - Utilitas getaran taktil mobile di [src/lib/haptics.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/haptics.ts) (`selection`, `light`, `medium`, `burst`, `success`, `error`).
+      - Segel lilin ([Envelope3D.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/Envelope3D.tsx)) meletupkan getaran `burst` serentak pada frame yang sama dengan letupan confetti.
+      - Tombol reaksi "Kirim Peluk & Cinta" ([ClosingExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ClosingExperience.tsx)) memberikan getaran kepuasan taktil bertahap.
+    - **Material & Spring Kinetics ([globals.css](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/globals.css)):**
+      - Material kaca mengambang `.apple-glass-floating` dengan *top light-catcher edge* (`border-top: 1px solid rgba(255, 255, 255, 0.65)`).
+      - Respon instan `.btn-apple-spring` dengan kurva pantulan Apple HIG `cubic-bezier(0.32, 0.72, 0, 1)`.
+      - Ramah aksesibilitas dengan dukungan `@media (prefers-reduced-motion: reduce)`.
+
 ---
 
 ## 5. Fitur Monetisasi & Payment Gateway (Mayar.id)
@@ -205,6 +219,8 @@ Berikut daftar status tugas pengembangan:
 
 - **PRD Dokumen:** [kado-ucapan-digital-PRD.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/kado-ucapan-digital-PRD.md)
 - **Panduan Standar Desain UI & Elemen:** [element.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/element.md)
+- **Panduan Apple Design & Fluid Motion:** [SKILL.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/SKILL.md)
+- **Haptic Feedback Utility:** [src/lib/haptics.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/haptics.ts)
 - **Halaman Utama (Landing Page):** [src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)
 - **Editor Kado (Buat):** [src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)
 - **Halaman Kado Dinamis (Penerima):** [src/app/[slug]/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/[slug]/page.tsx)
