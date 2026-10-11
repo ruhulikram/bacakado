@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { checkHostOnline } from "@/lib/supabase/dns-guard";
 
-// Refresh token Supabase hanya jika request memiliki cookie sesi auth,
+// Refresh token Supabase hanya jika request memiliki cookie sesi auth dan host online,
 // sehingga tidak memperlambat TTFB (Time to First Byte) dan LCP pada pengunjung publik.
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -16,9 +17,23 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Lindungi dari delay AuthRetryableFetchError (25s) jika host Supabase belum aktif di DNS
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  let hostname = "";
+  try {
+    if (url) hostname = new URL(url).hostname;
+  } catch {}
+
+  if (hostname) {
+    const isOnline = await checkHostOnline(hostname);
+    if (!isOnline) {
+      return response;
+    }
+  }
+
   try {
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      url,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         global: {
@@ -46,7 +61,10 @@ export async function proxy(request: NextRequest) {
       }
     );
 
-    await supabase.auth.getUser();
+    await Promise.race([
+      supabase.auth.getUser(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Auth timeout")), 1000)),
+    ]);
   } catch {
     // Abaikan kegagalan jaringan di middleware agar response tidak terblokir
   }

@@ -31,28 +31,28 @@ const STEP_LABELS: Record<Step, string> = {
 
 const PRESETS = [
   {
+    icon: "💌",
+    label: "Buat Ucapan",
+    opening: (name: string) => `Ada sepucuk pesan manis yang ingin kusampaikan padamu, ${name || "kamu"} 💌✨`,
+    closing: "Semoga hari-harimu selalu dipenuhi ketenangan dan senyuman. Terima kasih sudah hadir dalam hidupku. ✨",
+  },
+  {
     icon: "🎂",
-    label: "Ulang Tahun",
+    label: "Buat Ulang Tahun",
     opening: (name: string) => `Ada kejutan spesial buat kamu di hari bahagia ini, ${name || "kamu"} 🎂✨`,
     closing: "Selamat ulang tahun! Semoga segala harapan dan impianmu terwujud. Bangga banget sama kamu, teruslah bahagia! 🎉",
   },
   {
     icon: "🌹",
-    label: "Romantis / Pacar",
+    label: "Buat Pacar",
     opening: (name: string) => `Sebuah surat kecil penuh cinta buat orang paling spesial dalam hidupku, ${name || "kamu"} ❤️`,
     closing: "Terima kasih sudah selalu ada dan melengkapi setiap hariku. Aku semakin bersyukur memilikimu. Sayang kamu selamanya. 🌹",
   },
   {
-    icon: "🎓",
-    label: "Wisuda & Prestasi",
-    opening: (name: string) => `Selamat atas kelulusanmu! Ada hadiah kecil buat perjuangan hebatmu, ${name || "kamu"} 🎓`,
-    closing: "Perjalanan baru menantimu. Bangga luar biasa atas kerja kerasmu selama ini. Terus bersinar ya! ✨",
-  },
-  {
-    icon: "🤍",
-    label: "Sahabat Dekat",
-    opening: (name: string) => `Buat sahabat terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} 💌`,
-    closing: "Terima kasih atas tawa, cerita, dan dukungan yang gak pernah ada habisnya. Sahabatan selamanya ya! ✨",
+    icon: "✨",
+    label: "Buat Temen",
+    opening: (name: string) => `Buat temen terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} 💌`,
+    closing: "Terima kasih atas tawa, cerita konyol, dan kebersamaan yang gak pernah ada habisnya. Temenan selamanya ya! ✨",
   },
 ];
 
@@ -81,7 +81,7 @@ export default function BuatPage() {
   usePendingPublish();
 
   const [step, setStep] = useState<Step>("theme");
-  const [theme, setTheme] = useState<Theme>("ulang-tahun");
+  const [theme, setTheme] = useState<Theme>("ucapan");
   const [recipientName, setRecipientName] = useState("");
   const [openingText, setOpeningText] = useState("");
   const [closingText, setClosingText] = useState("");
@@ -96,7 +96,9 @@ export default function BuatPage() {
     { id: "1", order_index: 0, text_content: "" },
   ]);
   const [showPublish, setShowPublish] = useState(false);
+  const [previewOpened, setPreviewOpened] = useState(false);
 
+  const currentTheme = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
   const stepIndex = STEPS.indexOf(step);
 
   // Audio preview handler in Step 4
@@ -229,15 +231,21 @@ export default function BuatPage() {
                   <button
                     key={t.id}
                     onClick={() => setTheme(t.id as Theme)}
-                    className={`bg-gradient-to-b ${t.gradient} p-5 rounded-3xl text-left border transition-all relative ${
+                    className={`bg-gradient-to-b ${t.gradient} p-5 rounded-3xl text-left border transition-all relative btn-apple-spring ${
                       isSelected
                         ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 shadow-md scale-[1.01]"
-                        : "border-neutral-200/80 hover:border-neutral-400 opacity-90 hover:opacity-100 shadow-2xs"
+                        : "border-neutral-200/80 hover:border-neutral-400 opacity-90 hover:opacity-100 shadow-2xs active:scale-[0.98]"
                     }`}
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <div className="w-10 h-10 rounded-2xl bg-white/80 shadow-2xs flex items-center justify-center">
-                        <IosEmoji symbol={t.emoji} size={22} />
+                      <div className="flex items-center gap-2">
+                        <div className="w-11 h-11 rounded-2xl bg-white/85 shadow-2xs flex items-center justify-center p-1 border border-black/5">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={t.sealSvg} alt={t.label} className="w-full h-full object-contain drop-shadow-xs" />
+                        </div>
+                        <div className="w-8 h-8 rounded-xl bg-white/60 shadow-2xs flex items-center justify-center">
+                          <IosEmoji symbol={t.emoji} size={16} />
+                        </div>
                       </div>
                       {isSelected && (
                         <span className="text-[11px] font-bold text-neutral-900 bg-white/95 px-2.5 py-0.5 rounded-full shadow-2xs border border-black/5">
@@ -294,6 +302,99 @@ export default function BuatPage() {
                     <span>{p.label}</span>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Live Interactive Envelope Mini-Preview */}
+            <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-neutral-50/80 border border-neutral-200/80 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left shadow-2xs">
+              <div
+                onClick={() => setPreviewOpened((prev) => !prev)}
+                className="relative w-32 h-32 sm:w-36 sm:h-36 flex-shrink-0 cursor-pointer group"
+                style={{ perspective: "1000px" }}
+                title="Ketuk untuk melihat animasi buka/tutup amplop"
+              >
+                {/* Layer 1: Back Panel */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/gift/back-panel.svg" alt="Back" className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm" style={{ zIndex: 1 }} />
+
+                {/* Layer 2: Letter Paper (Meluncur naik) */}
+                <div
+                  className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-700 ease-out flex flex-col items-center justify-center ${
+                    previewOpened ? "-translate-y-[44%] scale-[1.05] drop-shadow-lg" : "translate-y-0 scale-[0.98]"
+                  }`}
+                  style={{
+                    zIndex: previewOpened ? 6 : 2,
+                    transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/gift/Paper.svg" alt="Paper" className="w-full h-full object-contain" />
+                  <div className="absolute left-[8%] right-[8%] top-[22%] bottom-[44%] flex flex-col items-center justify-center text-center px-1">
+                    <p className="font-serif italic text-[10px] sm:text-xs font-semibold text-neutral-900 truncate max-w-[90px]">
+                      {recipientName ? `Untuk ${recipientName}` : "Untuk Kamu"}
+                    </p>
+                    <p className="text-[8px] text-neutral-600 line-clamp-1 italic mt-0.5">
+                      {openingText || "Pesan ucapan..."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Layer 3: Front Panel Pocket */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/gift/front-panel.svg" alt="Front" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ zIndex: 3 }} />
+
+                {/* Layer 4: Top Flap Panel (Folds 180deg) */}
+                <div
+                  className="absolute inset-0 w-full h-full pointer-events-none transition-all duration-700"
+                  style={{
+                    zIndex: previewOpened ? 1 : 4,
+                    transformOrigin: "50% 23.6%",
+                    transformStyle: "preserve-3d",
+                    transform: previewOpened ? "rotateX(180deg)" : "rotateX(0deg)",
+                    transitionTimingFunction: "cubic-bezier(0.34, 1.25, 0.64, 1)",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/gift/top-panel.svg" alt="Flap" className="w-full h-full object-contain" />
+                </div>
+
+                {/* Layer 5: Wax Seal (Proporsional ~18-20% Picture 2 + Tilt) */}
+                <div
+                  className={`absolute pointer-events-none transition-all duration-300 ${
+                    previewOpened ? "opacity-0 scale-125" : "opacity-100 scale-100 group-hover:scale-110"
+                  }`}
+                  style={{
+                    left: "50%",
+                    top: "61%",
+                    width: "34px",
+                    height: "34px",
+                    transform: "translate(-50%, -50%) rotate(-8deg)",
+                    zIndex: 10,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentTheme.sealSvg} alt="Seal" className="w-full h-full object-contain filter drop-shadow-md" />
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-100/80">
+                    Pratinjau Amplop Nyata
+                  </span>
+                  <span className="text-[10px] text-neutral-400">
+                    (Ketuk amplop untuk {previewOpened ? "tutup" : "buka"})
+                  </span>
+                </div>
+                <h4 className="font-serif italic text-lg font-medium text-neutral-900 mt-1 truncate">
+                  Untuk {recipientName || "Nama Penerima"}
+                </h4>
+                <p className="text-xs text-neutral-600 italic line-clamp-2 mt-0.5 font-sans leading-relaxed">
+                  &ldquo;{openingText || `Ada sesuatu buat ${recipientName || "kamu"} 💌`}&rdquo;
+                </p>
+                <p className="text-[10px] text-neutral-400 mt-1 font-normal">
+                  Amplop kado ini akan tampil perdana di layar penerima dengan segel lilin {currentTheme.label}.
+                </p>
               </div>
             </div>
 

@@ -1,29 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import dns from "node:dns";
-
-let isHostOnline: boolean | null = null;
-let lastCheckTime = 0;
-
-async function checkHostOnline(hostname: string): Promise<boolean> {
-  const now = Date.now();
-  if (isHostOnline !== null && now - lastCheckTime < 60000) {
-    return isHostOnline;
-  }
-  try {
-    await new Promise<void>((resolve, reject) => {
-      dns.lookup(hostname, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
-    });
-    isHostOnline = true;
-  } catch {
-    isHostOnline = false;
-  }
-  lastCheckTime = now;
-  return isHostOnline;
-}
+import { checkHostOnline } from "./dns-guard";
 
 export async function createClient() {
   const cookieStore = await cookies();

@@ -1,4 +1,4 @@
-export type Theme = "ulang-tahun" | "anniversary" | "wisuda" | "lebaran" | "valentine";
+export type Theme = "ucapan" | "ulang-tahun" | "pacar" | "temen" | "anniversary" | "wisuda" | "lebaran" | "valentine";
 
 export interface Card {
   id: string;

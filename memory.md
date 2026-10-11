@@ -156,6 +156,26 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
       - Respon instan `.btn-apple-spring` dengan kurva pantulan Apple HIG `cubic-bezier(0.32, 0.72, 0, 1)`.
       - Ramah aksesibilitas dengan dukungan `@media (prefers-reduced-motion: reduce)`.
 
+11. **Penyempurnaan Amplop 3D & Segel Lilin Fisik ([Envelope3D.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/Envelope3D.tsx)):**
+    - Mengintegrasikan elemen SVG kustom dari `public/gift/` (`top-panel.svg`, `front-panel.svg`, `back-panel.svg`, `Paper.svg`).
+    - 5 variasi segel lilin fisik bertekstur stempel: `seal-love.svg`, `seal-rose.svg`, `seal-star.svg`, `seal-leaf.svg`, `seal-grad.svg`.
+    - Engsel lipatan atas (*top flap hinge*) dikalibrasi presisi pada `transformOrigin: "50% 23.6%"`.
+    - Posisi segel lilin diposisikan tepat di ujung segitiga penutup atas (`top: 61%`) menimpa saku depan amplop secara alami dengan rotasi organik acak.
+    - Menghilangkan artefak border kotak pada SVG segel lilin dengan pembersihan RGBA mask filter 100% transparan di luar kontur stempel.
+    - Menghilangkan button prompt dan cursor pointer pada segel lilin agar berfokus murni pada pengalaman interaksi amplop fisik (*immersive physical experience*).
+    - Penyesuaian 4 pilihan tema utama di editor [buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx): *1. Buat Ucapan, 2. Buat Ulang Tahun, 3. Buat Pacar, 4. Buat Temen*.
+
+12. **Banner Pengumuman & Harmonisasi Grid 1440px Landing Page ([AnnouncementBanner.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/AnnouncementBanner.tsx) & [page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)):**
+    - Banner pengumuman eksklusif di bagian paling atas landing page awal (`/`).
+    - Aset dari `public/Banner/` (`Frame 20.svg`, `Button Tahap Pengembangan.svg`, `Button Beri Masukan.svg`).
+    - Background gradasi ganda persis ekspor Figma: `linear-gradient(269.51deg, rgba(0, 0, 0, 0.6) 10.22%, ...), linear-gradient(90.29deg, #B8A4A4 7.27%, ...)` ditambah tekstur garis diagonal berbayang.
+    - **Penerapan Grid 1440px Keseluruhan Landing Page:**
+      - Batas kontainer: `max-w-[1440px] mx-auto`.
+      - Sisi Kiri: `sm:pl-[35px]` (Pill "BacaKado masih tahap pengembangan" 359x38 di `left: 35px`, sejajar dengan logo navbar `💌 BacaKado`, judul section, dan copyright footer).
+      - Sisi Kanan: `sm:pr-[85px]` (Tombol "Beri Masukan ↗" 167x38 di `left: 1188px`, sejajar dengan tombol navbar `Bikin Kado`, link galeri, dan menu footer).
+    - Tombol "Beri Masukan ↗" memicu modal feedback Apple glassmorphism dengan respons getaran taktil haptic.
+    - Responsif penuh di perangkat desktop, tablet, dan ponsel pintar.
+
 ---
 
 ## 5. Fitur Monetisasi & Payment Gateway (Mayar.id)
@@ -245,6 +265,10 @@ Berikut daftar status tugas pengembangan:
   - Supabase Admin Client: [src/lib/supabase/admin.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/supabase/admin.ts)
   - Webhook Endpoint: [src/app/api/webhooks/mayar/route.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/api/webhooks/mayar/route.ts)
   - Simulator Pembayaran Lokal: [src/app/api/payment/mock/route.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/api/payment/mock/route.ts)
+- **Komponen Banner & Landing Page:**
+  - Banner Pengumuman & Modal Feedback: [src/components/AnnouncementBanner.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/AnnouncementBanner.tsx)
+  - Aset Banner SVG: `public/Banner/` (`Frame 20.svg`, `Button Tahap Pengembangan.svg`, `Button Beri Masukan.svg`)
+  - Aset Amplop 3D & Segel Lilin SVG: `public/gift/` (`top-panel.svg`, `front-panel.svg`, `back-panel.svg`, `Paper.svg`, 5 variasi stempel `seal-*.svg`)
 - **Aset & Styling Global:**
   - Komponen iOS Emoji: [src/components/ui/IosEmoji.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/IosEmoji.tsx)
   - Aset Emoji Apple Retina: `public/emojis/ios/` (24 PNG 160x160: `love-letter`, `rose`, `cake`, `heart`, dll)

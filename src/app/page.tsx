@@ -2,6 +2,7 @@ import Link from "next/link";
 import { GALLERY_MOCK } from "@/lib/mock-data";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 import { IosEmoji } from "@/components/ui/IosEmoji";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 
 export default function HomePage() {
   const featured = GALLERY_MOCK.slice(0, 3);
@@ -9,9 +10,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-[#1D1D1F] selection:bg-neutral-900 selection:text-white">
 
+      {/* ── Top Announcement Banner (Landing Page Only) ───────── */}
+      <AnnouncementBanner />
+
       {/* ── Apple-Grade Minimalist Navbar ─────────────────────── */}
       <nav className="sticky top-0 z-40 apple-glass">
-        <div className="max-w-5xl mx-auto px-6 h-13 flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-4 sm:pl-[35px] sm:pr-[85px] h-14 flex items-center justify-between">
           <Link href="/" className="text-sm font-semibold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity flex items-center gap-1.5">
             <IosEmoji symbol="💌" size={17} />
             <span>BacaKado</span>
@@ -35,43 +39,40 @@ export default function HomePage() {
       </nav>
 
       {/* ── Hero Section ──────────────────────────────────────── */}
-      <section className="pt-20 pb-16 sm:pt-28 sm:pb-24 px-6 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 text-neutral-600 text-[11px] font-medium tracking-wide uppercase mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-neutral-900"></span>
-          Kado Digital Personal
+      <section className="pt-20 pb-16 sm:pt-28 sm:pb-24 px-4 sm:pl-[35px] sm:pr-[85px] text-center max-w-[1440px] mx-auto">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-[-0.04em] text-neutral-950 leading-[1.08] mb-6">
+            Ucapan yang dirancang <br className="hidden sm:inline" />
+            selayaknya karya seni.
+          </h1>
+
+          <p className="text-base sm:text-xl text-neutral-500 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
+            Ciptakan situs ucapan personal dengan amplop beranimasi, kartu foto kenangan, dan musik latar. Selesai dalam 5 menit langsung dari ponselmu.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+            <Link
+              href="/buat"
+              className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-medium text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm"
+            >
+              Bikin Kado Sekarang
+            </Link>
+            <Link
+              href="/untuk-rara"
+              className="w-full sm:w-auto border border-neutral-200/90 hover:border-neutral-300 text-neutral-800 hover:text-black font-medium text-sm px-7 py-3.5 rounded-full transition-all hover:bg-neutral-50"
+            >
+              Lihat Contoh Kado ↗
+            </Link>
+          </div>
+
+          <p className="text-xs text-neutral-400">
+            Coba buat gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
+          </p>
         </div>
-
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-[-0.04em] text-neutral-950 leading-[1.08] mb-6">
-          Ucapan yang dirancang <br className="hidden sm:inline" />
-          selayaknya karya seni.
-        </h1>
-
-        <p className="text-base sm:text-xl text-neutral-500 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
-          Ciptakan situs ucapan personal dengan amplop beranimasi, kartu foto kenangan, dan musik latar. Selesai dalam 5 menit langsung dari ponselmu.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-          <Link
-            href="/buat"
-            className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-medium text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm"
-          >
-            Bikin Kado Sekarang
-          </Link>
-          <Link
-            href="/untuk-rara"
-            className="w-full sm:w-auto border border-neutral-200/90 hover:border-neutral-300 text-neutral-800 hover:text-black font-medium text-sm px-7 py-3.5 rounded-full transition-all hover:bg-neutral-50"
-          >
-            Lihat Contoh Kado ↗
-          </Link>
-        </div>
-
-        <p className="text-xs text-neutral-400">
-          Coba buat gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
-        </p>
       </section>
 
       {/* ── Visual Showcase Frame ─────────────────────────────── */}
-      <section className="px-6 pb-24 max-w-4xl mx-auto">
+      <section className="px-4 sm:pl-[35px] sm:pr-[85px] pb-24 max-w-[1440px] mx-auto">
         <div className="relative rounded-3xl bg-[#F5F5F7] border border-neutral-200/70 p-6 sm:p-12 overflow-hidden">
           <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl shadow-neutral-200/50 border border-neutral-200/80 p-6 sm:p-8 text-center">
             <div className="w-12 h-12 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-center mx-auto mb-4">
@@ -103,8 +104,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Apple-Style 3 Steps ───────────────────────────────── */}
-      <section className="bg-[#F5F5F7] py-20 sm:py-28 px-6 border-t border-neutral-200/60">
-        <div className="max-w-5xl mx-auto">
+      <section className="bg-[#F5F5F7] py-20 sm:py-28 px-4 sm:pl-[35px] sm:pr-[85px] border-t border-neutral-200/60">
+        <div className="max-w-[1440px] mx-auto">
           <div className="text-center max-w-xl mx-auto mb-16">
             <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-2">
               Alur Sederhana
@@ -155,7 +156,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Featured Works ────────────────────────────────────── */}
-      <section className="py-20 sm:py-28 px-6 max-w-5xl mx-auto">
+      <section className="py-20 sm:py-28 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-2">
@@ -196,8 +197,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Minimalist Apple Callout ──────────────────────────── */}
-      <section className="bg-neutral-950 text-white py-24 px-6 text-center">
-        <div className="max-w-2xl mx-auto">
+      <section className="bg-neutral-950 text-white py-24 px-4 sm:pl-[35px] sm:pr-[85px] text-center">
+        <div className="max-w-3xl mx-auto">
           <p className="text-[11px] uppercase tracking-[0.25em] font-semibold text-neutral-400 mb-4">
             Mulai Hari Ini
           </p>
@@ -217,8 +218,8 @@ export default function HomePage() {
       </section>
 
       {/* ── Apple-Style Minimal Footer ────────────────────────── */}
-      <footer className="border-t border-neutral-200/60 py-10 px-6 bg-white text-neutral-400 text-xs">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-neutral-200/60 py-10 px-4 sm:pl-[35px] sm:pr-[85px] bg-white text-neutral-400 text-xs">
+        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>© {new Date().getFullYear()} BacaKado. Dirancang dengan minimalis untuk momen berharga.</p>
           <div className="flex items-center gap-6 text-neutral-500">
             <Link href="/galeri" className="hover:text-neutral-900 transition-colors">Galeri</Link>

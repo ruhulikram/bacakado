@@ -11,10 +11,28 @@ export const MUSIC_OPTIONS = [
 
 export const THEME_OPTIONS = [
   {
+    id: "ucapan",
+    label: "Buat Ucapan",
+    subtitle: "Kartu Kasih & Ungkapan Hangat",
+    emoji: "💌",
+    sealSvg: "/gift/seal-love.svg",
+    gradient: "from-[#FFFDF7] via-[#FFF8F2] to-[#FFEFE6]",
+    textColor: "text-neutral-900",
+    cardBg: "bg-white",
+    accent: "#EA580C",
+    envelopeBg: "#FFF8F2",
+    envelopeFlap: "#FED7AA",
+    waxColor: "gold" as const,
+    ambientParticle: "sparkles" as const,
+    glowColor: "rgba(251, 146, 60, 0.15)",
+    tapeStyle: "washi-tape-gold" as const,
+  },
+  {
     id: "ulang-tahun",
-    label: "Ulang Tahun Ceria",
-    subtitle: "Golden Champagne & Confetti",
+    label: "Buat Ulang Tahun",
+    subtitle: "Pesta Ceria, Lilin & Confetti Emas",
     emoji: "🎂",
+    sealSvg: "/gift/seal-star.svg",
     gradient: "from-[#FFFDF7] via-[#FEF3C7]/40 to-[#FED7AA]/40",
     textColor: "text-neutral-900",
     cardBg: "bg-white",
@@ -27,10 +45,11 @@ export const THEME_OPTIONS = [
     tapeStyle: "washi-tape-gold" as const,
   },
   {
-    id: "anniversary",
-    label: "Romantis & Cinta",
-    subtitle: "Blush Petals & Tender Rose",
+    id: "pacar",
+    label: "Buat Pacar",
+    subtitle: "Romantis Penuh Cinta & Mawar",
     emoji: "🌹",
+    sealSvg: "/gift/seal-rose.svg",
     gradient: "from-[#FFF5F7] via-[#FCE7F3]/60 to-[#FBCFE8]/40",
     textColor: "text-neutral-900",
     cardBg: "bg-white",
@@ -43,27 +62,12 @@ export const THEME_OPTIONS = [
     tapeStyle: "washi-tape" as const,
   },
   {
-    id: "wisuda",
-    label: "Wisuda & Prestasi",
-    subtitle: "Royal Sapphire & Starlight",
-    emoji: "🎓",
-    gradient: "from-[#F0FDF4]/50 via-[#EFF6FF] to-[#E0E7FF]/60",
-    textColor: "text-neutral-900",
-    cardBg: "bg-white",
-    accent: "#4338CA",
-    envelopeBg: "#F0F4FF",
-    envelopeFlap: "#DBEAFE",
-    waxColor: "gold" as const,
-    ambientParticle: "stars" as const,
-    glowColor: "rgba(99, 102, 241, 0.15)",
-    tapeStyle: "washi-tape-gold" as const,
-  },
-  {
-    id: "lebaran",
-    label: "Hangat & Syahdu",
-    subtitle: "Matcha Sage & Soft Cream",
-    emoji: "🌿",
-    gradient: "from-[#F7FEE7]/40 via-[#F0FDF4] to-[#D1FAE5]/40",
+    id: "temen",
+    label: "Buat Temen",
+    subtitle: "Hangat, Seru & Kebersamaan Sahabat",
+    emoji: "✨",
+    sealSvg: "/gift/seal-leaf.svg",
+    gradient: "from-[#F0FDF4]/50 via-[#F7FEE7] to-[#D1FAE5]/40",
     textColor: "text-neutral-900",
     cardBg: "bg-white",
     accent: "#059669",
@@ -72,22 +76,6 @@ export const THEME_OPTIONS = [
     waxColor: "emerald" as const,
     ambientParticle: "sparkles" as const,
     glowColor: "rgba(16, 185, 129, 0.15)",
-    tapeStyle: "washi-tape" as const,
-  },
-  {
-    id: "valentine",
-    label: "Midnight Galaxy",
-    subtitle: "Deep Starlight & Glowing Hearts",
-    emoji: "✨",
-    gradient: "from-[#0A0D18] via-[#15132B] to-[#0A0D18]",
-    textColor: "text-white",
-    cardBg: "bg-[#18181B]",
-    accent: "#EC4899",
-    envelopeBg: "#1E1B4B",
-    envelopeFlap: "#2E285F",
-    waxColor: "ruby" as const,
-    ambientParticle: "galaxy-hearts" as const,
-    glowColor: "rgba(236, 72, 153, 0.2)",
     tapeStyle: "washi-tape" as const,
   },
 ] as const;
@@ -153,5 +141,12 @@ export const GALLERY_MOCK: Gift[] = [
 ];
 
 export function getTheme(id: string) {
-  return THEME_OPTIONS.find((t) => t.id === id) ?? THEME_OPTIONS[0];
+  const normalizedId =
+    id === "anniversary" || id === "valentine"
+      ? "pacar"
+      : id === "wisuda" || id === "lebaran"
+      ? "temen"
+      : id;
+
+  return THEME_OPTIONS.find((t) => t.id === normalizedId) ?? THEME_OPTIONS[0];
 }
