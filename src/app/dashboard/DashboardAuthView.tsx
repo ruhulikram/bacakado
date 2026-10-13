@@ -37,15 +37,15 @@ export function DashboardAuthView() {
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-7 sm:p-9 w-full max-w-sm border border-neutral-200/80 shadow-xl text-center">
-          <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-2xs">
+        <div className="bg-white rounded-3xl p-7 sm:p-9 w-full max-w-sm border border-neutral-200/80 shadow-sm text-center">
+          <div className="w-16 h-16 bg-neutral-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-neutral-200/60 shadow-2xs">
             <IosEmoji symbol="💌" size={32} />
           </div>
 
-          <h1 className="font-serif italic text-3xl font-medium text-neutral-900 mb-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 mb-1.5">
             Kado Saya
           </h1>
-          <p className="text-gray-500 text-xs mb-6">
+          <p className="text-neutral-500 text-xs mb-6 leading-relaxed">
             Masuk untuk melihat kado yang pernah kamu buat dan pesan balasan dari penerima
           </p>
 

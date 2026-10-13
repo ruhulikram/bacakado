@@ -147,7 +147,7 @@ export function GiftExperience({ gift }: { gift: Gift }) {
               value={inputPin}
               onChange={(e) => setInputPin(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && verifyPin()}
-              className="text-center font-mono text-base tracking-widest h-11 rounded-xl mb-2 border-neutral-200 focus-visible:ring-neutral-900"
+              className="text-center font-medium text-base tracking-widest h-11 rounded-xl mb-2 border-neutral-200 focus-visible:ring-neutral-900"
             />
 
             {pinError && (

@@ -34,12 +34,18 @@ async function startCheckout(
 
 type ModalStage = "checkout" | "auth" | "payment_wait";
 
+interface Props {
+  draft: DraftGift;
+  onClose: () => void;
+  onPublished: (slug: string) => void;
+}
+
 export function PublishModal({ draft, onClose, onPublished }: Props) {
   const router = useRouter();
   const supabase = createClient();
 
   const [stage, setStage] = useState<ModalStage>("checkout");
-  const [passcode, setPasscode] = useState("");
+  const [passcode, setPasscode] = useState(draft.passcode || "");
   const [currentUser, setCurrentUser] = useState<unknown | null>(null);
 
   // Auth states
@@ -160,12 +166,8 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
         {stage === "checkout" && (
           <div>
             <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1 flex items-center gap-1.5">
-                <IosEmoji symbol="✨" size={13} />
-                <span>Aktivasi Kado</span>
-              </p>
               <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Ringkasan Penerbitan
+                Ringkasan penerbitan
               </h2>
               <p className="text-xs text-neutral-500 mt-1">
                 Kado untuk <span className="font-semibold text-neutral-800">{draft.recipientName}</span>
@@ -247,11 +249,8 @@ export function PublishModal({ draft, onClose, onPublished }: Props) {
         {stage === "auth" && (
           <div>
             <div className="mb-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-1">
-                Langkah Terakhir
-              </p>
               <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
-                Masuk ke Akun
+                Masuk ke akun
               </h2>
               <p className="text-xs text-neutral-500 mt-1">
                 Masuk dengan Google agar kado dan tautanmu tersimpan aman di dasbor.

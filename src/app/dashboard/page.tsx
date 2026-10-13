@@ -6,7 +6,7 @@ import { DashboardAuthView } from "./DashboardAuthView";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Kado Saya — BacaKado",
+  title: "Kado Saya · BacaKado",
   description: "Kelola kado digital yang telah kamu buat dan lihat pesan balasan dari penerima.",
 };
 

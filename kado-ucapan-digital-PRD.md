@@ -50,12 +50,45 @@ Fitur di bawah ini dikelompokkan sesuai fase roadmap yang telah disetujui.
 - **Penutup & Balas Ucapan** — Confetti champagne dan form untuk mengirim balasan langsung ke pengirim.
 - **Bikin Punyamu Sendiri** — Tombol ajakan di akhir halaman supaya penerima ikut membuat kadonya sendiri.
 
-### Fase 2 — Editor Kado *(pengalaman pembuat)*
-- **Pilih Tema** — Tema arsitektural minimalis (ulang tahun, anniversary, wisuda, Lebaran, Valentine).
-- **Isi Pembuka** — Tulis nama penerima dan kalimat pembuka yang bikin penasaran.
-- **Susun Kartu** — Tambah, urutkan, dan hapus kartu yang berisi foto (upload Supabase Storage) dan teks.
-- **Pilih Musik** — Pilih lagu instrumental bebas royalti (Pixabay) atau masukkan link video YouTube kustom.
-- **Pratinjau Langsung** — Lihat hasil kado persis seperti yang akan dilihat penerima secara interaktif.
+### Fase 2 — BacaKado Custom Studio *(pengalaman pembuat: interaktif ala Canva & Spline)*
+
+Transformasi dari form wizard bertahap menjadi **Creative Custom Studio WYSIWYG** (3-kolom layout):
+- **Gerbang Awal — Penentuan Nuansa Kado (4 Pilihan Utama):**
+  Sebelum masuk ke studio, pengguna memilih 1 dari 4 nuansa kado terarah:
+  1. **Buat Ucapan** — Momen umum, pencapaian, hari raya, atau apresiasi tulus.
+  2. **Buat Ulang Tahun** — Perayaan ceria dengan partikel kilau emas, kue, dan lilin.
+  3. **Buat Pacar** — Nuansa romantis bertabur kelopak mawar dan pendar hati lembut.
+  4. **Buat Temen** — Persahabatan hangat, santai, dan penuh memori kebersamaan.
+  *(Pilihan nuansa ini otomatis memuat palet warna, musik latar default, dan draf pembuka di studio)*.
+
+- **Struktur Workspace Custom Studio:**
+  1. **Top Navigation Bar (Studio Header):**
+     - Nama Penerima (bisa diedit langsung in-place, misal: *"Kado untuk Rara 💌"*).
+     - Indikator Status Simpan Otomatis (*Auto-save indicator* ke LocalStorage).
+     - Undo / Redo controls.
+     - Viewport Switcher: Mode Layar Smartphone (9:16) vs Responsive View.
+     - Tombol **"Uji Buka Kado" (Live Simulation)**: Mengetes alur pembukaan amplop 3D dan geser kartu layaknya penerima.
+     - Tombol Aksi Utama: **"Terbitkan Kado ↗"** (memicu Checkout Modal Rp 5.000).
+
+  2. **Sidebar Kiri — Elements & Asset Library (Drawer Alat):**
+     - **Tab Kartu Cerita (Slides / Deck):** Daftar tumpukan kartu polaroid, tambah kartu baru, hapus kartu, dan drag-and-drop urutan kartu.
+     - **Tab Teks & Pesan:** Pilihan ukuran judul, teks isi, dan *Quick Presets* (rekomendasi kalimat pembuka/penutup emosional).
+     - **Tab Foto & Galeri:** Upload foto langsung dari kamera/galeri HP ke Supabase Storage, opsi ganti foto kartu.
+     - **Tab Stiker & iOS Emojis:** 32 Apple Retina Emojis PNG, pita kado, washi tape dekoratif, dan stempel segel lilin.
+     - **Tab Musik & Audio:** Pustaka audio instrumental bebas royalti (piano, akustik, lofi) serta kolom tautan YouTube kustom.
+
+  3. **Canvas Tengah — Live Interactive WYSIWYG Stage:**
+     - Pratinjau kanvas langsung tempat kado dirancang.
+     - **Manipulasi Langsung (Direct Manipulation):** Pengguna dapat mengetuk dan mengedit teks secara langsung (*inline editing*), menggeser foto, menambahkan stiker/emoji ke atas kartu, serta mengatur rotasi kemiringan polaroid.
+     - Visualisasi realistis amplop 3D bertekstur, segel lilin fisik, dan dek kartu polaroid scrapbook.
+
+  4. **Sidebar Kanan — Inspector & Customization Panel (Properti):**
+     - **Tab Desain & Styling:**
+       - Pengaturan Kartu Aktif: Pilihan font (*Instrument Serif Italic* vs *Plus Jakarta Sans*), warna teks, sudut rotasi kartu (-5° s/d +5°), dan jenis bingkai polaroid.
+       - Efek Partikel Melayang: Kelopak mawar, kilauan bintang, confetti emas, atau pendar neon.
+     - **Tab Pengaturan Global (Kado):**
+       - Gembok PIN Rahasia: Sakelar proteksi PIN (4-6 digit) untuk privasi intim.
+       - Kontrol Musik: Pengaturan volume, autoplay saat amplop dibuka, dan sinkronisasi piringan vinyl.
 
 ### Fase 3 — Simpan & Bagikan Link
 - **Simpan Draf Otomatis** — Draf kado tersimpan di localStorage agar pengguna bisa mencoba editor tanpa hambatan awal.
@@ -78,7 +111,7 @@ Fitur di bawah ini dikelompokkan sesuai fase roadmap yang telah disetujui.
 ### Fase 4 — Model Monetisasi (Pay-Per-Gift)
 - **Harga Bersahabat:** Rp 5.000 sekali bayar per kado via QRIS / E-Wallet (Mayar.id).
 - **Fitur Lengkap yang Didapat:**
-  - Kartu foto & narasi teks tanpa batas.
+  - Kartu foto & narasi teks tanpa batas di Custom Studio.
   - Tampilan bersih tanpa watermark atau iklan.
   - Gembok PIN rahasia opsional berkeamanan tinggi.
   - Tautan *unlisted* permanen aktif selamanya.
@@ -88,16 +121,17 @@ Fitur di bawah ini dikelompokkan sesuai fase roadmap yang telah disetujui.
 
 ## 4. User Flow
 
-**A. Perjalanan Pembuat (5 menit di HP, tanpa login dulu)**
-1. Buka halaman utama → melihat contoh kado (*"Lihat contoh kado"*).
-2. Ketuk **"Bikin Kado"** → langsung masuk ke Editor Kado tanpa login.
-3. Pilih tema (ulang tahun, anniversary, wisuda, Lebaran, Valentine).
-4. Isi nama penerima dan kalimat pembuka.
-5. Susun kartu foto & teks (upload foto langsung dari kamera/galeri).
-6. Pilih musik latar: instrumental bebas royalti atau link YouTube sendiri.
-7. Lihat **pratinjau langsung**.
-8. Ketuk **Terbitkan Kado (Rp 5.000)** → Sheet Checkout → Masuk Cepat dengan Google → Bayar via QRIS Mayar.
-9. Pembayaran terverifikasi otomatis (webhook / polling) → confetti meledak → dapat tautan kado unik → bagikan ke WhatsApp.
+**A. Perjalanan Pembuat di Custom Studio (5 menit di HP/Desktop, tanpa login dulu)**
+1. **Langkah 1: Masuk dari Landing Page** → Ketuk **"Bikin Kado Sekarang"**.
+2. **Langkah 2: Pilih Nuansa Kado** → Memilih salah satu dari 4 nuansa (*Buat Ucapan, Buat Ulang Tahun, Buat Pacar, Buat Temen*).
+3. **Langkah 3: Masuk ke BacaKado Custom Studio** → Sistem otomatis memuat template kanvas, musik, dan palet sesuai nuansa yang dipilih.
+4. **Langkah 4: Personalisasi Kanvas (WYSIWYG)**:
+   - Ketik nama penerima di header kanvas.
+   - Edit kalimat pembuka dan kartu-kartu polaroid (ketuk teks untuk edit langsung, upload foto kenangan, sisipkan stiker/emoji).
+   - Atur musik latar dan aktifkan Gembok PIN (opsional) di panel Inspector kanan.
+5. **Langkah 5: Uji Buka Kado (Simulasi)** → Ketuk tombol *Uji Kado* untuk merasakan pengalaman buka amplop 3D dan alur cerita dari sudut pandang penerima.
+6. **Langkah 6: Terbitkan Kado (Rp 5.000)** → Ketuk *Terbitkan Kado* → Masuk Cepat Google OAuth (Delayed Login) → Bayar QRIS Mayar Rp 5.000.
+7. **Langkah 7: Konfirmasi & Berbagi** → Pembayaran lunas → selebrasi confetti → tautan unik siap dibagikan ke WhatsApp.
 
 **B. Perjalanan Penerima (momen emosional)**
 1. Menerima link dari WhatsApp/media sosial → membuka di HP.
@@ -200,6 +234,7 @@ Berikut tabel-tabel utama pada Supabase (PostgreSQL) yang telah diperkuat dengan
 - `order_index` (int) — urutan kartu.
 - `text_content` (text) — narasi kartu.
 - `image_url` (text) — tautan foto di Supabase Storage `gift-images`.
+- `metadata` (jsonb, default '{}') — data kustomisasi studio (kemiringan kartu, gaya font, stiker & koordinat elemen).
 - *RLS:* Kartu kado yang memiliki `has_passcode = true` disembunyikan dari query publik biasa dan hanya bisa diperoleh via RPC `unlock_gift()`.
 
 **Tabel `replies`** — pesan balasan dari penerima kado

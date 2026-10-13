@@ -1,65 +1,115 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { THEME_OPTIONS, MUSIC_OPTIONS } from "@/lib/mock-data";
-import { Card, Theme } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { GiftExperience } from "@/components/gift/GiftExperience";
-import { Gift } from "@/lib/types";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { Theme, Card, Gift } from "@/lib/types";
+import { THEME_OPTIONS, MUSIC_OPTIONS, GALLERY_MOCK } from "@/lib/mock-data";
+import { DraftGift, getGiftForEdit, updateGift } from "@/app/actions/gift";
+import { checkPaymentStatus } from "@/app/actions/payment";
 import { PublishModal, usePendingPublish } from "@/components/gift/PublishModal";
 import { ShareSuccessModal } from "@/components/gift/ShareSuccessModal";
-import { CardImageUpload } from "@/components/gift/CardImageUpload";
-import { DraftGift } from "@/app/actions/gift";
-import { checkPaymentStatus } from "@/app/actions/payment";
-import { PREMIUM_PRICE_LABEL, youtubeId } from "@/lib/utils";
-import { Play, Pause, Volume2, Sparkles, Heart, Smartphone } from "lucide-react";
-import { IosEmoji, IosEmojiBar } from "@/components/ui/IosEmoji";
+import { youtubeId } from "@/lib/utils";
 
-type Step = "theme" | "pembuka" | "kartu" | "musik" | "preview";
+// Custom Studio Components
+import { StudioThemeGate } from "@/components/studio/StudioThemeGate";
+import { StudioHeader, StudioStage, ViewportMode } from "@/components/studio/StudioHeader";
+import { StudioLeftDrawer } from "@/components/studio/StudioLeftDrawer";
+import { StudioCanvas } from "@/components/studio/StudioCanvas";
+import { StudioRightInspector, FontStyle } from "@/components/studio/StudioRightInspector";
+import { StudioSimulatorModal } from "@/components/studio/StudioSimulatorModal";
+import { Layers, Sliders, X, Check } from "lucide-react";
+import { triggerHaptic } from "@/lib/haptics";
 
-const STEPS: Step[] = ["theme", "pembuka", "kartu", "musik", "preview"];
+const DRAFT_STORAGE_KEY = "bacakado_custom_studio_draft_v2";
 
-const STEP_LABELS: Record<Step, string> = {
-  theme: "Nuansa",
-  pembuka: "Pesan Awal",
-  kartu: "Kartu Cerita",
-  musik: "Audio Latar",
-  preview: "Pratinjau",
-};
+interface Snapshot {
+  cards: Card[];
+  openingText: string;
+  closingText: string;
+  recipientName: string;
+}
 
-const PRESETS = [
+const THEME_STARTERS: Record<
+  Theme,
   {
-    icon: "💌",
-    label: "Buat Ucapan",
-    opening: (name: string) => `Ada sepucuk pesan manis yang ingin kusampaikan padamu, ${name || "kamu"} 💌✨`,
+    opening: (name: string) => string;
+    closing: string;
+    card1: string;
+    card2: string;
+    musicId: string;
+    tapeStyle: "washi-tape" | "washi-tape-gold";
+  }
+> = {
+  ucapan: {
+    opening: (name) => `Ada sepucuk pesan manis yang ingin kusampaikan padamu, ${name || "kamu"} 💌✨`,
     closing: "Semoga hari-harimu selalu dipenuhi ketenangan dan senyuman. Terima kasih sudah hadir dalam hidupku. ✨",
+    card1: "Terima kasih sudah selalu ada dan membawa warna indah dalam hari-hariku. 🌸",
+    card2: "Semoga setiap langkahmu selalu dipeluk ketenangan dan hal-hal baik. ✨",
+    musicId: "piano-lembut",
+    tapeStyle: "washi-tape-gold",
   },
-  {
-    icon: "🎂",
-    label: "Buat Ulang Tahun",
-    opening: (name: string) => `Ada kejutan spesial buat kamu di hari bahagia ini, ${name || "kamu"} 🎂✨`,
+  "ulang-tahun": {
+    opening: (name) => `Ada kejutan spesial buat kamu di hari bahagia ini, ${name || "kamu"} 🎂✨`,
     closing: "Selamat ulang tahun! Semoga segala harapan dan impianmu terwujud. Bangga banget sama kamu, teruslah bahagia! 🎉",
+    card1: "Selamat ulang tahun! Semoga tahun ini membawa ribuan alasan baru untuk tersenyum lebar. 🎂🎉",
+    card2: "Teruslah bersinar dan jangan pernah berhenti percaya pada mimpi-mimpimu. 🌟",
+    musicId: "akustik-ceria",
+    tapeStyle: "washi-tape-gold",
   },
-  {
-    icon: "🌹",
-    label: "Buat Pacar",
-    opening: (name: string) => `Sebuah surat kecil penuh cinta buat orang paling spesial dalam hidupku, ${name || "kamu"} ❤️`,
-    closing: "Terima kasih sudah selalu ada dan melengkapi setiap hariku. Aku semakin bersyukur memilikimu. Sayang kamu selamanya. 🌹",
+  pacar: {
+    opening: (name) => `Sebuah surat kecil penuh cinta buat orang paling spesial dalam hidupku, ${name || "kamu"} ❤️`,
+    closing: "Terima kasih sudah selalu ada dan melengkapi setiap hariku. Aku semakin bersyukur memilikimu. Sayang kamu selamanya. 🌹❤️",
+    card1: "Setiap momen bersamamu selalu jadi bagian favorit dari hariku. Terima kasih sudah jadi rumah ternyaman. 🌹",
+    card2: "Aku bersyukur semesta mempertemukan kita. Semoga kita selalu saling menjaga dan melengkapi. 💕",
+    musicId: "piano-lembut",
+    tapeStyle: "washi-tape",
   },
-  {
-    icon: "✨",
-    label: "Buat Temen",
-    opening: (name: string) => `Buat temen terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} 💌`,
+  temen: {
+    opening: (name) => `Buat temen terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} ✨💌`,
     closing: "Terima kasih atas tawa, cerita konyol, dan kebersamaan yang gak pernah ada habisnya. Temenan selamanya ya! ✨",
+    card1: "Makasih udah selalu nemenin dari cerita seru sampai obrolan random tengah malem. Gak pernah bosen temenan sama kamu! 🧸",
+    card2: "Apapun tantangan ke depan, kita hadapi bareng-bareng. Sukses terus ya buat kita! 🥂",
+    musicId: "lofi-santai",
+    tapeStyle: "washi-tape",
   },
-];
+  anniversary: {
+    opening: (name) => `Selamat hari jadi kita, ${name || "sayang"} 💍❤️`,
+    closing: "Terima kasih untuk setiap tahun yang kita lewati bersama. Cinta ini selalu bertambah setiap harinya. 🌹",
+    card1: "Mengingat kembali hari pertama kita bertemu, aku tahu kamu adalah takdir terindahku. ❤️",
+    card2: "Mari terus menua bersama dengan ribuan cerita manis berikutnya. ✨",
+    musicId: "piano-lembut",
+    tapeStyle: "washi-tape-gold",
+  },
+  wisuda: {
+    opening: (name) => `Selamat atas kelulusanmu, ${name || "sahabatku"}! Bangga banget 🎓✨`,
+    closing: "Perjalanan baru telah menanti. Langkah dengan percaya diri, kamu pasti berhasil! 🌟",
+    card1: "Semua perjuangan, lelah, dan air mata akhirnya terbayar tuntas hari ini! 🎓",
+    card2: "Dunia luas menunggumu untuk menorehkan karya-karya hebat. Teruslah berkilau! ✨",
+    musicId: "sinematik-haru",
+    tapeStyle: "washi-tape-gold",
+  },
+  lebaran: {
+    opening: (name) => `Taqabbalallahu minna wa minkum, selamat Idul Fitri ${name || "sekeluarga"} 🌙✨`,
+    closing: "Mohon maaf lahir dan batin. Semoga berkah dan kedamaian selalu menyertai kita semua. 🕌",
+    card1: "Semoga hari kemenangan ini membawa hangatnya kebersamaan dan pengampunan. 🌙",
+    card2: "Terima kasih atas silaturahmi yang tak pernah putus. Sehat dan bahagia selalu! ✨",
+    musicId: "hangat-keluarga",
+    tapeStyle: "washi-tape-gold",
+  },
+  valentine: {
+    opening: (name) => `Happy Valentine's Day untuk orang termanis di hatiku, ${name || "kamu"} 💖🌹`,
+    closing: "Cinta ini sederhana, tapi seluas semesta untukmu. Selamat hari kasih sayang! 🌹",
+    card1: "Terima kasih sudah membuat dunia terasa lebih indah dan hangat setiap hari. 💖",
+    card2: "Kamu adalah hadiah terindah yang pernah kumiliki. Sayang kamu selalu! 🥰",
+    musicId: "piano-lembut",
+    tapeStyle: "washi-tape",
+  },
+};
 
 export default function BuatPage() {
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
 
-  // Handle callback return setelah pembayaran Mayar berhasil
+  // Mayar payment redirect handling
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -77,665 +127,795 @@ export default function BuatPage() {
     }
   }, []);
 
-  // After Google OAuth redirect, continue the pending draft to payment
+  // Continue pending publish flow after auth
   usePendingPublish();
 
-  const [step, setStep] = useState<Step>("theme");
+  // Studio Mode: Initial Gate or Interactive Workspace
+  const [viewMode, setViewMode] = useState<"gate" | "studio">("gate");
+
+  // Core Gift State
   const [theme, setTheme] = useState<Theme>("ucapan");
   const [recipientName, setRecipientName] = useState("");
   const [openingText, setOpeningText] = useState("");
   const [closingText, setClosingText] = useState("");
-  const [musicId, setMusicId] = useState("");
-  const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [previewPlayingId, setPreviewPlayingId] = useState<string | null>(null);
-  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  const useYoutube = musicId === "youtube";
-  const youtubeInvalid = useYoutube && Boolean(youtubeUrl.trim()) && !youtubeId(youtubeUrl);
   const [cards, setCards] = useState<Card[]>([
-    { id: "1", order_index: 0, text_content: "" },
+    { id: "c1", order_index: 0, text_content: "" },
   ]);
+  const [musicId, setMusicId] = useState("piano-lembut");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [hasPasscode, setHasPasscode] = useState(false);
+  const [passcode, setPasscode] = useState("");
+
+  // Studio Controls & Viewport State
+  const [activeStage, setActiveStage] = useState<StudioStage>("card");
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const [viewportMode, setViewportMode] = useState<ViewportMode>("mobile");
+  const [zoomScale, setZoomScale] = useState(1);
+  const [fontStyle, setFontStyle] = useState<FontStyle>("serif");
+  const [cardTilt, setCardTilt] = useState(-1.5);
+  const [tapeStyle, setTapeStyle] = useState<"washi-tape" | "washi-tape-gold">("washi-tape-gold");
+
+  // Mobile Drawer Toggle state
+  const [mobileDrawer, setMobileDrawer] = useState<"none" | "left" | "right">("none");
+
+  // Modals & Editing State
+  const [showSimulation, setShowSimulation] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
-  const [previewOpened, setPreviewOpened] = useState(false);
+  const [editingGiftId, setEditingGiftId] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateToastMessage, setUpdateToastMessage] = useState<string | null>(null);
 
-  const currentTheme = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
-  const stepIndex = STEPS.indexOf(step);
+  // Undo / Redo History
+  const [history, setHistory] = useState<Snapshot[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoRedoAction = useRef(false);
 
-  // Audio preview handler in Step 4
-  function toggleAudioPreview(id: string, url: string) {
-    if (previewPlayingId === id) {
-      if (previewAudioRef.current) {
-        previewAudioRef.current.pause();
-      }
-      setPreviewPlayingId(null);
-    } else {
-      if (previewAudioRef.current) {
-        previewAudioRef.current.pause();
-      }
-      const audio = new Audio(url);
-      audio.volume = 0.6;
-      audio.play().then(() => {
-        previewAudioRef.current = audio;
-        setPreviewPlayingId(id);
-        audio.onended = () => setPreviewPlayingId(null);
-      }).catch(() => {});
+  const pushSnapshot = useCallback(() => {
+    if (isUndoRedoAction.current) return;
+    const snapshot: Snapshot = {
+      cards: JSON.parse(JSON.stringify(cards)),
+      openingText,
+      closingText,
+      recipientName,
+    };
+    setHistory((prev) => [...prev.slice(0, historyIndex + 1), snapshot]);
+    setHistoryIndex((prev) => prev + 1);
+  }, [cards, openingText, closingText, recipientName, historyIndex]);
+
+  function handleUndo() {
+    if (historyIndex > 0) {
+      triggerHaptic("selection");
+      isUndoRedoAction.current = true;
+      const target = history[historyIndex - 1];
+      setCards(target.cards);
+      setOpeningText(target.openingText);
+      setClosingText(target.closingText);
+      setRecipientName(target.recipientName);
+      setHistoryIndex((i) => i - 1);
+      setTimeout(() => {
+        isUndoRedoAction.current = false;
+      }, 50);
     }
   }
 
-  // Stop audio preview when changing steps
-  useEffect(() => {
-    return () => {
-      if (previewAudioRef.current) {
-        previewAudioRef.current.pause();
-      }
-    };
-  }, [step]);
-
-  function applyPreset(preset: typeof PRESETS[0]) {
-    setOpeningText(preset.opening(recipientName));
-    setClosingText(preset.closing);
+  function handleRedo() {
+    if (historyIndex < history.length - 1) {
+      triggerHaptic("selection");
+      isUndoRedoAction.current = true;
+      const target = history[historyIndex + 1];
+      setCards(target.cards);
+      setOpeningText(target.openingText);
+      setClosingText(target.closingText);
+      setRecipientName(target.recipientName);
+      setHistoryIndex((i) => i + 1);
+      setTimeout(() => {
+        isUndoRedoAction.current = false;
+      }, 50);
+    }
   }
 
-  const draft: DraftGift = {
-    recipientName,
-    openingText,
-    closingText,
+  // Load template from gallery, edit existing gift, or restore saved draft on initial client mount
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const editSlug = params.get("edit");
+      const templateSlug = params.get("template");
+      const themeParam = params.get("theme") as Theme | null;
+
+      // Check if user came from Dashboard to edit an existing owned gift
+      if (editSlug) {
+        getGiftForEdit(editSlug).then((res) => {
+          if (res.gift) {
+            const g = res.gift;
+            setEditingGiftId(g.id);
+            setTheme(g.theme);
+            setRecipientName(g.recipient_name || "");
+            setOpeningText(g.opening_text || "");
+            setClosingText(g.closing_text || "");
+            if (g.cards && g.cards.length > 0) {
+              setCards(g.cards);
+            }
+            if (g.music_url) {
+              const matchedMusic = MUSIC_OPTIONS.find((m) => m.url === g.music_url);
+              if (matchedMusic) {
+                setMusicId(matchedMusic.id);
+              } else if (g.music_url.includes("youtube.com") || g.music_url.includes("youtu.be")) {
+                setMusicId("youtube");
+                setYoutubeUrl(g.music_url);
+              }
+            }
+            setHasPasscode(Boolean(g.has_passcode));
+            setViewMode("studio");
+            setActiveStage("card");
+            setActiveCardIndex(0);
+          }
+        });
+        return;
+      }
+
+      // Check if user came from Galeri to remix a template
+      if (templateSlug) {
+        const templateGift = GALLERY_MOCK.find((g) => g.slug === templateSlug);
+        if (templateGift) {
+          const normTheme =
+            templateGift.theme === "anniversary" || templateGift.theme === "valentine"
+              ? "pacar"
+              : templateGift.theme === "wisuda" || templateGift.theme === "lebaran"
+              ? "temen"
+              : (templateGift.theme as Theme);
+
+          setTheme(normTheme);
+          setRecipientName(templateGift.recipient_name || "");
+          setOpeningText(templateGift.opening_text || "");
+          setClosingText(templateGift.closing_text || "");
+          if (templateGift.cards && templateGift.cards.length > 0) {
+            setCards(templateGift.cards);
+          }
+          if (templateGift.music_url) {
+            const matchedMusic = MUSIC_OPTIONS.find((m) => m.url === templateGift.music_url);
+            if (matchedMusic) setMusicId(matchedMusic.id);
+          }
+          setViewMode("studio");
+          setActiveStage("card");
+          setActiveCardIndex(0);
+          return;
+        }
+      }
+
+      // Check if theme was selected directly via URL
+      if (themeParam && THEME_STARTERS[themeParam]) {
+        setTheme(themeParam);
+        const starter = THEME_STARTERS[themeParam];
+        setOpeningText(starter.opening("Kamu"));
+        setClosingText(starter.closing);
+        setMusicId(starter.musicId);
+        setTapeStyle(starter.tapeStyle);
+        setCards([
+          { id: "c1", order_index: 0, text_content: starter.card1 },
+          { id: "c2", order_index: 1, text_content: starter.card2 },
+        ]);
+        setViewMode("studio");
+        setActiveStage("card");
+        setActiveCardIndex(0);
+        return;
+      }
+
+      // Fallback: restore saved draft
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.theme) setTheme(parsed.theme);
+        if (parsed.recipientName) setRecipientName(parsed.recipientName);
+        if (parsed.openingText) setOpeningText(parsed.openingText);
+        if (parsed.closingText) setClosingText(parsed.closingText);
+        if (parsed.cards && parsed.cards.length > 0) setCards(parsed.cards);
+        if (parsed.musicId !== undefined) setMusicId(parsed.musicId);
+        if (parsed.youtubeUrl) setYoutubeUrl(parsed.youtubeUrl);
+        if (parsed.hasPasscode !== undefined) setHasPasscode(parsed.hasPasscode);
+        if (parsed.passcode) setPasscode(parsed.passcode);
+        if (parsed.tapeStyle) setTapeStyle(parsed.tapeStyle);
+
+        // If draft already has content, resume directly in studio
+        if (parsed.recipientName || parsed.openingText) {
+          setViewMode("studio");
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, []);
+
+  // Save draft periodically
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const timer = setTimeout(() => {
+      try {
+        const draftObj = {
+          theme,
+          recipientName,
+          openingText,
+          closingText,
+          cards,
+          musicId,
+          youtubeUrl,
+          hasPasscode,
+          passcode,
+          tapeStyle,
+        };
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftObj));
+      } catch {
+        // Ignore storage quotas
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [theme, recipientName, openingText, closingText, cards, musicId, youtubeUrl, hasPasscode, passcode, tapeStyle]);
+
+  // Handle Theme Selection from Gate
+  function handleSelectThemeAndContinue(selectedTheme: Theme, recipient: string) {
+    setTheme(selectedTheme);
+    const starter = THEME_STARTERS[selectedTheme] || THEME_STARTERS.ucapan;
+
+    const finalRecipient = recipient || recipientName || "Kamu";
+    setRecipientName(finalRecipient);
+
+    // Populate default text if empty
+    if (!openingText.trim()) {
+      setOpeningText(starter.opening(finalRecipient));
+    }
+    if (!closingText.trim()) {
+      setClosingText(starter.closing);
+    }
+    if (!musicId) {
+      setMusicId(starter.musicId);
+    }
+    setTapeStyle(starter.tapeStyle);
+
+    // Starter cards if current card is blank
+    if (cards.length === 1 && !cards[0].text_content.trim() && !cards[0].image_url) {
+      setCards([
+        { id: "c1", order_index: 0, text_content: starter.card1 },
+        { id: "c2", order_index: 1, text_content: starter.card2 },
+      ]);
+    }
+
+    setViewMode("studio");
+    setActiveStage("card");
+    setActiveCardIndex(0);
+    pushSnapshot();
+  }
+
+  // Reset / Start fresh draft
+  function handleResetDraft() {
+    if (typeof window === "undefined") return;
+    const confirmed = window.confirm(
+      "Mulai kado baru?\nSemua isi kartu dan teks saat ini akan dibersihkan dari draf."
+    );
+    if (!confirmed) return;
+
+    triggerHaptic("medium");
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+
+    setTheme("ucapan");
+    setRecipientName("");
+    setOpeningText("");
+    setClosingText("");
+    setCards([{ id: "c1", order_index: 0, text_content: "" }]);
+    setMusicId("piano-lembut");
+    setYoutubeUrl("");
+    setHasPasscode(false);
+    setPasscode("");
+    setViewMode("gate");
+    setActiveStage("envelope");
+    setHistory([]);
+    setHistoryIndex(-1);
+  }
+
+  // Card Manipulation Helpers
+  function handleAddCard() {
+    triggerHaptic("medium");
+    const newCard: Card = {
+      id: Date.now().toString(),
+      order_index: cards.length,
+      text_content: "",
+    };
+    setCards((prev) => [...prev, newCard]);
+    setActiveCardIndex(cards.length);
+    setActiveStage("card");
+    pushSnapshot();
+  }
+
+  function handleDuplicateCard(id: string) {
+    const cardToDup = cards.find((c) => c.id === id);
+    if (!cardToDup) return;
+    const dup: Card = {
+      id: Date.now().toString(),
+      order_index: cards.length,
+      text_content: cardToDup.text_content,
+      image_url: cardToDup.image_url,
+    };
+    setCards((prev) => [...prev, dup]);
+    setActiveCardIndex(cards.length);
+    pushSnapshot();
+  }
+
+  function handleRemoveCard(id: string) {
+    if (cards.length <= 1) return;
+    setCards((prev) => {
+      const filtered = prev.filter((c) => c.id !== id);
+      return filtered.map((c, idx) => ({ ...c, order_index: idx }));
+    });
+    setActiveCardIndex((prev) => Math.max(0, prev - 1));
+    pushSnapshot();
+  }
+
+  function handleMoveCard(fromIndex: number, toIndex: number) {
+    if (toIndex < 0 || toIndex >= cards.length) return;
+    setCards((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next.map((c, i) => ({ ...c, order_index: i }));
+    });
+    setActiveCardIndex(toIndex);
+    pushSnapshot();
+  }
+
+  function handleSetCardSticker(sticker: string, position?: { x: number; y: number; rotate?: number }) {
+    const current = cards[activeCardIndex];
+    if (!current) return;
+    setCards((prev) =>
+      prev.map((c) =>
+        c.id === current.id
+          ? {
+              ...c,
+              sticker: sticker || undefined,
+              sticker_x: sticker ? position?.x ?? c.sticker_x ?? 86 : undefined,
+              sticker_y: sticker ? position?.y ?? c.sticker_y ?? 14 : undefined,
+              sticker_rotate: sticker ? position?.rotate ?? c.sticker_rotate ?? 12 : undefined,
+            }
+          : c
+      )
+    );
+    pushSnapshot();
+  }
+
+  function handleUpdateCardStickerPosition(id: string, x: number, y: number, rotate?: number) {
+    setCards((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              sticker_x: Math.round(x * 10) / 10,
+              sticker_y: Math.round(y * 10) / 10,
+              sticker_rotate: rotate !== undefined ? rotate : (c.sticker_rotate ?? 12),
+            }
+          : c
+      )
+    );
+  }
+
+  function handleRemoveCardSticker(id: string) {
+    setCards((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              sticker: undefined,
+              sticker_x: undefined,
+              sticker_y: undefined,
+              sticker_rotate: undefined,
+            }
+          : c
+      )
+    );
+    pushSnapshot();
+  }
+
+  function handleUpdateCardImagePosition(id: string, pos: "center" | "top" | "bottom") {
+    setCards((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, image_position: pos } : c))
+    );
+    pushSnapshot();
+  }
+
+  function handleUpdateCardText(id: string, text: string) {
+    setCards((prev) => prev.map((c) => (c.id === id ? { ...c, text_content: text } : c)));
+  }
+
+  function handleUpdateCardImage(id: string, url: string) {
+    setCards((prev) => prev.map((c) => (c.id === id ? { ...c, image_url: url } : c)));
+    pushSnapshot();
+  }
+
+  function handleApplyPresetText(text: string, target: "opening" | "card" | "closing") {
+    if (target === "opening") {
+      setOpeningText(text);
+    } else if (target === "closing") {
+      setClosingText(text);
+    } else {
+      const activeCard = cards[activeCardIndex];
+      if (activeCard) {
+        handleUpdateCardText(activeCard.id, text);
+      }
+    }
+    pushSnapshot();
+  }
+
+  // Active Music Label
+  const activeMusicOption = MUSIC_OPTIONS.find((m) => m.id === musicId);
+  const activeMusicTitle =
+    musicId === "youtube"
+      ? "Lagu YouTube Pilihan"
+      : activeMusicOption
+      ? activeMusicOption.label
+      : "Tanpa musik latar";
+
+  async function handleSaveUpdate() {
+    if (!editingGiftId) return;
+    setIsUpdating(true);
+    triggerHaptic("medium");
+    const draftData: DraftGift = {
+      recipientName: recipientName || "Kamu",
+      openingText: openingText || `Ada sesuatu buat ${recipientName || "kamu"} 💌`,
+      closingText: closingText || "Semoga hari-harimu selalu menyenangkan.",
+      theme,
+      musicId,
+      youtubeUrl: isYoutube ? youtubeUrl : undefined,
+      cards: cards.map((c) => ({
+        text_content: c.text_content,
+        image_url: c.image_url,
+        image_position: c.image_position,
+        sticker: c.sticker,
+        sticker_x: c.sticker_x,
+        sticker_y: c.sticker_y,
+        sticker_rotate: c.sticker_rotate,
+      })),
+      passcode: hasPasscode && passcode.trim() ? passcode.trim() : undefined,
+    };
+    const res = await updateGift(editingGiftId, draftData);
+    setIsUpdating(false);
+    if (res.success) {
+      triggerHaptic("success");
+      setUpdateToastMessage("Kado berhasil diperbarui! ✨");
+      setTimeout(() => setUpdateToastMessage(null), 3500);
+    } else {
+      alert(res.error || "Gagal memperbarui kado");
+    }
+  }
+
+  // Prepare Draft Object for Publishing
+  const isYoutube = musicId === "youtube";
+  const draftGift: DraftGift = {
+    recipientName: recipientName || "Kamu",
+    openingText: openingText || `Ada sesuatu buat ${recipientName || "kamu"} 💌`,
+    closingText: closingText || "Semoga hari-harimu selalu menyenangkan.",
     theme,
     musicId,
-    youtubeUrl: useYoutube ? youtubeUrl : undefined,
-    cards: cards.map((c) => ({ text_content: c.text_content, image_url: c.image_url })),
+    youtubeUrl: isYoutube ? youtubeUrl : undefined,
+    cards: cards.map((c) => ({
+      text_content: c.text_content,
+      image_url: c.image_url,
+      image_position: c.image_position,
+      sticker: c.sticker,
+      sticker_x: c.sticker_x,
+      sticker_y: c.sticker_y,
+      sticker_rotate: c.sticker_rotate,
+    })),
+    passcode: hasPasscode && passcode.trim() ? passcode.trim() : undefined,
   };
 
+  // Prepare Live Preview Gift Object
   const previewGift: Gift = {
     id: "preview",
     slug: "preview",
     recipient_name: recipientName || "Kamu",
-    opening_text: openingText || `Ada sesuatu buat ${recipientName || "kamu"}`,
+    opening_text: openingText || `Ada sesuatu buat ${recipientName || "kamu"} 💌`,
     theme,
-    closing_text: closingText || "Semoga hari-harimu selalu menyenangkan.",
-    music_url: useYoutube ? youtubeUrl : MUSIC_OPTIONS.find((m) => m.id === musicId)?.url,
-    cards: cards.filter((c) => c.text_content.trim()),
+    closing_text: closingText || "Semoga hari-harimu selalu dipenuhi kebahagiaan.",
+    music_url: isYoutube ? youtubeUrl : activeMusicOption?.url,
+    cards: cards.filter((c) => c.text_content.trim() || c.image_url || c.sticker),
     status: "draft",
     is_premium: true,
+    has_passcode: hasPasscode,
     view_count: 0,
     like_count: 0,
     is_public: false,
     created_at: new Date().toISOString(),
   };
 
-  function addCard() {
-    setCards((prev) => [
-      ...prev,
-      { id: Date.now().toString(), order_index: prev.length, text_content: "" },
-    ]);
-  }
-
-  function removeCard(id: string) {
-    setCards((prev) =>
-      prev.filter((c) => c.id !== id).map((c, i) => ({ ...c, order_index: i }))
-    );
-  }
-
-  function updateCard(id: string, field: "text_content" | "image_url", val: string) {
-    setCards((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, [field]: val } : c))
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-[#1D1D1F]">
-      {/* ── Navbar ───────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 apple-glass">
-        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
-          <a href="/" className="text-xs font-bold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity flex items-center gap-1.5">
-            <IosEmoji symbol="💌" size={18} />
-            <span>BacaKado</span>
-          </a>
-
-          {/* Minimalist Progress Pill */}
-          <div className="flex items-center gap-1.5 bg-neutral-100/90 px-3.5 py-1.5 rounded-full text-[11px] font-medium text-neutral-600 border border-neutral-200/60 shadow-2xs">
-            <span>{stepIndex + 1} dari 5</span>
-            <span className="text-neutral-300">·</span>
-            <span className="text-neutral-900 font-semibold">{STEP_LABELS[step]}</span>
-          </div>
-
-          <a href="/" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors">
-            Keluar
-          </a>
-        </div>
-      </header>
-
-      {/* ── Main Content Area ─────────────────────────────────── */}
-      <main className="max-w-xl mx-auto px-6 py-10">
-
-        {/* ── STEP 1: TEMA / NUANSA ────────────────────────────── */}
-        {step === "theme" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="mb-6 text-center sm:text-left">
-              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
-                <Sparkles size={12} />
-                <span>Langkah 1 dari 5</span>
-              </span>
-              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
-                Pilih Nuansa Kado
-              </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Atur palet warna visual, partikel melayang, dan segel lilin amplop.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-              {THEME_OPTIONS.map((t) => {
-                const isSelected = theme === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setTheme(t.id as Theme)}
-                    className={`bg-gradient-to-b ${t.gradient} p-5 rounded-3xl text-left border transition-all relative btn-apple-spring ${
-                      isSelected
-                        ? "border-neutral-900 ring-2 ring-neutral-900 ring-offset-2 shadow-md scale-[1.01]"
-                        : "border-neutral-200/80 hover:border-neutral-400 opacity-90 hover:opacity-100 shadow-2xs active:scale-[0.98]"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-11 h-11 rounded-2xl bg-white/85 shadow-2xs flex items-center justify-center p-1 border border-black/5">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={t.sealSvg} alt={t.label} className="w-full h-full object-contain drop-shadow-xs" />
-                        </div>
-                        <div className="w-8 h-8 rounded-xl bg-white/60 shadow-2xs flex items-center justify-center">
-                          <IosEmoji symbol={t.emoji} size={16} />
-                        </div>
-                      </div>
-                      {isSelected && (
-                        <span className="text-[11px] font-bold text-neutral-900 bg-white/95 px-2.5 py-0.5 rounded-full shadow-2xs border border-black/5">
-                          Dipilih ✓
-                        </span>
-                      )}
-                    </div>
-                    <p className={`font-semibold text-sm ${t.textColor}`}>{t.label}</p>
-                    <p className="text-xs opacity-75 mt-0.5">{t.subtitle}</p>
-                  </button>
-                );
-              })}
-            </div>
-
-            <Button
-              onClick={() => setStep("pembuka")}
-              className="w-full bg-neutral-900 hover:bg-black text-white rounded-full h-12 text-xs font-semibold transition-all active:scale-[0.98] shadow-sm"
-            >
-              Lanjutkan ke Pesan Awal →
-            </Button>
-          </div>
-        )}
-
-        {/* ── STEP 2: PEMBUKA & PENUTUP ────────────────────────── */}
-        {step === "pembuka" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="mb-6 text-center sm:text-left">
-              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
-                <Sparkles size={12} />
-                <span>Langkah 2 dari 5</span>
-              </span>
-              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
-                Pesan Awal & Penutup
-              </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Tulis nama penerima dan kalimat sebelum amplop dibuka.
-              </p>
-            </div>
-
-            {/* Quick Presets Inspiration */}
-            <div className="mb-4">
-              <p className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider mb-2">
-                💡 Ide Pesan Cepat (Klik untuk Pasang):
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {PRESETS.map((p, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => applyPreset(p)}
-                    className="text-xs px-3.5 py-1.5 rounded-full bg-white border border-neutral-200/80 hover:border-rose-300 hover:bg-rose-50/50 text-neutral-700 font-medium transition-all shadow-2xs active:scale-95 flex items-center gap-1.5"
-                  >
-                    <IosEmoji symbol={p.icon} size={14} />
-                    <span>{p.label}</span>
-                  </button>
-                ))}
+    <div className="min-h-screen bg-[#FDFBF7] text-[#1D1D1F] flex flex-col overflow-hidden">
+      {/* ── STEP 1: INITIAL THEME GATE ────────────────────────── */}
+      {viewMode === "gate" ? (
+        <StudioThemeGate
+          initialTheme={theme}
+          initialRecipient={recipientName}
+          onSelectThemeAndContinue={handleSelectThemeAndContinue}
+        />
+      ) : (
+        /* ── STEP 2: INTERACTIVE CUSTOM STUDIO ───────────────── */
+        <div className="flex flex-col h-screen overflow-hidden relative">
+          {/* Toast Notification */}
+          {updateToastMessage && (
+            <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-neutral-900/95 backdrop-blur-md text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-white/10 text-xs font-semibold flex items-center gap-2.5 animate-in fade-in slide-in-from-top-3 duration-300">
+              <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <Check size={12} />
               </div>
-            </div>
-
-            {/* Live Interactive Envelope Mini-Preview */}
-            <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-neutral-50/80 border border-neutral-200/80 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left shadow-2xs">
-              <div
-                onClick={() => setPreviewOpened((prev) => !prev)}
-                className="relative w-32 h-32 sm:w-36 sm:h-36 flex-shrink-0 cursor-pointer group"
-                style={{ perspective: "1000px" }}
-                title="Ketuk untuk melihat animasi buka/tutup amplop"
+              <span>{updateToastMessage}</span>
+              <Link
+                href="/dashboard"
+                className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline underline-offset-2 ml-1 shrink-0"
               >
-                {/* Layer 1: Back Panel */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/gift/back-panel.svg" alt="Back" className="absolute inset-0 w-full h-full object-contain pointer-events-none drop-shadow-sm" style={{ zIndex: 1 }} />
+                Ke Dasbor ↗
+              </Link>
+            </div>
+          )}
 
-                {/* Layer 2: Letter Paper (Meluncur naik) */}
-                <div
-                  className={`absolute inset-0 w-full h-full pointer-events-none transition-all duration-700 ease-out flex flex-col items-center justify-center ${
-                    previewOpened ? "-translate-y-[44%] scale-[1.05] drop-shadow-lg" : "translate-y-0 scale-[0.98]"
-                  }`}
-                  style={{
-                    zIndex: previewOpened ? 6 : 2,
-                    transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/gift/Paper.svg" alt="Paper" className="w-full h-full object-contain" />
-                  <div className="absolute left-[8%] right-[8%] top-[22%] bottom-[44%] flex flex-col items-center justify-center text-center px-1">
-                    <p className="font-serif italic text-[10px] sm:text-xs font-semibold text-neutral-900 truncate max-w-[90px]">
-                      {recipientName ? `Untuk ${recipientName}` : "Untuk Kamu"}
-                    </p>
-                    <p className="text-[8px] text-neutral-600 line-clamp-1 italic mt-0.5">
-                      {openingText || "Pesan ucapan..."}
-                    </p>
-                  </div>
-                </div>
+          {/* Top Bar Header */}
+          <StudioHeader
+            recipientName={recipientName}
+            onUpdateRecipientName={setRecipientName}
+            activeStage={activeStage}
+            onStageChange={setActiveStage}
+            cardsCount={cards.length}
+            viewportMode={viewportMode}
+            onViewportChange={setViewportMode}
+            zoomScale={zoomScale}
+            onZoomChange={setZoomScale}
+            canUndo={historyIndex > 0}
+            canRedo={historyIndex < history.length - 1}
+            onUndo={handleUndo}
+            onRedo={handleRedo}
+            onOpenSimulation={() => setShowSimulation(true)}
+            onOpenPublish={() => setShowPublish(true)}
+            onOpenThemeGate={() => setViewMode("gate")}
+            onResetDraft={handleResetDraft}
+            isEditing={Boolean(editingGiftId)}
+            isSavingUpdate={isUpdating}
+            onSaveUpdate={handleSaveUpdate}
+          />
 
-                {/* Layer 3: Front Panel Pocket */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/gift/front-panel.svg" alt="Front" className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ zIndex: 3 }} />
-
-                {/* Layer 4: Top Flap Panel (Folds 180deg) */}
-                <div
-                  className="absolute inset-0 w-full h-full pointer-events-none transition-all duration-700"
-                  style={{
-                    zIndex: previewOpened ? 1 : 4,
-                    transformOrigin: "50% 23.6%",
-                    transformStyle: "preserve-3d",
-                    transform: previewOpened ? "rotateX(180deg)" : "rotateX(0deg)",
-                    transitionTimingFunction: "cubic-bezier(0.34, 1.25, 0.64, 1)",
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/gift/top-panel.svg" alt="Flap" className="w-full h-full object-contain" />
-                </div>
-
-                {/* Layer 5: Wax Seal (Proporsional ~18-20% Picture 2 + Tilt) */}
-                <div
-                  className={`absolute pointer-events-none transition-all duration-300 ${
-                    previewOpened ? "opacity-0 scale-125" : "opacity-100 scale-100 group-hover:scale-110"
-                  }`}
-                  style={{
-                    left: "50%",
-                    top: "61%",
-                    width: "34px",
-                    height: "34px",
-                    transform: "translate(-50%, -50%) rotate(-8deg)",
-                    zIndex: 10,
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentTheme.sealSvg} alt="Seal" className="w-full h-full object-contain filter drop-shadow-md" />
-                </div>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 justify-center sm:justify-start">
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-100/80">
-                    Pratinjau Amplop Nyata
-                  </span>
-                  <span className="text-[10px] text-neutral-400">
-                    (Ketuk amplop untuk {previewOpened ? "tutup" : "buka"})
-                  </span>
-                </div>
-                <h4 className="font-serif italic text-lg font-medium text-neutral-900 mt-1 truncate">
-                  Untuk {recipientName || "Nama Penerima"}
-                </h4>
-                <p className="text-xs text-neutral-600 italic line-clamp-2 mt-0.5 font-sans leading-relaxed">
-                  &ldquo;{openingText || `Ada sesuatu buat ${recipientName || "kamu"} 💌`}&rdquo;
-                </p>
-                <p className="text-[10px] text-neutral-400 mt-1 font-normal">
-                  Amplop kado ini akan tampil perdana di layar penerima dengan segel lilin {currentTheme.label}.
-                </p>
-              </div>
+          {/* Main 3-Column Studio Workspace */}
+          <div className="flex-1 flex overflow-hidden relative">
+            {/* Left Sidebar Drawer (Desktop) */}
+            <div className="hidden lg:flex">
+              <StudioLeftDrawer
+                cards={cards}
+                activeCardIndex={activeCardIndex}
+                onSelectCard={setActiveCardIndex}
+                onAddCard={handleAddCard}
+                onDuplicateCard={handleDuplicateCard}
+                onRemoveCard={handleRemoveCard}
+                onMoveCard={handleMoveCard}
+                activeStage={activeStage}
+                onStageChange={setActiveStage}
+                recipientName={recipientName}
+                openingText={openingText}
+                closingText={closingText}
+                onApplyPresetText={handleApplyPresetText}
+                onSetCardSticker={handleSetCardSticker}
+                activeCard={cards[activeCardIndex]}
+                activeCardSticker={cards[activeCardIndex]?.sticker}
+                onUpdateCardStickerPosition={(x, y, rot) => {
+                  const curr = cards[activeCardIndex];
+                  if (curr) handleUpdateCardStickerPosition(curr.id, x, y, rot);
+                }}
+                onRemoveCardSticker={() => {
+                  const curr = cards[activeCardIndex];
+                  if (curr) handleRemoveCardSticker(curr.id);
+                }}
+                onUpdateActiveCardImage={(url) => {
+                  const curr = cards[activeCardIndex];
+                  if (curr) handleUpdateCardImage(curr.id, url);
+                }}
+                musicId={musicId}
+                onSelectMusic={setMusicId}
+                youtubeUrl={youtubeUrl}
+                onChangeYoutubeUrl={setYoutubeUrl}
+                theme={theme}
+              />
             </div>
 
-            <div className="space-y-4 mb-8 bg-white p-6 rounded-3xl border border-neutral-200/70 shadow-sm">
-              <div>
-                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
-                  Nama Penerima
-                </label>
-                <Input
-                  placeholder="Misal: Rara, Dimas, atau panggilan sayang"
-                  value={recipientName}
-                  onChange={(e) => setRecipientName(e.target.value)}
-                  className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
-                />
-              </div>
+            {/* Center Canvas (WYSIWYG Workstage) */}
+            <StudioCanvas
+              cards={cards}
+              activeCardIndex={activeCardIndex}
+              onSelectCard={setActiveCardIndex}
+              onUpdateCardText={handleUpdateCardText}
+              onUpdateCardImage={handleUpdateCardImage}
+              onUpdateCardImagePosition={handleUpdateCardImagePosition}
+              onUpdateCardStickerPosition={handleUpdateCardStickerPosition}
+              onRemoveCardSticker={handleRemoveCardSticker}
+              onSetCardSticker={(id, stk, pos) => handleSetCardSticker(stk, pos)}
+              onAddCard={handleAddCard}
+              onRemoveCard={handleRemoveCard}
+              activeStage={activeStage}
+              onStageChange={setActiveStage}
+              recipientName={recipientName}
+              onRecipientNameChange={setRecipientName}
+              openingText={openingText}
+              onOpeningTextChange={setOpeningText}
+              closingText={closingText}
+              onClosingTextChange={setClosingText}
+              theme={theme}
+              fontStyle={fontStyle}
+              cardTilt={cardTilt}
+              tapeStyle={tapeStyle}
+              viewportMode={viewportMode}
+              zoomScale={zoomScale}
+              onOpenSimulation={() => setShowSimulation(true)}
+            />
 
-              <div>
-                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
-                  Kalimat Sampul Kado
-                </label>
-                <Input
-                  placeholder={`Ada sesuatu buat ${recipientName || "kamu"} 💌`}
-                  value={openingText}
-                  onChange={(e) => setOpeningText(e.target.value)}
-                  className="rounded-xl text-xs h-11 border-neutral-200 focus-visible:ring-neutral-900"
-                />
-                <IosEmojiBar
-                  onSelect={(emoji) =>
-                    setOpeningText((prev) => (prev ? `${prev} ${emoji}` : emoji))
+            {/* Right Inspector Panel (Desktop) */}
+            <div className="hidden xl:flex">
+              <StudioRightInspector
+                theme={theme}
+                onThemeChange={(newTheme) => {
+                  setTheme(newTheme);
+                  const starter = THEME_STARTERS[newTheme];
+                  if (starter) {
+                    setTapeStyle(starter.tapeStyle);
                   }
-                  className="mt-1.5"
-                />
-                <p className="text-[11px] text-neutral-400 mt-1">
-                  Kalimat yang dilihat pertama kali sebelum amplop dibuka.
-                </p>
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-neutral-700 block mb-1.5">
-                  Pesan Penutup
-                </label>
-                <Textarea
-                  placeholder="Pesan manis setelah semua kartu foto selesai dibuka..."
-                  value={closingText}
-                  onChange={(e) => setClosingText(e.target.value)}
-                  className="rounded-xl text-xs resize-none border-neutral-200 focus-visible:ring-neutral-900"
-                  rows={3}
-                />
-                <IosEmojiBar
-                  onSelect={(emoji) =>
-                    setClosingText((prev) => (prev ? `${prev} ${emoji}` : emoji))
-                  }
-                  className="mt-1.5"
-                />
-              </div>
+                }}
+                fontStyle={fontStyle}
+                onFontStyleChange={setFontStyle}
+                cardTilt={cardTilt}
+                onCardTiltChange={setCardTilt}
+                hasPasscode={hasPasscode}
+                onTogglePasscode={setHasPasscode}
+                passcode={passcode}
+                onPasscodeChange={setPasscode}
+                recipientName={recipientName}
+                onRecipientNameChange={setRecipientName}
+                musicTitle={activeMusicTitle}
+                tapeStyle={tapeStyle}
+                onTapeStyleChange={setTapeStyle}
+              />
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep("theme")}
-                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
+            {/* ── Mobile Action Buttons (Toggles Drawers) ──────── */}
+            <div className="lg:hidden absolute top-3 left-3 z-30 flex items-center gap-2">
+              <button
+                onClick={() => setMobileDrawer(mobileDrawer === "left" ? "none" : "left")}
+                className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-black/10 shadow-md text-xs font-semibold flex items-center gap-1.5 text-neutral-800"
               >
-                ← Kembali
-              </Button>
-              <Button
-                onClick={() => setStep("kartu")}
-                disabled={!recipientName.trim()}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
+                <Layers size={13} />
+                <span>Kartu & Aset</span>
+              </button>
+            </div>
+
+            <div className="xl:hidden absolute top-3 right-3 z-30 flex items-center gap-2">
+              <button
+                onClick={() => setMobileDrawer(mobileDrawer === "right" ? "none" : "right")}
+                className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-black/10 shadow-md text-xs font-semibold flex items-center gap-1.5 text-neutral-800"
               >
-                Lanjut ke Kartu Cerita →
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 3: SUSUN KARTU ──────────────────────────────── */}
-        {step === "kartu" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="mb-6 text-center sm:text-left">
-              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
-                <Sparkles size={12} />
-                <span>Langkah 3 dari 5</span>
-              </span>
-              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
-                Kartu Foto & Narasi
-              </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Tiap kartu akan dibingkai seperti foto Polaroid fisik dengan washi tape.
-              </p>
+                <Sliders size={13} />
+                <span>Desain</span>
+              </button>
             </div>
 
-            <div className="space-y-4 mb-4">
-              {cards.map((card, i) => (
-                <div key={card.id} className="bg-white rounded-3xl p-5 border border-neutral-200/80 shadow-sm relative">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-700 tracking-wide uppercase">
-                      <IosEmoji symbol="📷" size={13} />
-                      <span>Kartu Polaroid {i + 1}</span>
-                    </span>
-                    {cards.length > 1 && (
-                      <button
-                        onClick={() => removeCard(card.id)}
-                        className="text-neutral-400 text-xs hover:text-red-600 transition-colors font-medium"
-                      >
-                        Hapus
-                      </button>
-                    )}
-                  </div>
-
-                  <Textarea
-                    placeholder="Tuliskan ucapan kenangan untuk foto ini..."
-                    value={card.text_content}
-                    onChange={(e) => updateCard(card.id, "text_content", e.target.value)}
-                    className="resize-none rounded-xl text-xs mb-1.5 border-neutral-200 focus-visible:ring-neutral-900"
-                    rows={3}
-                  />
-
-                  <IosEmojiBar
-                    onSelect={(emoji) =>
-                      updateCard(
-                        card.id,
-                        "text_content",
-                        card.text_content ? `${card.text_content} ${emoji}` : emoji
-                      )
-                    }
-                    className="mb-3"
-                  />
-
-                  <CardImageUpload
-                    value={card.image_url}
-                    onChange={(url) => updateCard(card.id, "image_url", url)}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={addCard}
-              className="w-full border-2 border-dashed border-neutral-300 hover:border-neutral-500 bg-white hover:bg-neutral-50/50 rounded-3xl py-4 text-neutral-700 font-semibold text-xs transition-all mb-6 flex items-center justify-center gap-1.5 shadow-2xs"
-            >
-              <span>+</span>
-              <span>Tambah Kartu Kenangan Lainnya</span>
-            </button>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep("pembuka")}
-                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
-              >
-                ← Kembali
-              </Button>
-              <Button
-                onClick={() => setStep("musik")}
-                disabled={cards.every((c) => !c.text_content.trim())}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
-              >
-                Lanjut ke Musik →
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 4: PILIH MUSIK ──────────────────────────────── */}
-        {step === "musik" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="mb-6 text-center sm:text-left">
-              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
-                <Sparkles size={12} />
-                <span>Langkah 4 dari 5</span>
-              </span>
-              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
-                Pilih Audio Latar
-              </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Musik akan diputar lewat piringan vinyl begitu amplop dibuka penerima.
-              </p>
-            </div>
-
-            <div className="space-y-2 mb-8 bg-white p-4 rounded-3xl border border-neutral-200/80 shadow-sm">
-              <div
-                onClick={() => setMusicId("")}
-                className={`w-full text-left p-3.5 rounded-2xl border transition-all text-xs flex justify-between items-center cursor-pointer ${
-                  musicId === ""
-                    ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900"
-                    : "border-transparent hover:bg-neutral-50 text-neutral-500"
-                }`}
-              >
-                <span>Tanpa musik latar</span>
-                {musicId === "" && <span>✓</span>}
-              </div>
-
-              {MUSIC_OPTIONS.map((m) => {
-                const isSelected = musicId === m.id;
-                const isPlaying = previewPlayingId === m.id;
-                return (
-                  <div
-                    key={m.id}
-                    className={`p-3.5 rounded-2xl border transition-all text-xs flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? "border-neutral-900 bg-neutral-50/80 font-semibold text-neutral-900"
-                        : "border-transparent hover:bg-neutral-50 text-neutral-700"
-                    }`}
-                  >
-                    <div
-                      onClick={() => setMusicId(m.id)}
-                      className="flex-1 min-w-0 cursor-pointer flex items-center gap-2"
-                    >
-                      <span className="truncate">{m.label}</span>
-                      {isSelected && <span className="text-rose-500 font-bold">✓</span>}
-                    </div>
-
-                    {/* Preview Listen Button */}
+            {/* Mobile Slide-over Drawer (Left) */}
+            {mobileDrawer === "left" && (
+              <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex">
+                <div className="w-80 h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-200">
+                  <div className="p-3 border-b border-neutral-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-neutral-800">Kartu, Teks & Media</span>
                     <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleAudioPreview(m.id, m.url);
-                      }}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                        isPlaying
-                          ? "bg-rose-500 text-white shadow-xs"
-                          : "bg-neutral-100 hover:bg-neutral-200 text-neutral-700"
-                      }`}
-                      title={isPlaying ? "Jeda contoh lagu" : "Dengarkan contoh lagu"}
+                      onClick={() => setMobileDrawer("none")}
+                      className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
                     >
-                      {isPlaying ? <Pause size={12} /> : <Play size={12} />}
-                      <span>{isPlaying ? "Jeda" : "Dengar"}</span>
+                      <X size={16} />
                     </button>
                   </div>
-                );
-              })}
-
-              <div
-                onClick={() => setMusicId("youtube")}
-                className={`w-full text-left p-3.5 rounded-2xl border transition-all text-xs flex justify-between items-center cursor-pointer ${
-                  useYoutube
-                    ? "border-neutral-900 bg-neutral-50 font-semibold text-neutral-900"
-                    : "border-transparent hover:bg-neutral-50 text-neutral-700"
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span>Lagu pilihan sendiri dari YouTube</span>
-                  <IosEmoji symbol="🎵" size={14} />
+                  <div className="flex-1 overflow-hidden">
+                    <StudioLeftDrawer
+                      cards={cards}
+                      activeCardIndex={activeCardIndex}
+                      onSelectCard={(idx) => {
+                        setActiveCardIndex(idx);
+                        setMobileDrawer("none");
+                      }}
+                      onAddCard={handleAddCard}
+                      onDuplicateCard={handleDuplicateCard}
+                      onRemoveCard={handleRemoveCard}
+                      onMoveCard={handleMoveCard}
+                      activeStage={activeStage}
+                      onStageChange={(s) => {
+                        setActiveStage(s);
+                        setMobileDrawer("none");
+                      }}
+                      recipientName={recipientName}
+                      openingText={openingText}
+                      closingText={closingText}
+                      onApplyPresetText={handleApplyPresetText}
+                      onSetCardSticker={handleSetCardSticker}
+                      activeCard={cards[activeCardIndex]}
+                      activeCardSticker={cards[activeCardIndex]?.sticker}
+                      onUpdateCardStickerPosition={(x, y, rot) => {
+                        const curr = cards[activeCardIndex];
+                        if (curr) handleUpdateCardStickerPosition(curr.id, x, y, rot);
+                      }}
+                      onRemoveCardSticker={() => {
+                        const curr = cards[activeCardIndex];
+                        if (curr) handleRemoveCardSticker(curr.id);
+                      }}
+                      onUpdateActiveCardImage={(url) => {
+                        const curr = cards[activeCardIndex];
+                        if (curr) handleUpdateCardImage(curr.id, url);
+                      }}
+                      musicId={musicId}
+                      onSelectMusic={setMusicId}
+                      youtubeUrl={youtubeUrl}
+                      onChangeYoutubeUrl={setYoutubeUrl}
+                      theme={theme}
+                    />
+                  </div>
                 </div>
-                {useYoutube && <span>✓</span>}
+                <div className="flex-1" onClick={() => setMobileDrawer("none")} />
               </div>
+            )}
 
-              {useYoutube && (
-                <div className="px-2 pt-2 pb-1">
-                  <Input
-                    type="url"
-                    placeholder="https://youtu.be/..."
-                    value={youtubeUrl}
-                    onChange={(e) => setYoutubeUrl(e.target.value)}
-                    className="rounded-xl text-xs h-10 border-neutral-200"
-                  />
-                  <p className={`text-[11px] mt-1.5 ${youtubeInvalid ? "text-red-500" : "text-neutral-400"}`}>
-                    {youtubeInvalid
-                      ? "Link belum dikenali. Salin link dari tombol Bagikan di YouTube."
-                      : "Akan diselaraskan dengan pemutar vinyl aesthetic di layar penerima."}
-                  </p>
+            {/* Mobile Slide-over Drawer (Right) */}
+            {mobileDrawer === "right" && (
+              <div className="xl:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end">
+                <div className="flex-1" onClick={() => setMobileDrawer("none")} />
+                <div className="w-80 h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+                  <div className="p-3 border-b border-neutral-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-neutral-800">Desain & Pengaturan</span>
+                    <button
+                      onClick={() => setMobileDrawer("none")}
+                      className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <StudioRightInspector
+                      theme={theme}
+                      onThemeChange={(newTheme) => {
+                        setTheme(newTheme);
+                        const starter = THEME_STARTERS[newTheme];
+                        if (starter) setTapeStyle(starter.tapeStyle);
+                      }}
+                      fontStyle={fontStyle}
+                      onFontStyleChange={setFontStyle}
+                      cardTilt={cardTilt}
+                      onCardTiltChange={setCardTilt}
+                      hasPasscode={hasPasscode}
+                      onTogglePasscode={setHasPasscode}
+                      passcode={passcode}
+                      onPasscodeChange={setPasscode}
+                      recipientName={recipientName}
+                      onRecipientNameChange={setRecipientName}
+                      musicTitle={activeMusicTitle}
+                      tapeStyle={tapeStyle}
+                      onTapeStyleChange={setTapeStyle}
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep("kartu")}
-                className="rounded-full h-11 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
-              >
-                ← Kembali
-              </Button>
-              <Button
-                onClick={() => setStep("preview")}
-                disabled={useYoutube && !youtubeId(youtubeUrl)}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-11 flex-1 text-xs font-semibold transition-all active:scale-[0.98]"
-              >
-                Lihat Pratinjau Kado →
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* ── STEP 5: PRATINJAU LANGSUNG ───────────────────────── */}
-        {step === "preview" && (
-          <div className="animate-in fade-in duration-300">
-            <div className="mb-6 text-center">
-              <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold text-rose-500 mb-1">
-                <Sparkles size={12} />
-                <span>Langkah 5 dari 5</span>
-              </span>
-              <h1 className="font-serif italic text-3xl font-medium tracking-tight text-neutral-900">
-                Pratinjau Kado Interaktif
-              </h1>
-              <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
-                Coba ketuk segel lilin untuk membuka amplop persis seperti yang akan dialami {recipientName || "penerima"}.
-              </p>
-            </div>
-
-            {/* Realistic Smartphone Mockup Bezel */}
-            <div className="max-w-sm mx-auto mb-8 rounded-[44px] p-2.5 bg-neutral-900 shadow-2xl border-4 border-neutral-800 relative">
-              {/* Dynamic Island / Notch */}
-              <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-4 bg-neutral-950 rounded-full z-50 pointer-events-none flex items-center justify-center">
-                <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 mr-2" />
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-950" />
               </div>
-
-              {/* Smartphone Screen Viewport */}
-              <div className="rounded-[36px] overflow-hidden bg-white h-[580px] relative border border-neutral-800">
-                <GiftExperience gift={previewGift} />
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setStep("musik")}
-                className="rounded-full h-12 flex-1 text-xs font-semibold border-neutral-200 hover:bg-neutral-50"
-              >
-                ← Ubah Konten
-              </Button>
-              <Button
-                onClick={() => setShowPublish(true)}
-                className="bg-neutral-900 hover:bg-black text-white rounded-full h-12 flex-1 text-xs font-semibold transition-all active:scale-[0.98] shadow-md flex items-center justify-center gap-2"
-              >
-                <span>Terbitkan Kado ({PREMIUM_PRICE_LABEL})</span>
-                <Sparkles size={14} className="text-amber-300" />
-              </Button>
-            </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
 
-      </main>
+      {/* ── Live Simulation Unboxing Modal ────────────────────── */}
+      {showSimulation && (
+        <StudioSimulatorModal
+          gift={previewGift}
+          onClose={() => setShowSimulation(false)}
+          onPublish={() => {
+            setShowSimulation(false);
+            setShowPublish(true);
+          }}
+        />
+      )}
 
-      {/* Modal Publish / Checkout Sheet */}
+      {/* ── Publish / Mayar QRIS Checkout Modal ───────────────── */}
       {showPublish && (
         <PublishModal
-          draft={draft}
+          draft={draftGift}
           onClose={() => setShowPublish(false)}
           onPublished={(slug) => {
             setShowPublish(false);
@@ -744,7 +924,7 @@ export default function BuatPage() {
         />
       )}
 
-      {/* Modal Sukses Berbagi */}
+      {/* ── Share Success Modal ───────────────────────────────── */}
       {publishedSlug && (
         <ShareSuccessModal
           slug={publishedSlug}

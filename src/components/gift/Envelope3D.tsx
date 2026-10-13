@@ -4,6 +4,7 @@ import { useState } from "react";
 import confetti from "canvas-confetti";
 import { IosEmoji, EmojiText } from "@/components/ui/IosEmoji";
 import { triggerHaptic } from "@/lib/haptics";
+import { playWaxSealPop, playPaperSlide } from "@/lib/sfx";
 import { Lock } from "lucide-react";
 
 interface Envelope3DProps {
@@ -78,6 +79,9 @@ export function Envelope3D({
   function triggerOpen() {
     setIsOpen(true);
     onOpeningStateChange?.(true);
+
+    playWaxSealPop();
+    setTimeout(playPaperSlide, 150);
 
     // Multimodal audio-tactile haptic burst pada perangkat Apple/Android
     triggerHaptic("burst");
@@ -245,7 +249,7 @@ export function Envelope3D({
           {/* Badge Kunci PIN Rahasia jika ada */}
           {hasPasscode && !passcodeUnlocked && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-6 h-6 rounded-full bg-amber-500/90 text-white flex items-center justify-center shadow-md animate-pulse">
+              <div className="w-6 h-6 rounded-full bg-neutral-900/90 text-white flex items-center justify-center shadow-md">
                 <Lock size={12} />
               </div>
             </div>

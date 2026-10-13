@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Sparkles, Heart, Hand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Hand } from "lucide-react";
 import { Card } from "@/lib/types";
 import { IosEmoji, EmojiText } from "@/components/ui/IosEmoji";
 import { triggerHaptic } from "@/lib/haptics";
+import { playCardFlip } from "@/lib/sfx";
 
 interface PolaroidCardDeckProps {
   cards: Card[];
@@ -54,6 +55,7 @@ export function PolaroidCardDeck({
 
   function handleNext() {
     triggerHaptic("medium");
+    playCardFlip();
     if (index < total - 1) {
       setDirection("next");
       setIndex((i) => i + 1);
@@ -66,6 +68,7 @@ export function PolaroidCardDeck({
   function handlePrev() {
     if (index > 0) {
       triggerHaptic("medium");
+      playCardFlip();
       setDirection("prev");
       setIndex((i) => i - 1);
     }
@@ -275,6 +278,20 @@ export function PolaroidCardDeck({
             <div className={`w-full h-full ${tapeStyle} opacity-90`} />
           </div>
 
+          {/* Pinned Decorative Sticker Badge (Free Position) */}
+          {current?.sticker && (
+            <div
+              className="absolute z-30 w-11 h-11 rounded-2xl bg-white/95 shadow-md border border-black/5 flex items-center justify-center pointer-events-none select-none"
+              style={{
+                left: `${current.sticker_x ?? 88}%`,
+                top: `${current.sticker_y ?? 10}%`,
+                transform: `translate(-50%, -50%) rotate(${current.sticker_rotate ?? 12}deg)`,
+              }}
+            >
+              <IosEmoji symbol={current.sticker} size={24} />
+            </div>
+          )}
+
           {/* Photo Frame or Love Letter Note */}
           {current?.image_url ? (
             <div className="w-full rounded-2xl overflow-hidden bg-neutral-100 shadow-inner mb-4 relative aspect-[4/3] group pointer-events-none">
@@ -283,7 +300,13 @@ export function PolaroidCardDeck({
                 src={current.image_url}
                 alt="Kenangan bersama"
                 draggable={false}
-                className="w-full h-full object-cover transition-transform duration-700"
+                className={`w-full h-full object-cover transition-transform duration-700 ${
+                  current.image_position === "top"
+                    ? "object-top"
+                    : current.image_position === "bottom"
+                    ? "object-bottom"
+                    : "object-center"
+                }`}
               />
               <div className="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-medium tracking-wide flex items-center gap-1.5 shadow-xs">
                 <IosEmoji symbol="📷" size={12} />
@@ -293,8 +316,8 @@ export function PolaroidCardDeck({
           ) : (
             <div className="w-full rounded-2xl bg-amber-50/50 border border-amber-100/80 p-5 mb-4 text-center relative overflow-hidden pointer-events-none">
               <IosEmoji symbol="📜" size={32} className="mb-1" />
-              <p className="text-[11px] font-semibold tracking-widest text-amber-800/80 uppercase">
-                Catatan Kasih
+              <p className="text-[11px] font-medium text-amber-900/80">
+                Catatan kasih
               </p>
               <div className="w-8 h-0.5 bg-amber-300 mx-auto mt-1 mb-2 rounded-full" />
             </div>
@@ -318,8 +341,8 @@ export function PolaroidCardDeck({
 
       {/* Subtle Gesture Hint (Fades out once user has swiped) */}
       {!hasSwipedGesture && (
-        <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px] text-neutral-400 font-medium animate-pulse">
-          <Hand size={12} className="text-rose-400" />
+        <div className="flex items-center justify-center gap-1.5 mt-3 text-[11px] text-neutral-500 font-medium">
+          <Hand size={12} className="text-neutral-400" />
           <span>Geser kartu ↔ untuk membolak-balik kenangan</span>
         </div>
       )}
@@ -351,7 +374,7 @@ export function PolaroidCardDeck({
           ) : (
             <>
               <span>Buka Pesan Penutup</span>
-              <Sparkles size={14} className="text-amber-300" />
+              <IosEmoji symbol="💌" size={15} />
             </>
           )}
         </button>

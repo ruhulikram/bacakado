@@ -13,7 +13,15 @@ export interface DraftGift {
   theme: Theme;
   musicId: string;
   youtubeUrl?: string;
-  cards: { text_content: string; image_url?: string }[];
+  cards: {
+    text_content: string;
+    image_url?: string;
+    image_position?: "center" | "top" | "bottom";
+    sticker?: string;
+    sticker_x?: number;
+    sticker_y?: number;
+    sticker_rotate?: number;
+  }[];
   passcode?: string;
 }
 
@@ -44,6 +52,11 @@ function mapRow(d: Record<string, unknown>): Gift {
         order_index: c.order_index as number,
         text_content: c.text_content as string,
         image_url: c.image_url as string | undefined,
+        image_position: c.image_position as "center" | "top" | "bottom" | undefined,
+        sticker: c.sticker as string | undefined,
+        sticker_x: c.sticker_x as number | undefined,
+        sticker_y: c.sticker_y as number | undefined,
+        sticker_rotate: c.sticker_rotate as number | undefined,
       })),
     status: d.status as "draft" | "published",
     is_premium: Boolean(d.is_premium),
@@ -111,12 +124,17 @@ export async function publishGift(
   if (giftErr) return { error: giftErr.message };
 
   const cardRows = draft.cards
-    .filter((c) => c.text_content.trim())
+    .filter((c) => c.text_content.trim() || c.image_url || c.sticker)
     .map((c, i) => ({
       gift_id: gift.id,
       order_index: i,
       text_content: c.text_content,
       image_url: c.image_url || null,
+      image_position: c.image_position || "center",
+      sticker: c.sticker || null,
+      sticker_x: c.sticker_x ?? null,
+      sticker_y: c.sticker_y ?? null,
+      sticker_rotate: c.sticker_rotate ?? null,
     }));
 
   if (cardRows.length > 0) {
@@ -267,6 +285,112 @@ export async function deleteGift(
     return { success: true };
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Gagal menghapus kado";
+    return { error: msg };
+  }
+}
+
+export async function getGiftForEdit(
+  slug: string
+): Promise<{ gift?: Gift; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Belum login" };
+
+    const { data, error } = await supabase
+      .from("gifts")
+      .select("*, cards(*)")
+      .eq("slug", slug)
+      .eq("user_id", user.id)
+      .single();
+
+    if (error || !data) return { error: "Kado tidak ditemukan" };
+    return { gift: mapRow(data as Record<string, unknown>) };
+  } catch (err: unknown) {
+    return { error: err instanceof Error ? err.message : "Gagal memuat kado" };
+  }
+}
+
+export async function updateGift(
+  giftId: string,
+  draft: DraftGift
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "Login dulu ya 😊" };
+
+    const { data: existing } = await supabase
+      .from("gifts")
+      .select("id, user_id, slug")
+      .eq("id", giftId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!existing) return { error: "Kado tidak ditemukan atau kamu bukan pemiliknya" };
+
+    let musicUrl: string | undefined = undefined;
+    if (draft.musicId === "youtube" && draft.youtubeUrl) {
+      const ytid = youtubeId(draft.youtubeUrl);
+      if (ytid) musicUrl = `https://www.youtube.com/watch?v=${ytid}`;
+    } else if (draft.musicId) {
+      const matched = MUSIC_OPTIONS.find((m) => m.id === draft.musicId);
+      if (matched) musicUrl = matched.url;
+    }
+
+    const { error: updateErr } = await supabase
+      .from("gifts")
+      .update({
+        recipient_name: draft.recipientName,
+        opening_text: draft.openingText,
+        closing_text: draft.closingText,
+        theme: draft.theme,
+        music_url: musicUrl || null,
+        has_passcode: Boolean(draft.passcode?.trim()),
+      })
+      .eq("id", giftId)
+      .eq("user_id", user.id);
+
+    if (updateErr) return { error: updateErr.message };
+
+    await supabase.from("cards").delete().eq("gift_id", giftId);
+
+    const cardRows = draft.cards
+      .filter((c) => c.text_content.trim() || c.image_url || c.sticker)
+      .map((c, i) => ({
+        gift_id: giftId,
+        order_index: i,
+        text_content: c.text_content,
+        image_url: c.image_url || null,
+        image_position: c.image_position || "center",
+        sticker: c.sticker || null,
+        sticker_x: c.sticker_x ?? null,
+        sticker_y: c.sticker_y ?? null,
+        sticker_rotate: c.sticker_rotate ?? null,
+      }));
+
+    if (cardRows.length > 0) {
+      await supabase.from("cards").insert(cardRows);
+    }
+
+    if (draft.passcode?.trim()) {
+      await supabase.rpc("set_gift_passcode", {
+        p_gift_id: giftId,
+        p_pin: draft.passcode,
+      });
+    }
+
+    revalidatePath(`/${existing.slug}`);
+    revalidatePath("/dashboard");
+    revalidatePath("/galeri");
+
+    return { success: true };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Gagal memperbarui kado";
     return { error: msg };
   }
 }

@@ -25,7 +25,7 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
 | **Proxy / Session** | `src/proxy.ts` (@supabase/ssr) | Auto-refresh session token cookies di setiap request Next.js |
 | **Bahasa** | TypeScript 5 | Type-safe (lulus `tsc --noEmit` dan `next build` 100% tanpa error) |
 | **Styling & UI System** | Tailwind CSS v4 + Aesthetic Emotional Gift Design System | Palet hangat/romantis/gold/galaxy, polaroid frames, washi tape, segel lilin 3D, piringan vinyl, dan kaca buram (`apple-glass`) |
-| **Tipografi** | `Plus Jakarta Sans` & `Instrument Serif` | Di-load lewat `next/font/google` di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx) |
+| **Tipografi** | `Arimo` (400..700, normal & italic) & `Instrument Serif` | Di-load lewat `next/font/google` dan tag `<link rel="preconnect">` Google Fonts di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx), font body & `--font-sans` dipetakan ke `Arimo` |
 | **iOS Emoji System** | `<IosEmoji />`, `<EmojiText />`, `<IosEmojiBar />` ([IosEmoji.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/IosEmoji.tsx)) | 32 aset Apple Retina PNG 160x160 (`public/emojis/ios/`), rendering 100% konsisten di Android/Windows/iOS, auto-parser teks & toolbar penyisip emoji di editor |
 | **Animasi & Interaktivitas** | CSS 3D Keyframes + `canvas-confetti` | Animasi buka amplop 3D 180°, segel lilin meletup, piringan vinyl 360°, partikel melayang dinamis, dan confetti multi-gelombang |
 | **Backend / DB** | Supabase (PostgreSQL, Auth, RLS, Storage) + `pgcrypto` | Terhubung aktif ke project `dgrdgjbysivubxifvlaf` |
@@ -176,6 +176,28 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
     - Tombol "Beri Masukan ↗" memicu modal feedback Apple glassmorphism dengan respons getaran taktil haptic.
     - Responsif penuh di perangkat desktop, tablet, dan ponsel pintar.
 
+13. **Fase 3: Simpan, Bagikan & Galeri Kado Interaktif ([ShareSuccessModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ShareSuccessModal.tsx), [GaleriClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/GaleriClient.tsx), [buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)):**
+    - **SEO & Dynamic OpenGraph Metadata ([slug]/page.tsx):** Dynamic `generateMetadata()` menghasilkan OpenGraph dan Twitter Card dengan nama penerima dan kutipan pembuka untuk pratinjau kaya di WhatsApp, Telegram, dan media sosial.
+    - **Tab Cetak Kartu QR Kado Fisik ([ShareSuccessModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/ShareSuccessModal.tsx)):** 
+      - Tab "Kirim Tautan" dengan pemilih gaya pesan WhatsApp ("Manis & Hangat" vs "Kejutan Rahasia").
+      - Tab "Kartu QR Fisik" menyajikan preview kartu kado elegan berisi QR Code resolusi tinggi, tombol unduh gambar PNG, dan tombol cetak langsung (`window.print()`) untuk ditempel di buket bunga atau kotak kado fisik.
+    - **Sinkronisasi PIN Studio ke Publish Modal ([PublishModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PublishModal.tsx)):** Kode PIN yang disetel di Inspector Studio otomatis terhubung dan tampil di sheet checkout.
+    - **Galeri Interaktif & Remix Template ([GaleriClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/GaleriClient.tsx) & [galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx)):**
+      - Filter 4 nuansa kado (Semua, Ucapan, Ulang Tahun, Pacar, Teman), pencarian instan nama & pesan, dan pengurutan Terpopuler vs Terbaru.
+      - Tombol **"Pakai Template ✨"** di setiap kartu galeri yang langsung memuat tema, teks, dan kartu ke dalam Custom Studio (`/buat?theme=...&template=...`).
+    - **Reset Draf & Auto-Resume Studio ([buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx) & [StudioHeader.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioHeader.tsx)):**
+      - Pemuatan otomatis template dari URL search params.
+      - Tombol "Reset Draf" di StudioHeader dengan konfirmasi modal untuk membersihkan draf dan mulai kado baru dari awal.
+    - **Pembersihan Toolbar Emoji Input:** Seluruh baris pemilih emoji (`EMOJI: ❤️ 💕 ...`) telah dihilangkan dari seluruh textarea kanvas dan drawer untuk menjaga estetika kanvas tetap bersih, lapang, dan bebas distraksi.
+
+14. **Pembersihan De-Slop Menyeluruh di Seluruh Halaman & Tipografi Arimo:**
+    - **Tipografi Arimo:** Memuat Google Font `Arimo` (400..700, normal & italic) via `next/font/google` dan tag `<link rel="preconnect">` Google Fonts di `<head>`. Mengatur `--font-sans`, `--font-heading`, dan `.font-display` ke `Arimo`.
+    - **Eliminasi Eyebrow / Floating Kicker di Seluruh Halaman (Tell #10 & #23):** Menghapus seluruh pill sparkle mengambang (`✨ Sentuhan Personal Digital`, `✨ Inspirasi Karya`, `✨ Langkah 1`, `✨ Aktivasi Kado`, `Momen Penutup`) di hero, galeri, studio theme gate, publish modal, dan closing experience. Judul utama kini bernapas lega dan langsung fokus ke inti pesan.
+    - **De-slop Bento Grid & Surfaces:** Mengganti gradasi pelangi atmosferik pada bento grid dan card spotlight menjadi permukaan putih solid (`bg-white border border-neutral-200/80`) yang elegan dan bersih. Menghapus mini-kicker redundan di atas judul kartu.
+    - **Eliminasi Pulsing Dots & Pseudo Halos (Tell #16):** Menghapus `animate-pulse` yang tidak perlu pada titik status hijau dan badge gembok amplop.
+    - **Penyederhanaan Button CTA (Tell #01):** Mengganti gradasi pelangi pada tombol viral loop penutup kado menjadi tombol gelap solid yang tegas (`bg-neutral-900 text-white`).
+    - **Pembersihan Mono Sembarangan (Tell #34):** Menghapus `font-mono` pada tag harga, koordinat stiker, dan input PIN agar antarmuka terlihat tenang layaknya produk native Apple.
+
 ---
 
 ## 5. Fitur Monetisasi & Payment Gateway (Mayar.id)
@@ -241,11 +263,34 @@ Berikut daftar status tugas pengembangan:
 - **Panduan Standar Desain UI & Elemen:** [element.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/element.md)
 - **Panduan Apple Design & Fluid Motion:** [SKILL.md](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/SKILL.md)
 - **Haptic Feedback Utility:** [src/lib/haptics.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/haptics.ts)
+- **Web Audio Micro-SFX Utility:** [src/lib/sfx.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/lib/sfx.ts)
 - **Halaman Utama (Landing Page):** [src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)
-- **Editor Kado (Buat):** [src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)
+- **BacaKado Custom Studio Editor (Buat):** [src/app/buat/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/buat/page.tsx)
+  - Gate Pemilihan Nuansa Awal: [src/components/studio/StudioThemeGate.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioThemeGate.tsx)
+  - Top Bar Studio & Viewport Switcher: [src/components/studio/StudioHeader.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioHeader.tsx)
+  - Drawer Kiri (Kartu, Teks, Foto, Stiker, Audio): [src/components/studio/StudioLeftDrawer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioLeftDrawer.tsx)
+  - Kanvas Tengah WYSIWYG & Quick Dock: [src/components/studio/StudioCanvas.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioCanvas.tsx)
+  - Inspector Kanan (Desain Visual & Pengaturan PIN): [src/components/studio/StudioRightInspector.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioRightInspector.tsx)
+  - Modal Simulasi Unboxing Interaktif: [src/components/studio/StudioSimulatorModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioSimulatorModal.tsx)
 - **Halaman Kado Dinamis (Penerima):** [src/app/[slug]/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/[slug]/page.tsx)
-- **Dasbor Kado Saya:** [src/app/dashboard/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/page.tsx), [DashboardClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardClient.tsx), [DashboardAuthView.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardAuthView.tsx)
+- **Dasbor Kado Saya (Fase 4):** [src/app/dashboard/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/page.tsx), [DashboardClient.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardClient.tsx), [DashboardAuthView.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/dashboard/DashboardAuthView.tsx)
+  - Fitur Spotlight Draf Browser Lokal: deteksi otomatis draf yang sedang dikerjakan di HP/komputer pengguna.
+  - Filter Status Kado (Semua / Terbit & Lunas / Draf) dan Pencarian Realtime per nama/tema.
+  - Alur Edit Kado di Studio (`/buat?edit=[slug]`): pemilik kado dapat mengedit kartu, stiker, musik, dan teks kado yang telah terbit langsung di Custom Studio tanpa biaya tambahan (`updateGift`).
+  - Kotak Masuk Balasan Interaktif: kartu kutipan ucapan, tombol Salin Kutipan, dan kirim ucapan terima kasih via WhatsApp.
 - **Galeri Kado:** [src/app/galeri/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/galeri/page.tsx)
+- **Komponen Custom Studio (Canva-Style WYSIWYG):**
+  - Theme Gate (Pemilihan Nuansa): [src/components/studio/StudioThemeGate.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioThemeGate.tsx)
+  - Studio Header & Navigation: [src/components/studio/StudioHeader.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioHeader.tsx)
+  - Left Drawer (Kartu, Teks, Media, Drag & Stick Stiker, Musik): [src/components/studio/StudioLeftDrawer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioLeftDrawer.tsx)
+  - Center Canvas (DraggableSticker, HTML5 Drop Target, Smart Crop, Free & Mobile View): [src/components/studio/StudioCanvas.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioCanvas.tsx)
+  - Right Inspector (Tema, Font, Sudut Kemiringan, Washi Tape, PIN): [src/components/studio/StudioRightInspector.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioRightInspector.tsx)
+  - Simulator Unboxing Penerima: [src/components/studio/StudioSimulatorModal.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/studio/StudioSimulatorModal.tsx)
+  - Fitur Drag & Stick Stiker:
+    - HTML5 Drag & Drop dari panel stiker langsung ke atas kartu ucapan kanvas
+    - Manipulasi langsung pointer drag di atas polaroid dengan delta-based coordinates (tahan terhadap zoom scale & ukuran viewport)
+    - Floating action bar: rotasi cepat (`-18°`, `-6°`, `0°`, `+12°`, `+24°`) dan tombol hapus stiker (`✕`)
+    - Koordinat dinamis tersimpan di `Card` (`sticker_x`, `sticker_y`, `sticker_rotate`) dan dirender presisi di [PolaroidCardDeck.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/PolaroidCardDeck.tsx) untuk penerima kado.
 - **Komponen Gift Experience:**
   - Pengalaman Membuka Kado: [src/components/gift/GiftExperience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/GiftExperience.tsx)
   - Partikel Melayang Dinamis: [src/components/gift/FloatingAmbience.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/gift/FloatingAmbience.tsx)

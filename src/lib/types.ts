@@ -5,6 +5,11 @@ export interface Card {
   order_index: number;
   text_content: string;
   image_url?: string;
+  image_position?: "center" | "top" | "bottom";
+  sticker?: string;
+  sticker_x?: number; // percentage 0-100
+  sticker_y?: number; // percentage 0-100
+  sticker_rotate?: number; // degrees
 }
 
 export interface Gift {

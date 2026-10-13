@@ -1,234 +1,226 @@
 import Link from "next/link";
-import { GALLERY_MOCK } from "@/lib/mock-data";
+import { Plus, Disc3, ShieldCheck, Layers } from "lucide-react";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 import { IosEmoji } from "@/components/ui/IosEmoji";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { HeroShowcaseCard } from "@/components/landing/HeroShowcaseCard";
+import { Footer } from "@/components/ui/demo";
 
 export default function HomePage() {
-  const featured = GALLERY_MOCK.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-white text-[#1D1D1F] selection:bg-neutral-900 selection:text-white">
-
+    <div className="min-h-screen bg-[#FAF8F5] text-[#1D1D1F] selection:bg-neutral-900 selection:text-white">
       {/* ── Top Announcement Banner (Landing Page Only) ───────── */}
       <AnnouncementBanner />
 
-      {/* ── Apple-Grade Minimalist Navbar ─────────────────────── */}
-      <nav className="sticky top-0 z-40 apple-glass">
-        <div className="max-w-[1440px] mx-auto px-4 sm:pl-[35px] sm:pr-[85px] h-14 flex items-center justify-between">
-          <Link href="/" className="text-sm font-semibold tracking-tight text-neutral-900 hover:opacity-80 transition-opacity flex items-center gap-1.5">
-            <IosEmoji symbol="💌" size={17} />
+      {/* ── Unified Navbar (1440px Grid Alignment) ────────────── */}
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-neutral-200/60 shadow-2xs">
+        <div className="max-w-[1440px] mx-auto px-4 sm:pl-[35px] sm:pr-[85px] h-16 flex items-center justify-between">
+          <Link
+            href="/"
+            className="font-bold text-neutral-900 text-lg sm:text-xl tracking-tight flex items-center gap-2 hover:opacity-85 transition-opacity"
+          >
+            <IosEmoji symbol="💌" size={22} />
             <span>BacaKado</span>
           </Link>
 
-          <div className="flex items-center gap-6">
-            <Link href="/galeri" className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors font-medium">
+          <div className="flex items-center gap-2.5 xs:gap-3.5 sm:gap-6">
+            <Link
+              href="/galeri"
+              className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-medium"
+            >
               Galeri
             </Link>
-            <Link href="/dashboard" className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors font-medium">
+            <Link
+              href="/dashboard"
+              className="text-xs sm:text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-medium"
+            >
               Kado Saya
             </Link>
             <Link
               href="/buat"
-              className="bg-neutral-900 hover:bg-black text-white text-xs font-medium px-4 py-1.5 rounded-full transition-all active:scale-[0.98]"
+              className="bg-neutral-900 hover:bg-black text-white rounded-full text-xs font-semibold shadow-sm h-8 xs:h-9 px-3.5 sm:px-4.5 transition-all active:scale-95 flex items-center gap-1.5 btn-apple-spring"
             >
-              Bikin Kado
+              <Plus className="w-3.5 h-3.5" />
+              <span>Bikin Kado Sekarang</span>
             </Link>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* ── Hero Section ──────────────────────────────────────── */}
-      <section className="pt-20 pb-16 sm:pt-28 sm:pb-24 px-4 sm:pl-[35px] sm:pr-[85px] text-center max-w-[1440px] mx-auto">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-[-0.04em] text-neutral-950 leading-[1.08] mb-6">
-            Ucapan yang dirancang <br className="hidden sm:inline" />
-            selayaknya karya seni.
-          </h1>
+      {/* ── Asymmetric Split Hero Section ─────────────────────── */}
+      <section className="pt-10 sm:pt-16 pb-12 sm:pb-20 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: Copy & Actions (Col span 7) */}
+          <div className="lg:col-span-7 text-center lg:text-left">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.035em] text-neutral-950 leading-[1.12] mb-5">
+              Ucapan digital yang dirancang selayaknya karya seni fisik.
+            </h1>
 
-          <p className="text-base sm:text-xl text-neutral-500 max-w-2xl mx-auto leading-relaxed mb-10 font-normal">
-            Ciptakan situs ucapan personal dengan amplop beranimasi, kartu foto kenangan, dan musik latar. Selesai dalam 5 menit langsung dari ponselmu.
+            <p className="text-sm sm:text-base md:text-lg text-neutral-500 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8 font-normal">
+              Amplop 3D, kartu foto kenangan, dan musik latar. Selesai dalam lima menit langsung dari ponselmu.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
+              <Link
+                href="/buat"
+                className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 btn-apple-spring"
+              >
+                <span>Bikin Kado Sekarang</span>
+                <IosEmoji symbol="💌" size={16} />
+              </Link>
+              <Link
+                href="/untuk-rara"
+                className="w-full sm:w-auto border border-neutral-300/80 hover:border-neutral-400 text-neutral-800 hover:text-black font-semibold text-xs sm:text-sm px-7 py-3.5 rounded-full transition-all hover:bg-white/80 bg-white/40 flex items-center justify-center gap-1.5 btn-apple-spring"
+              >
+                <span>Lihat Contoh Rara</span>
+                <span>↗</span>
+              </Link>
+            </div>
+
+            <p className="text-xs text-neutral-400">
+              Coba gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
+            </p>
+          </div>
+
+          {/* Right Column: Interactive Physical Hero Showcase (Col span 5) */}
+          <div className="lg:col-span-5">
+            <HeroShowcaseCard />
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── Rhythmic Bento Grid (Physical Details Reimagined) ─── */}
+      <section className="py-16 sm:py-24 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto border-t border-neutral-200/60">
+        <div className="mb-10 sm:mb-14 text-center sm:text-left">
+          <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-neutral-900 mb-2">
+            Kehangatan surat nyata di layar smartphone.
+          </h2>
+          <p className="text-xs sm:text-sm text-neutral-500 max-w-xl">
+            Setiap detail dirancang agar penerima merasakan sentuhan emosional layaknya membuka bungkusan kado sungguhan.
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-            <Link
-              href="/buat"
-              className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-medium text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm"
-            >
-              Bikin Kado Sekarang
-            </Link>
-            <Link
-              href="/untuk-rara"
-              className="w-full sm:w-auto border border-neutral-200/90 hover:border-neutral-300 text-neutral-800 hover:text-black font-medium text-sm px-7 py-3.5 rounded-full transition-all hover:bg-neutral-50"
-            >
-              Lihat Contoh Kado ↗
-            </Link>
-          </div>
-
-          <p className="text-xs text-neutral-400">
-            Coba buat gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
-          </p>
         </div>
-      </section>
 
-      {/* ── Visual Showcase Frame ─────────────────────────────── */}
-      <section className="px-4 sm:pl-[35px] sm:pr-[85px] pb-24 max-w-[1440px] mx-auto">
-        <div className="relative rounded-3xl bg-[#F5F5F7] border border-neutral-200/70 p-6 sm:p-12 overflow-hidden">
-          <div className="max-w-md mx-auto bg-white rounded-2xl shadow-xl shadow-neutral-200/50 border border-neutral-200/80 p-6 sm:p-8 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-neutral-50 border border-neutral-100 flex items-center justify-center mx-auto mb-4">
-              <IosEmoji symbol="💌" size={28} />
-            </div>
-            <p className="text-[11px] uppercase tracking-widest text-neutral-400 font-semibold mb-1">
-              Pratinjau Kado
-            </p>
-            <h3 className="italic-display text-2xl text-neutral-900 mb-2">
-              Ada sesuatu buat kamu, Rara
-            </h3>
-            <p className="text-xs text-neutral-500 leading-relaxed mb-6">
-              Ketuk amplop untuk memulai alur cerita penuh kenangan dan musik latar.
-            </p>
-            <div className="h-36 rounded-xl bg-neutral-100 overflow-hidden relative border border-neutral-200/60 mb-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=600&h=400&fit=crop"
-                alt="Kenangan"
-                className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-500"
-              />
-            </div>
-            <div className="inline-flex items-center gap-2 text-xs font-medium text-neutral-700 bg-neutral-50 px-4 py-2 rounded-full border border-neutral-200/60">
-              <span>Buka Amplop</span>
-              <span className="text-neutral-400">→</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Apple-Style 3 Steps ───────────────────────────────── */}
-      <section className="bg-[#F5F5F7] py-20 sm:py-28 px-4 sm:pl-[35px] sm:pr-[85px] border-t border-neutral-200/60">
-        <div className="max-w-[1440px] mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-16">
-            <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-2">
-              Alur Sederhana
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-neutral-900">
-              Tiga langkah menuju momen yang tak terlupakan.
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-2xl p-8 border border-neutral-200/70 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-mono font-semibold text-neutral-400 tracking-wider">01</span>
-                <h3 className="text-lg font-semibold text-neutral-900 mt-4 mb-2">
-                  Susun Ceritamu
-                </h3>
-                <p className="text-sm text-neutral-500 leading-relaxed">
-                  Pilih nuansa kado, tuliskan kalimat pembuka yang menyentuh, dan unggah foto-foto kenangan kalian.
-                </p>
+        {/* 4-Cell Bento Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          
+          {/* Cell 1: Amplop 3D & Segel Lilin (Wide 2-cols on desktop) */}
+          <div className="lg:col-span-2 rounded-3xl bg-white border border-neutral-200/80 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
+            <div>
+              <div className="w-9 h-9 rounded-xl bg-neutral-100 border border-neutral-200/60 flex items-center justify-center mb-4">
+                <IosEmoji symbol="✉️" size={18} />
               </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-8 border border-neutral-200/70 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-mono font-semibold text-neutral-400 tracking-wider">02</span>
-                <h3 className="text-lg font-semibold text-neutral-900 mt-4 mb-2">
-                  Proteksi PIN Rahasia
-                </h3>
-                <p className="text-sm text-neutral-500 leading-relaxed">
-                  Kunci kado dengan tanggal jadian atau kode rahasia opsional, agar momen berdua tetap terasa intim dan aman.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-8 border border-neutral-200/70 shadow-sm flex flex-col justify-between">
-              <div>
-                <span className="text-xs font-mono font-semibold text-neutral-400 tracking-wider">03</span>
-                <h3 className="text-lg font-semibold text-neutral-900 mt-4 mb-2">
-                  Bagikan Sekali Sentuh
-                </h3>
-                <p className="text-sm text-neutral-500 leading-relaxed">
-                  Dapatkan tautan unik yang aktif selamanya. Bagikan langsung via WhatsApp saat tengah malam tiba.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Featured Works ────────────────────────────────────── */}
-      <section className="py-20 sm:py-28 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] font-semibold text-neutral-400 mb-2">
-              Inspirasi Kado
-            </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-neutral-900">
-              Cerita yang telah tersampaikan.
-            </h2>
-          </div>
-          <Link href="/galeri" className="text-sm font-medium text-neutral-900 hover:text-black flex items-center gap-1">
-            Lihat semua kado <span>→</span>
-          </Link>
-        </div>
-
-        <div className="grid sm:grid-cols-3 gap-6">
-          {featured.map((gift) => (
-            <Link
-              key={gift.id}
-              href={`/${gift.slug}`}
-              className="group rounded-2xl border border-neutral-200/70 p-6 hover:border-neutral-400 transition-all bg-white hover:shadow-md"
-            >
-              <p className="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold mb-2">
-                Kado untuk
-              </p>
-              <h3 className="italic-display text-2xl text-neutral-900 mb-4 group-hover:text-black">
-                {gift.recipient_name}
+              <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                Amplop 3D & Segel Lilin Embossed
               </h3>
-              <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed mb-6">
-                &ldquo;{gift.opening_text}&rdquo;
+              <p className="text-xs sm:text-sm text-neutral-500 max-w-lg leading-relaxed">
+                Penutup amplop berputar 180° secara fisik saat segel lilin disentuh. Dilengkapi letupan confetti champagne dan getaran taktil yang memukau.
               </p>
-              <div className="flex justify-between items-center text-[11px] text-neutral-400 border-t border-neutral-100 pt-4">
-                <span>{gift.cards.length} kartu cerita</span>
-                <span className="group-hover:translate-x-0.5 transition-transform text-neutral-900 font-medium">Buka ↗</span>
+            </div>
+
+            <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-neutral-50 border border-neutral-200/80 flex items-center justify-center shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/gift/seal-love.svg" alt="Segel Lilin" className="w-7 h-7 object-contain" />
               </div>
-            </Link>
-          ))}
+              <p className="text-xs text-neutral-600 font-medium">
+                Pilihan 5 stempel segel: Mawar, Bintang, Cinta, Daun, dan Topi Wisuda.
+              </p>
+            </div>
+          </div>
+
+          {/* Cell 2: Dek Polaroid & Washi Tape */}
+          <div className="rounded-3xl bg-white border border-neutral-200/80 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
+            <div>
+              <div className="w-9 h-9 rounded-xl bg-neutral-100 border border-neutral-200/60 flex items-center justify-center mb-4">
+                <Layers size={18} className="text-neutral-700" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                Dek Polaroid & Washi Tape
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
+                Sentuh dan geser kartu foto satu per satu dengan simulasi inersia fisik Apple. Dihiasi selotip washi tape dan stiker dekoratif.
+              </p>
+            </div>
+
+            <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center gap-2 text-xs text-neutral-600 font-medium">
+              <IosEmoji symbol="📷" size={16} />
+              <span>Dukungan kartu foto dan catatan tanpa batas</span>
+            </div>
+          </div>
+
+          {/* Cell 3: Piringan Vinyl & Musik Otomatis */}
+          <div className="rounded-3xl bg-white border border-neutral-200/80 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
+            <div>
+              <div className="w-9 h-9 rounded-xl bg-neutral-100 border border-neutral-200/60 flex items-center justify-center mb-4">
+                <Disc3 size={18} className="text-neutral-700" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                Piringan Vinyl & Musik Latar
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 leading-relaxed">
+                Piringan vinyl berputar 360° otomatis saat amplop terbuka. Gunakan koleksi instrumen bebas royalti atau tautkan lagu YouTube favorit.
+              </p>
+            </div>
+
+            <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center gap-2 text-xs text-neutral-600 font-medium">
+              <IosEmoji symbol="🎵" size={16} />
+              <span>Autoplay aman tanpa terblokir browser</span>
+            </div>
+          </div>
+
+          {/* Cell 4: Gembok PIN Rahasia Server-Side (Wide 2-cols on desktop) */}
+          <div className="lg:col-span-2 rounded-3xl bg-white border border-neutral-200/80 p-6 sm:p-8 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow">
+            <div>
+              <div className="w-9 h-9 rounded-xl bg-neutral-100 border border-neutral-200/60 flex items-center justify-center mb-4">
+                <ShieldCheck size={18} className="text-neutral-700" />
+              </div>
+              <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                Gembok PIN Rahasia Server-Side
+              </h3>
+              <p className="text-xs sm:text-sm text-neutral-500 max-w-lg leading-relaxed">
+                Kunci kado dengan tanggal jadian atau kode rahasia berdua. Isi kartu ucapan tidak dikirim ke browser sebelum lolos verifikasi PIN di database.
+              </p>
+            </div>
+
+            <div className="mt-6 pt-5 border-t border-neutral-100 flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-neutral-100 border border-neutral-200/70 text-xs font-semibold tracking-widest text-neutral-800">
+                <span>••••</span>
+              </div>
+              <p className="text-xs text-neutral-600 font-medium">
+                Dilengkapi proteksi pembekuan 15 menit jika 5 kali berturut-turut salah.
+              </p>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* ── Minimalist Apple Callout ──────────────────────────── */}
-      <section className="bg-neutral-950 text-white py-24 px-4 sm:pl-[35px] sm:pr-[85px] text-center">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-[11px] uppercase tracking-[0.25em] font-semibold text-neutral-400 mb-4">
-            Mulai Hari Ini
-          </p>
-          <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white mb-6 leading-tight">
+      {/* ── Warm Tactile Callout ─── */}
+      <section className="py-16 sm:py-24 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto border-t border-neutral-200/60">
+        <div className="rounded-[36px] bg-neutral-50 border border-neutral-200/80 p-8 sm:p-14 text-center max-w-4xl mx-auto shadow-xs">
+          <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-neutral-950 mb-3">
             Berikan kejutan yang akan ia kenang selalu.
           </h2>
-          <p className="text-neutral-400 text-sm sm:text-base leading-relaxed mb-10">
-            Hanya {PREMIUM_PRICE_LABEL} sekali bayar. Tanpa langganan, tanpa iklan.
+
+          <p className="text-xs sm:text-sm text-neutral-600 max-w-md mx-auto mb-8 leading-relaxed">
+            Hanya {PREMIUM_PRICE_LABEL} sekali bayar. Tanpa langganan, tanpa iklan, dan tautan aktif selamanya.
           </p>
+
           <Link
             href="/buat"
-            className="inline-block bg-white text-neutral-950 font-medium text-sm px-8 py-3.5 rounded-full hover:bg-neutral-100 transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 bg-neutral-900 hover:bg-black text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm btn-apple-spring"
           >
-            Bikin Kado Sekarang
+            <span>Bikin Kado Sekarang</span>
+            <IosEmoji symbol="🎁" size={16} />
           </Link>
         </div>
       </section>
 
-      {/* ── Apple-Style Minimal Footer ────────────────────────── */}
-      <footer className="border-t border-neutral-200/60 py-10 px-4 sm:pl-[35px] sm:pr-[85px] bg-white text-neutral-400 text-xs">
-        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} BacaKado. Dirancang dengan minimalis untuk momen berharga.</p>
-          <div className="flex items-center gap-6 text-neutral-500">
-            <Link href="/galeri" className="hover:text-neutral-900 transition-colors">Galeri</Link>
-            <Link href="/buat" className="hover:text-neutral-900 transition-colors">Editor Kado</Link>
-            <Link href="/dashboard" className="hover:text-neutral-900 transition-colors">Kado Saya</Link>
-          </div>
-        </div>
-      </footer>
-
+      {/* ── BacaKado Interactive Footer (Landing Page Only) ─────── */}
+      <Footer />
     </div>
   );
 }

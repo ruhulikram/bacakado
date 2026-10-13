@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { Heart, Send, RotateCcw, Sparkles } from "lucide-react";
+import { Heart, Send, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { submitReply } from "@/app/actions/tracking";
@@ -88,14 +88,6 @@ export function ClosingExperience({
 
   return (
     <div className="z-10 w-full max-w-sm sm:max-w-md mx-auto select-none px-2 animate-in fade-in zoom-in-95 duration-500">
-      {/* Header Badge */}
-      <div className="text-center mb-5">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wider uppercase bg-rose-50 text-rose-600 border border-rose-100 shadow-2xs">
-          <Sparkles size={12} />
-          <span>Momen Penutup</span>
-        </span>
-      </div>
-
       {/* Heartfelt Closing Letter Card */}
       <div className="polaroid-frame rounded-3xl p-6 sm:p-7 text-center mb-6 relative overflow-hidden">
         {/* Subtle decorative stamp */}
@@ -112,18 +104,20 @@ export function ClosingExperience({
         </p>
 
         {/* Interactive "Kirim Peluk / Cinta" Reaction Button */}
+        {/* Interactive "Kirim Peluk / Cinta" Reaction Button (iOS 44pt Touch Target) */}
         <div className="pt-4 border-t border-neutral-100 flex flex-col items-center">
           <p className="text-[11px] text-neutral-400 mb-2 font-medium">
             Kirim pelukan & tanda cinta untuk pengirim
           </p>
           <button
             onClick={handleSendLove}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all active:scale-95 btn-apple-spring shadow-2xs"
+            className="min-h-[44px] flex items-center gap-2 px-6 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all active:scale-95 btn-apple-spring shadow-2xs"
+            aria-label="Kirim Peluk dan Cinta"
           >
-            <Heart size={15} className={`fill-rose-500 transition-transform ${loveCount > 0 ? "scale-110" : ""}`} />
+            <Heart size={16} className={`fill-rose-500 transition-transform ${loveCount > 0 ? "scale-110" : ""}`} />
             <span>Kirim Peluk & Cinta</span>
             {loveCount > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-in zoom-in-75 duration-150">
                 +{loveCount}
               </span>
             )}
@@ -132,7 +126,7 @@ export function ClosingExperience({
       </div>
 
       {/* Postcard Reply Box */}
-      <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 border border-neutral-200/80 shadow-md mb-6">
+      <div className="bg-white/95 backdrop-blur-md rounded-3xl p-6 border border-neutral-200/80 shadow-md mb-6 ring-1 ring-black/[0.03]">
         {replySent ? (
           <div className="text-center py-4 animate-in fade-in">
             <IosEmoji symbol="🎉" size={36} className="block mx-auto mb-2" />
@@ -155,11 +149,12 @@ export function ClosingExperience({
               <span className="text-[10px] text-neutral-400 font-medium">Kartu Pos</span>
             </div>
 
+            {/* iOS Safari zoom prevention: text-[15px] sm:text-xs */}
             <Input
               placeholder="Nama kamu (misal: Rara)"
               value={replyName}
               onChange={(e) => setReplyName(e.target.value)}
-              className="text-xs h-10 rounded-xl mb-2.5 border-neutral-200 focus-visible:ring-rose-500"
+              className="text-[15px] sm:text-xs h-11 rounded-2xl mb-2.5 border-neutral-200/80 focus-visible:ring-rose-500/40 focus-visible:border-rose-400"
             />
 
             <Textarea
@@ -167,7 +162,7 @@ export function ClosingExperience({
               value={replyMsg}
               onChange={(e) => setReplyMsg(e.target.value)}
               rows={3}
-              className="text-xs rounded-xl mb-3 resize-none border-neutral-200 focus-visible:ring-rose-500"
+              className="text-[15px] sm:text-xs rounded-2xl mb-3 resize-none border-neutral-200/80 focus-visible:ring-rose-500/40 focus-visible:border-rose-400"
             />
 
             {replyError && (
@@ -177,25 +172,25 @@ export function ClosingExperience({
             <button
               onClick={handleSendReply}
               disabled={submitting || !replyName.trim() || !replyMsg.trim()}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all active:scale-95 btn-apple-spring disabled:opacity-40 shadow-xs"
+              className="w-full min-h-[44px] flex items-center justify-center gap-1.5 py-3 rounded-full bg-neutral-900 hover:bg-black text-white text-xs font-semibold transition-all active:scale-95 btn-apple-spring disabled:opacity-40 shadow-xs"
             >
-              <Send size={12} />
+              <Send size={13} />
               <span>{submitting ? "Mengirim Surat..." : "Kirim Surat Balasan"}</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Action Links */}
+      {/* Action Links (iOS Ergonomics) */}
       <div className="flex flex-col items-center gap-3">
         <button
           onClick={() => {
             triggerHaptic("selection");
             onReset();
           }}
-          className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-800 font-medium transition-colors btn-apple-spring"
+          className="min-h-[44px] flex items-center gap-1.5 px-4 text-xs text-neutral-500 hover:text-neutral-800 font-medium transition-colors btn-apple-spring"
         >
-          <RotateCcw size={12} />
+          <RotateCcw size={13} />
           <span>Buka & Putar Ulang Kado dari Awal</span>
         </button>
 
@@ -203,9 +198,9 @@ export function ClosingExperience({
         <a
           href="/buat"
           onClick={() => triggerHaptic("light")}
-          className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 hover:opacity-95 shadow-md transition-all active:scale-98 btn-apple-spring group"
+          className="w-full min-h-[48px] flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-semibold text-white bg-neutral-900 hover:bg-black shadow-sm transition-all active:scale-98 btn-apple-spring group"
         >
-          <Sparkles size={14} className="text-amber-200 animate-spin-slow" />
+          <IosEmoji symbol="💌" size={16} />
           <span>Bikin Kado Personal Punyamu Sendiri</span>
           <span className="group-hover:translate-x-0.5 transition-transform">↗</span>
         </a>

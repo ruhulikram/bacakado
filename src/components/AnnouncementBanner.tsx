@@ -67,14 +67,14 @@ export function AnnouncementBanner() {
         />
 
         {/* Content Container: Matches Figma Grid (Left: 35px, Right: 1188px, Height: 70px) */}
-        <div className="relative z-10 w-full max-w-[1440px] mx-auto min-h-[70px] sm:h-[70px] px-4 sm:pl-[30px] sm:pr-[85px] py-2.5 sm:py-0 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2.5 sm:gap-0">
+        <div className="relative z-10 w-full max-w-[1440px] mx-auto min-h-[70px] sm:h-[70px] px-4 sm:pl-[30px] sm:pr-[85px] py-2 sm:py-0 flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-2 sm:gap-0">
           {/* Left Element: Button Tahap Pengembangan (359x38 pill at left: 35px, top: 16px) */}
-          <div className="flex-shrink-0 flex items-center">
+          <div className="flex-shrink-0 flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Banner/Button%20Tahap%20Pengembangan.svg"
               alt="BacaKado masih tahap pengembangan"
-              className="w-[300px] xs:w-[335px] sm:w-[373px] h-auto object-contain pointer-events-none drop-shadow-sm"
+              className="w-[280px] xs:w-[335px] sm:w-[373px] max-w-[92vw] h-auto object-contain pointer-events-none drop-shadow-sm"
             />
           </div>
 
@@ -89,7 +89,7 @@ export function AnnouncementBanner() {
             <img
               src="/Banner/Button%20Beri%20Masukan.svg"
               alt="Beri Masukan"
-              className="w-[145px] sm:w-[167px] h-auto object-contain transition-all duration-150 group-hover:brightness-110 drop-shadow-sm"
+              className="w-[140px] sm:w-[167px] h-auto object-contain transition-all duration-150 group-hover:brightness-110 drop-shadow-sm"
             />
           </button>
         </div>
@@ -145,9 +145,9 @@ export function AnnouncementBanner() {
                   <div>
                     <label
                       htmlFor="feedback-message"
-                      className="block text-[11px] font-medium text-neutral-500 uppercase tracking-wider mb-1"
+                      className="block text-[11px] font-medium text-neutral-600 mb-1"
                     >
-                      Pesan atau Saran
+                      Pesan atau saran
                     </label>
                     <textarea
                       id="feedback-message"
@@ -163,9 +163,9 @@ export function AnnouncementBanner() {
                   <div>
                     <label
                       htmlFor="feedback-contact"
-                      className="block text-[11px] font-medium text-neutral-500 uppercase tracking-wider mb-1"
+                      className="block text-[11px] font-medium text-neutral-600 mb-1"
                     >
-                      Nama / Kontak Kamu (Opsional)
+                      Nama / kontak kamu (opsional)
                     </label>
                     <input
                       id="feedback-contact"
