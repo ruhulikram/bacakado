@@ -148,7 +148,7 @@
     letter-spacing: -0.02em;
   }
   .italic-display {
-    font-family: var(--font-instrument), serif;
+    font-family: serif;
     font-style: italic;
   }
   .apple-glass {

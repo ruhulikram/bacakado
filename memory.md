@@ -25,7 +25,7 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
 | **Proxy / Session** | `src/proxy.ts` (@supabase/ssr) | Auto-refresh session token cookies di setiap request Next.js |
 | **Bahasa** | TypeScript 5 | Type-safe (lulus `tsc --noEmit` dan `next build` 100% tanpa error) |
 | **Styling & UI System** | Tailwind CSS v4 + Aesthetic Emotional Gift Design System | Palet hangat/romantis/gold/galaxy, polaroid frames, washi tape, segel lilin 3D, piringan vinyl, dan kaca buram (`apple-glass`) |
-| **Tipografi** | `Arimo` (400..700, normal & italic) & `Instrument Serif` | Di-load lewat `next/font/google` dan tag `<link rel="preconnect">` Google Fonts di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx), font body & `--font-sans` dipetakan ke `Arimo` |
+| **Tipografi** | `Arimo` (400..700, normal & italic) | Standar font web resmi di-load lewat `next/font/google` dan tag `<link rel="preconnect">` Google Fonts di [layout.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/layout.tsx), font body, heading, & `--font-sans` dipetakan ke `Arimo`. Ketergantungan eksternal `Instrument Serif` telah dieliminasi untuk kestabilan load & anti-slop. |
 | **iOS Emoji System** | `<IosEmoji />`, `<EmojiText />`, `<IosEmojiBar />` ([IosEmoji.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/IosEmoji.tsx)) | 32 aset Apple Retina PNG 160x160 (`public/emojis/ios/`), rendering 100% konsisten di Android/Windows/iOS, auto-parser teks & toolbar penyisip emoji di editor |
 | **Animasi & Interaktivitas** | CSS 3D Keyframes + `canvas-confetti` | Animasi buka amplop 3D 180°, segel lilin meletup, piringan vinyl 360°, partikel melayang dinamis, dan confetti multi-gelombang |
 | **Backend / DB** | Supabase (PostgreSQL, Auth, RLS, Storage) + `pgcrypto` | Terhubung aktif ke project `dgrdgjbysivubxifvlaf` |
@@ -195,8 +195,22 @@ Dokumen ini berfungsi sebagai memori terpusat mengenai visi produk, arsitektur t
     - **Eliminasi Eyebrow / Floating Kicker di Seluruh Halaman (Tell #10 & #23):** Menghapus seluruh pill sparkle mengambang (`✨ Sentuhan Personal Digital`, `✨ Inspirasi Karya`, `✨ Langkah 1`, `✨ Aktivasi Kado`, `Momen Penutup`) di hero, galeri, studio theme gate, publish modal, dan closing experience. Judul utama kini bernapas lega dan langsung fokus ke inti pesan.
     - **De-slop Bento Grid & Surfaces:** Mengganti gradasi pelangi atmosferik pada bento grid dan card spotlight menjadi permukaan putih solid (`bg-white border border-neutral-200/80`) yang elegan dan bersih. Menghapus mini-kicker redundan di atas judul kartu.
     - **Eliminasi Pulsing Dots & Pseudo Halos (Tell #16):** Menghapus `animate-pulse` yang tidak perlu pada titik status hijau dan badge gembok amplop.
-    - **Penyederhanaan Button CTA (Tell #01):** Mengganti gradasi pelangi pada tombol viral loop penutup kado menjadi tombol gelap solid yang tegas (`bg-neutral-900 text-white`).
-    - **Pembersihan Mono Sembarangan (Tell #34):** Menghapus `font-mono` pada tag harga, koordinat stiker, dan input PIN agar antarmuka terlihat tenang layaknya produk native Apple.
+15. **Redesign Hero Section Bersih & Terpusat (Centered Editorial Hero — Anti-Slop):**
+    - **Eliminasi Kartu Mockup Berdesakan (`HeroShowcaseCard.tsx`):** Menghapus kartu pembungkus mockup ganda, badge status palsu, dan elemen showcase yang padat di area hero.
+    - **Centered Typography & CTA yang Lapang:** Headline Arimo berukuran besar (`text-4xl sm:text-6xl lg:text-7xl`) dengan tracking rapat diletakkan terpusat, didampingi subheadline kehangatan pesan dan 2 tombol CTA bersih (`/buat` dan `/untuk-rara`) serta catatan tarif QRIS Rp 5.000.
+    - **Bebas Distraksi Interaktif Redundan:** Menghilangkan panggung amplop interaktif dan pemilih stempel di hero agar pengunjung langsung fokus pada nilai utama produk sebelum menjelajahi bento grid di bawahnya.
+
+16. **Integrasi Footer Interaktif & Dukungan Mode Gelap/Terang ([demo.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/demo.tsx) & [footer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/footer.tsx)):**
+    - **Penerapan Eksklusif di Landing Page:** Komponen `<Footer />` hanya dirender pada landing page ([src/app/page.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/page.tsx)), menjaga studio editor, galeri, dan kado penerima tetap fokus pada fungsinya.
+    - **Penyelarasan Konten Brand BacaKado:**
+      - 4 Kategori navigasi: Momen Spesial (Ulang Tahun, Pacar, Wisuda, Teman), Fitur Sentuhan Fisik (Amplop 3D, Dek Polaroid, Vinyl Musik, Gembok PIN), Navigasi Cepat (Bikin Kado, Galeri, Dasbor, Demo Rara), dan Informasi & Bantuan (Tentang, Tarif QRIS Rp 5.000, Bebas Watermark).
+      - Ikon media sosial menggunakan `dicons`: Email, X (Twitter), Instagram, WhatsApp, YouTube.
+      - Grid konsisten 1440px dengan padding responsive `sm:pl-[35px] sm:pr-[85px]`.
+    - **Theme Switcher & Smooth Scroll-to-Top:** Menggunakan `next-themes` dan `dicons`, dibungkus dalam pill interaktif dengan tombol Sun (mode terang), Moon (mode gelap), dan ArrowUp (scroll mulus ke atas).
+
+17. **Skill & Tooling Anti-Slop Baru:**
+    - Terpasang skill `.agents/skills/design-taste-frontend` untuk inferensi arah desain tanpa template.
+    - Terpasang skill `.agents/skills/kill-ai-slop` untuk deteksi dan eliminasi otomatis pola visual AI-slop di seluruh codebase.
 
 ---
 
@@ -312,6 +326,9 @@ Berikut daftar status tugas pengembangan:
   - Simulator Pembayaran Lokal: [src/app/api/payment/mock/route.ts](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/app/api/payment/mock/route.ts)
 - **Komponen Banner & Landing Page:**
   - Banner Pengumuman & Modal Feedback: [src/components/AnnouncementBanner.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/AnnouncementBanner.tsx)
+  - Footer Interaktif & Navigasi Kado: [src/components/ui/demo.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/demo.tsx)
+  - Theme Toggle (Mode Terang/Gelap & Scroll Top): [src/components/ui/footer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/footer.tsx)
+  - Provider Tema Global: [src/components/theme-provider.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/theme-provider.tsx)
   - Aset Banner SVG: `public/Banner/` (`Frame 20.svg`, `Button Tahap Pengembangan.svg`, `Button Beri Masukan.svg`)
   - Aset Amplop 3D & Segel Lilin SVG: `public/gift/` (`top-panel.svg`, `front-panel.svg`, `back-panel.svg`, `Paper.svg`, 5 variasi stempel `seal-*.svg`)
 - **Aset & Styling Global:**

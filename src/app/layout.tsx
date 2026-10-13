@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Arimo } from "next/font/google";
+import { Arimo } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-
-const instrumentSerif = Instrument_Serif({
-  weight: ["400"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  variable: "--font-instrument",
-  display: "swap",
-});
 
 const arimo = Arimo({
   subsets: ["latin"],
@@ -28,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${instrumentSerif.variable} ${arimo.variable} h-full antialiased`}
+      className={`${arimo.variable} h-full antialiased`}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />

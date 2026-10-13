@@ -12,7 +12,7 @@ Tujuan panduan ini adalah menggabungkan **standar industri web modern (WCAG 2.1,
 |---|---|---|---|
 | **Grid & Spacing** | Kelipatan 4px / 8px | Grid 8pt dengan inset margin 16pt / 20pt | **8-Point Rhythm**: Padding & margin konsisten (`4, 8, 12, 16, 20, 24, 32, 48, 64px`). |
 | **Touch Target** | WCAG Target Size: min 24×24px (AA) / 44×44px (AAA) | Minimum 44×44pt untuk seluruh elemen interaktif | **Mobile Touch First**: Seluruh tombol, field, dan tab interaktif memiliki area sentuh minimal **44×44px** di smartphone. |
-| **Tipografi** | Skala modular (1.200 - 1.250), line-height 1.4 - 1.6 | Skala tipografi dinamis (*Large Title* s/d *Caption*), font system ber-tracking rapat | **Dual-Font System**: Sans-serif modern (*Plus Jakarta Sans*) ber-tracking rapat (-0.02em) dipadukan dengan aksen puitis klasik (*Instrument Serif Italic*). |
+| **Tipografi** | Skala modular (1.200 - 1.250), line-height 1.4 - 1.6 | Skala tipografi dinamis (*Large Title* s/d *Caption*), font system ber-tracking rapat | **Pure Arimo Typography**: Menggunakan Google Font `Arimo` (400..700, normal & italic) ber-tracking rapat (-0.035em s/d -0.02em) untuk menciptakan antarmuka editorial modern yang tenang, bersih, dan bebas dari distorsi AI-slop serif. |
 | **Corner Radius** | `border-radius` standar (4px - 8px) | *Continuous Corner Curves* (Squircle) yang sangat halus | **Squircle Scale**: Menggunakan radius lembut (`12px, 16px, 24px, 32px`, dan `9999px pill`), tanpa sudut patah kaku. |
 | **Material & Depth** | Box shadow konvensional, flat card | *Translucent Materials*, blur 20-30px, border tipis 1px berkabut | **Translucent Glassmorphism**: `apple-glass` (backdrop-blur-md, saturasi tinggi, border 1px `rgba(0,0,0,0.06)`). |
 | **Warna & Kontras** | Rasio kontras teks min 4.5:1 (WCAG AA) | Warna cerah dinamis, background lembut terpisah kontras | **Warm Paper Palette**: Latar dasar krem hangat (`#FAF8F5`), putih susu (`#FFFFFF`), teks gelap legam (`#1D1D1F`), dan aksen mawar/emas. |
@@ -39,22 +39,20 @@ Gunakan token ini untuk menentukan padding (`p-*`), margin (`m-*`), dan jarak an
 
 ---
 
-### 2.2. Skala Tipografi & Hirarki Teks
+### 2.2. Skala Tipografi & Hirarki Teks (Standar Arimo)
 
-Aplikasi menggunakan kombinasi:
-1. **Sans-serif Primer:** `Plus Jakarta Sans` (Representasi visual modern khas Apple SF Pro).
-2. **Serif Aksen:** `Instrument Serif` (Gaya puitis, editorial, dan hangat untuk ucapan kado).
+Aplikasi menggunakan font web standar **Arimo** (`@import / next/font/google`) yang konsisten, berkecepatan load tinggi, dan bebas layout shift:
 
 | Level Tipografi | Ukuran (px / rem) | Font Family | Weight | Tracking & Leading | Kelas Tailwind |
 |---|---|---|---|---|---|
-| **Large Title / Hero** | `36px - 44px` (2.25 - 2.75rem) | Instrument Serif (Italic) | Normal (400) | `tracking-tight leading-[1.15]` | `font-serif italic text-4xl sm:text-5xl tracking-tight` |
-| **Title 1 (H1)** | `28px - 32px` (1.75 - 2.0rem) | Plus Jakarta Sans / Serif | Medium / SemiBold | `tracking-tight leading-tight` | `text-2xl sm:text-3xl font-bold tracking-tight` |
-| **Title 2 (H2)** | `22px - 24px` (1.375 - 1.5rem) | Plus Jakarta Sans | SemiBold (600) | `tracking-tight leading-snug` | `text-xl sm:text-2xl font-semibold tracking-tight` |
-| **Title 3 (H3)** | `18px - 20px` (1.125 - 1.25rem) | Plus Jakarta Sans | SemiBold (600) | `tracking-normal leading-snug` | `text-lg font-semibold` |
-| **Body (Normal)** | `15px - 16px` (0.9375 - 1.0rem) | Plus Jakarta Sans | Regular (400) | `tracking-normal leading-relaxed` | `text-sm sm:text-base leading-relaxed` |
-| **Callout / Medium** | `14px` (0.875rem) | Plus Jakarta Sans | Medium (500) | `tracking-normal leading-normal` | `text-sm font-medium` |
-| **Footnote / Subtext**| `12px - 13px` (0.75 - 0.8125rem) | Plus Jakarta Sans | Regular / Medium | `tracking-normal leading-normal` | `text-xs text-neutral-500` |
-| **Caption / Badge** | `10px - 11px` (0.625 - 0.6875rem) | Plus Jakarta Sans | Bold (700) | `tracking-[0.15em] uppercase` | `text-[11px] font-semibold uppercase tracking-wider` |
+| **Large Title / Hero** | `36px - 64px` (2.25 - 4.0rem) | Arimo | SemiBold (600) | `tracking-[-0.035em] leading-[1.12]` | `text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight` |
+| **Title 1 (H1)** | `28px - 32px` (1.75 - 2.0rem) | Arimo | SemiBold (600) | `tracking-tight leading-tight` | `text-2xl sm:text-3xl font-semibold tracking-tight` |
+| **Title 2 (H2)** | `22px - 24px` (1.375 - 1.5rem) | Arimo | SemiBold (600) | `tracking-tight leading-snug` | `text-xl sm:text-2xl font-semibold tracking-tight` |
+| **Title 3 (H3)** | `18px - 20px` (1.125 - 1.25rem) | Arimo | SemiBold (600) | `tracking-normal leading-snug` | `text-lg font-semibold` |
+| **Body (Normal)** | `15px - 16px` (0.9375 - 1.0rem) | Arimo | Regular (400) | `tracking-normal leading-relaxed` | `text-sm sm:text-base leading-relaxed text-neutral-600` |
+| **Callout / Medium** | `14px` (0.875rem) | Arimo | Medium (500) | `tracking-normal leading-normal` | `text-sm font-medium` |
+| **Footnote / Subtext**| `12px - 13px` (0.75 - 0.8125rem) | Arimo | Regular / Medium | `tracking-normal leading-normal` | `text-xs text-neutral-500` |
+| **Caption / Badge** | `10px - 11px` (0.625 - 0.6875rem) | Arimo | SemiBold (600) | `tracking-wider uppercase` | `text-[11px] font-semibold tracking-wide` |
 
 ---
 
@@ -354,6 +352,69 @@ import { IosEmoji, EmojiText, IosEmojiBar } from "@/components/ui/IosEmoji";
 // 3. Menampilkan toolbar ketuk untuk menyisipkan emoji di formulir
 <IosEmojiBar onSelect={(emoji) => appendEmoji(emoji)} />
 ```
+
+---
+
+### 4.7. Clean Centered Editorial Hero Section (Anti-Slop Standard)
+
+Hero section landing page dirancang terpusat (*centered editorial*), bersih, dan lapang tanpa kartu mockup pembungkus yang padat (*de-slopped*):
+
+```tsx
+<section className="pt-16 sm:pt-24 pb-16 sm:pb-24 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto text-center">
+  <div className="max-w-3xl mx-auto">
+    {/* Headline Utama Arimo */}
+    <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.035em] text-neutral-950 leading-[1.12] mb-5">
+      Ucapan digital yang dirancang selayaknya karya seni fisik.
+    </h1>
+
+    {/* Subjudul Nilai Emosional */}
+    <p className="text-sm sm:text-base md:text-lg text-neutral-500 max-w-xl mx-auto leading-relaxed mb-8 font-normal">
+      Amplop 3D, kartu foto kenangan, dan musik latar. Selesai dalam lima menit langsung dari ponselmu.
+    </p>
+
+    {/* Tombol Aksi Utama & Demo */}
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
+      <Link
+        href="/buat"
+        className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 btn-apple-spring"
+      >
+        <span>Bikin Kado Sekarang</span>
+        <IosEmoji symbol="💌" size={16} />
+      </Link>
+      <Link
+        href="/untuk-rara"
+        className="w-full sm:w-auto border border-neutral-300/80 hover:border-neutral-400 text-neutral-800 hover:text-black font-semibold text-xs sm:text-sm px-7 py-3.5 rounded-full transition-all hover:bg-white/80 bg-white/40 flex items-center justify-center gap-1.5 btn-apple-spring"
+      >
+        <span>Lihat Contoh Rara</span>
+        <span>↗</span>
+      </Link>
+    </div>
+
+    {/* Catatan Tarif Transparan */}
+    <p className="text-xs text-neutral-400">
+      Coba gratis di editor · Cuma <span className="text-neutral-700 font-semibold">Rp 5.000</span> saat terbitkan via QRIS
+    </p>
+  </div>
+</section>
+```
+
+---
+
+### 4.8. Footer Interaktif & Pengalih Tema (Theme Toggle)
+
+Footer landing page menggunakan komponen terstruktur [demo.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/demo.tsx) yang terintegrasi dengan [footer.tsx](file:///c:/Users/ikram/OneDrive/Desktop/bacakado/src/components/ui/footer.tsx) (`next-themes` + `dicons`):
+
+- **Grid Batas 1440px:** Mengikuti padding `px-4 sm:pl-[35px] sm:pr-[85px]` agar sejajar presisi dengan header dan hero section.
+- **4 Kategori Navigasi:**
+  1. *Momen Spesial:* Ulang Tahun, Anniversary & Pasangan, Wisuda & Kelulusan, Teman & Sahabat.
+  2. *Fitur Sentuhan Fisik:* Amplop 3D & Segel Lilin, Dek Polaroid Swipe, Piringan Vinyl & Musik, Gembok PIN Rahasia.
+  3. *Navigasi Cepat:* Bikin Kado Sekarang, Galeri Inspirasi, Kado Saya (Dasbor), Pratinjau Demo Rara.
+  4. *Informasi & Bantuan:* Tentang BacaKado, Tarif QRIS Rp 5.000, Bebas Watermark, Aktif Selamanya.
+- **Theme Toggle Pill:**
+  - Tombol Sun (`DIcons.Sun`) untuk mode terang (`setTheme("light")`).
+  - Tombol Panah Atas (`DIcons.ArrowUp`) untuk *smooth scroll-to-top* (`window.scroll({ top: 0, behavior: "smooth" })`).
+  - Tombol Moon (`DIcons.Moon`) untuk mode gelap (`setTheme("dark")`).
+- **Ikon Sosial Media (`dicons`):** Mail, X (Twitter), Instagram, WhatsApp, dan YouTube dengan transisi hover halus.
 
 ---
 

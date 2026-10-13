@@ -3,7 +3,6 @@ import { Plus, Disc3, ShieldCheck, Layers } from "lucide-react";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 import { IosEmoji } from "@/components/ui/IosEmoji";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
-import { HeroShowcaseCard } from "@/components/landing/HeroShowcaseCard";
 import { Footer } from "@/components/ui/demo";
 
 export default function HomePage() {
@@ -48,47 +47,37 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Asymmetric Split Hero Section ─────────────────────── */}
-      <section className="pt-10 sm:pt-16 pb-12 sm:pb-20 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
-          {/* Left Column: Copy & Actions (Col span 7) */}
-          <div className="lg:col-span-7 text-center lg:text-left">
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.035em] text-neutral-950 leading-[1.12] mb-5">
-              Ucapan digital yang dirancang selayaknya karya seni fisik.
-            </h1>
+      {/* ── Clean Centered Editorial Hero Section ───────────── */}
+      <section className="pt-16 sm:pt-24 pb-16 sm:pb-24 px-4 sm:pl-[35px] sm:pr-[85px] max-w-[1440px] mx-auto text-center">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.035em] text-neutral-950 leading-[1.12] mb-5">
+            Ucapan digital yang dirancang selayaknya karya seni fisik.
+          </h1>
 
-            <p className="text-sm sm:text-base md:text-lg text-neutral-500 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8 font-normal">
-              Amplop 3D, kartu foto kenangan, dan musik latar. Selesai dalam lima menit langsung dari ponselmu.
-            </p>
+          <p className="text-sm sm:text-base md:text-lg text-neutral-500 max-w-xl mx-auto leading-relaxed mb-8 font-normal">
+            Amplop 3D, kartu foto kenangan, dan musik latar. Selesai dalam lima menit langsung dari ponselmu.
+          </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-5">
-              <Link
-                href="/buat"
-                className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 btn-apple-spring"
-              >
-                <span>Bikin Kado Sekarang</span>
-                <IosEmoji symbol="💌" size={16} />
-              </Link>
-              <Link
-                href="/untuk-rara"
-                className="w-full sm:w-auto border border-neutral-300/80 hover:border-neutral-400 text-neutral-800 hover:text-black font-semibold text-xs sm:text-sm px-7 py-3.5 rounded-full transition-all hover:bg-white/80 bg-white/40 flex items-center justify-center gap-1.5 btn-apple-spring"
-              >
-                <span>Lihat Contoh Rara</span>
-                <span>↗</span>
-              </Link>
-            </div>
-
-            <p className="text-xs text-neutral-400">
-              Coba gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
+            <Link
+              href="/buat"
+              className="w-full sm:w-auto bg-neutral-900 hover:bg-black text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-full transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 btn-apple-spring"
+            >
+              <span>Bikin Kado Sekarang</span>
+              <IosEmoji symbol="💌" size={16} />
+            </Link>
+            <Link
+              href="/untuk-rara"
+              className="w-full sm:w-auto border border-neutral-300/80 hover:border-neutral-400 text-neutral-800 hover:text-black font-semibold text-xs sm:text-sm px-7 py-3.5 rounded-full transition-all hover:bg-white/80 bg-white/40 flex items-center justify-center gap-1.5 btn-apple-spring"
+            >
+              <span>Lihat Contoh Rara</span>
+              <span>↗</span>
+            </Link>
           </div>
 
-          {/* Right Column: Interactive Physical Hero Showcase (Col span 5) */}
-          <div className="lg:col-span-5">
-            <HeroShowcaseCard />
-          </div>
-
+          <p className="text-xs text-neutral-400">
+            Coba gratis di editor · Cuma <span className="text-neutral-700 font-semibold">{PREMIUM_PRICE_LABEL}</span> saat terbitkan via QRIS
+          </p>
         </div>
       </section>
 

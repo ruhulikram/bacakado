@@ -108,14 +108,15 @@ Transformasi dari form wizard bertahap menjadi **Creative Custom Studio WYSIWYG*
 - **Kotak Masuk Balasan** — Baca pesan balasan dari penerima di satu tempat (hanya pemilik yang memiliki akses RLS).
 - **Aksi Cepat** — Salin link, bagikan ke WhatsApp, lihat kado, atau hapus kado.
 
-### Fase 4 — Model Monetisasi (Pay-Per-Gift)
-- **Harga Bersahabat:** Rp 5.000 sekali bayar per kado via QRIS / E-Wallet (Mayar.id).
-- **Fitur Lengkap yang Didapat:**
-  - Kartu foto & narasi teks tanpa batas di Custom Studio.
-  - Tampilan bersih tanpa watermark atau iklan.
-  - Gembok PIN rahasia opsional berkeamanan tinggi.
-  - Tautan *unlisted* permanen aktif selamanya.
-  - Form balasan interaktif dari penerima.
+### Fase 5 — Landing Page & Identitas Visual (De-slop & Anti-Slop System)
+- **Top Announcement Banner:** Banner tahap pengembangan presisi grid 1440px dengan modal feedback Apple glassmorphism dan respons getaran haptik.
+- **Clean Centered Editorial Hero Section:** Headline Arimo lapang terpusat (`text-4xl sm:text-6xl lg:text-7xl`), subjudul emosional, 2 tombol aksi utama (`/buat` dan `/untuk-rara`), serta jaminan tarif QRIS Rp 5.000 sekali bayar tanpa kotak mockup padat (*de-slopped*).
+- **Rhythmic Bento Grid (Fitur Fisik):** 4-sel grid berpermukaan putih bersih (`bg-white border border-neutral-200/80`) yang menjelaskan Amplop 3D, Dek Polaroid, Piringan Vinyl Musik, dan Gembok PIN tanpa gradasi pelangi atmosferik atau kicker berlebihan.
+- **Footer Interaktif & Pengalih Tema (Khusus Landing Page):**
+  - 4 Kolom navigasi terarah: Momen Spesial, Fitur Sentuhan Fisik, Navigasi Cepat, dan Informasi & Bantuan.
+  - Social media icons (`dicons`): Email, X (Twitter), Instagram, WhatsApp, YouTube.
+  - Theme Toggle interaktif (`next-themes`) untuk beralih mode terang/gelap serta tombol *smooth scroll-to-top*.
+- **Standar Tipografi Web Resmi:** Penggunaan Google Font **Arimo** (400..700, normal & italic) di seluruh halaman dan peniadaan ketergantungan `Instrument Serif` demi kecepatan load dan konsistensi visual.
 
 ---
 
