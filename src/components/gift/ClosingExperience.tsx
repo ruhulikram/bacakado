@@ -201,8 +201,7 @@ export function ClosingExperience({
           className="w-full min-h-[48px] flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-xs font-semibold text-white bg-neutral-900 hover:bg-black shadow-sm transition-all active:scale-98 btn-apple-spring group"
         >
           <IosEmoji symbol="💌" size={16} />
-          <span>Bikin Kado Personal Punyamu Sendiri</span>
-          <span className="group-hover:translate-x-0.5 transition-transform">↗</span>
+          <span>Bikin punyamu sendiri</span>
         </a>
       </div>
     </div>

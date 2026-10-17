@@ -185,8 +185,8 @@ export function DashboardClient({
                 className="bg-neutral-900 hover:bg-black text-white rounded-full text-xs font-semibold shadow-sm h-8 xs:h-9 px-3 xs:px-4 transition-all active:scale-95 flex items-center"
               >
                 <Plus className="w-3.5 h-3.5 mr-1" />
-                <span className="hidden xs:inline">Bikin Kado Baru</span>
-                <span className="xs:hidden">Bikin Kado</span>
+                <span className="hidden xs:inline">Bikin kado baru</span>
+                <span className="xs:hidden">Bikin kado</span>
               </Button>
             </Link>
 
@@ -419,7 +419,7 @@ export function DashboardClient({
                 </p>
                 <Link href="/buat">
                   <Button className="bg-neutral-900 hover:bg-black text-white rounded-full px-6 text-xs font-semibold h-10 shadow-sm transition-all active:scale-95">
-                    <span>Bikin Kado Sekarang</span>
+                    <span>Bikin kado</span>
                     <IosEmoji symbol="✨" size={14} className="ml-1" />
                   </Button>
                 </Link>

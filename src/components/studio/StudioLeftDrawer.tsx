@@ -98,7 +98,7 @@ const PRESET_QUOTES = [
     ],
   },
   {
-    category: "Sahabat / Teman ✨",
+    category: "Teman",
     quotes: [
       "Buat temen terbaikku yang selalu ada di suka, duka, dan obrolan random tengah malam.",
       "Terima kasih atas segala kekonyolan dan tawa yang gak pernah ada habisnya.",
@@ -205,7 +205,7 @@ export function StudioLeftDrawer({
               ? "bg-neutral-900 text-white shadow-sm"
               : "text-neutral-500 hover:bg-neutral-200/70"
           }`}
-          title="Adegan & Kartu"
+          title="Kartu"
         >
           <Layers size={17} />
           <span className="text-[9px] font-semibold mt-0.5">Kartu</span>
@@ -221,7 +221,7 @@ export function StudioLeftDrawer({
               ? "bg-neutral-900 text-white shadow-sm"
               : "text-neutral-500 hover:bg-neutral-200/70"
           }`}
-          title="Ide Teks & Presets"
+          title="Ide kalimat"
         >
           <Type size={17} />
           <span className="text-[9px] font-semibold mt-0.5">Teks</span>
@@ -237,7 +237,7 @@ export function StudioLeftDrawer({
               ? "bg-neutral-900 text-white shadow-sm"
               : "text-neutral-500 hover:bg-neutral-200/70"
           }`}
-          title="Foto Kenangan"
+          title="Foto"
         >
           <ImageIcon size={17} />
           <span className="text-[9px] font-semibold mt-0.5">Foto</span>
@@ -253,7 +253,7 @@ export function StudioLeftDrawer({
               ? "bg-neutral-900 text-white shadow-sm"
               : "text-neutral-500 hover:bg-neutral-200/70"
           }`}
-          title="Stiker & Apple Emojis"
+          title="Stiker"
         >
           <Smile size={17} />
           <span className="text-[9px] font-semibold mt-0.5">Stiker</span>
@@ -269,7 +269,7 @@ export function StudioLeftDrawer({
               ? "bg-neutral-900 text-white shadow-sm"
               : "text-neutral-500 hover:bg-neutral-200/70"
           }`}
-          title="Musik Latar"
+          title="Musik"
         >
           <Music size={17} />
           <span className="text-[9px] font-semibold mt-0.5">Audio</span>
@@ -277,16 +277,13 @@ export function StudioLeftDrawer({
       </div>
 
       {/* ── Content Drawer ────────────────────────────────────── */}
-      <div className="w-64 sm:w-72 overflow-y-auto p-4 flex flex-col">
+      <div className="w-64 sm:w-72 max-lg:w-auto max-lg:flex-1 overflow-y-auto p-4 flex flex-col">
         {/* TAB 1: ADEGAN / KARTU */}
         {activeTab === "layers" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
               <span className="text-xs font-semibold text-neutral-900">
-                Alur kado digital
-              </span>
-              <span className="text-[11px] text-neutral-400 font-medium">
-                {cards.length + 2} Adegan
+                Urutan saat dibuka
               </span>
             </div>
 
@@ -307,7 +304,7 @@ export function StudioLeftDrawer({
                   <IosEmoji symbol="💌" size={16} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-neutral-900 truncate">1. Sampul Amplop</p>
+                  <p className="text-xs font-semibold text-neutral-900 truncate">Sampul</p>
                   <p className="text-[10px] text-neutral-500 truncate italic">
                     {openingText || `Untuk ${recipientName || "kamu"}...`}
                   </p>
@@ -320,7 +317,7 @@ export function StudioLeftDrawer({
             <div className="space-y-2">
               <div className="flex items-center justify-between px-1">
                 <span className="text-[11px] font-medium text-neutral-500">
-                  Kartu polaroid ({cards.length})
+                  Kartu
                 </span>
                 <button
                   onClick={() => {
@@ -367,10 +364,10 @@ export function StudioLeftDrawer({
                       )}
                       <div className="min-w-0">
                         <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-neutral-900"}`}>
-                          Polaroid #{idx + 1}
+                          Kartu {idx + 1}
                         </p>
                         <p className={`text-[10px] truncate ${isActive ? "text-neutral-300" : "text-neutral-400"}`}>
-                          {c.text_content || "Ketuk untuk menulis ucapan..."}
+                          {c.text_content || "Belum ada tulisan"}
                         </p>
                       </div>
                     </div>
@@ -452,10 +449,10 @@ export function StudioLeftDrawer({
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-neutral-900 truncate">
-                    {cards.length + 2}. Pesan Penutup
+                    Penutup
                   </p>
                   <p className="text-[10px] text-neutral-500 truncate italic">
-                    {closingText || "Semoga bahagia selalu..."}
+                    {closingText || "Belum ada tulisan"}
                   </p>
                 </div>
               </div>
@@ -470,7 +467,7 @@ export function StudioLeftDrawer({
               className="w-full py-2.5 border-2 border-dashed border-neutral-200 hover:border-neutral-400 rounded-2xl text-xs font-semibold text-neutral-600 flex items-center justify-center gap-1.5 transition-all active:scale-98"
             >
               <Plus size={13} />
-              <span>Tambah Kartu Polaroid</span>
+              <span>Tambah kartu</span>
             </button>
           </div>
         )}
@@ -483,7 +480,7 @@ export function StudioLeftDrawer({
                 Inspirasi kalimat
               </span>
               <p className="text-[11px] text-neutral-400 mt-0.5">
-                Klik kalimat untuk langsung memasangnya di kartu yang aktif.
+                Ketuk kalimat untuk memakainya di kartu yang sedang dibuka.
               </p>
             </div>
 
@@ -520,7 +517,7 @@ export function StudioLeftDrawer({
           <div className="space-y-4">
             <div className="pb-2 border-b border-neutral-100">
               <span className="text-xs font-semibold text-neutral-900 block">
-                Foto kenangan
+                Foto
               </span>
               <p className="text-[11px] text-neutral-400 mt-0.5">
                 Pasang foto untuk Polaroid #{activeCardIndex + 1}.
@@ -546,7 +543,7 @@ export function StudioLeftDrawer({
               </div>
               <div className="text-center">
                 <span className="text-xs font-semibold text-neutral-800 block">
-                  {isUploading ? "Mengunggah foto..." : "Unggah Foto dari HP / Laptop"}
+                  {isUploading ? "Mengunggah foto..." : "Pilih foto dari galeri"}
                 </span>
                 <span className="text-[10px] text-neutral-400">JPG, PNG, WebP (maks 5MB)</span>
               </div>
@@ -561,7 +558,7 @@ export function StudioLeftDrawer({
             {/* Curated Aesthetic Starters */}
             <div className="space-y-2 pt-2">
               <span className="text-[11px] font-medium text-neutral-500 block">
-                Atau pilih foto estetik cepat:
+                Atau pakai foto contoh
               </span>
               <div className="grid grid-cols-2 gap-2">
                 {CURATED_SAMPLE_PHOTOS.map((pic, idx) => (
@@ -598,26 +595,11 @@ export function StudioLeftDrawer({
             <div className="space-y-4">
               <div className="pb-2 border-b border-neutral-100">
                 <span className="text-xs font-semibold text-neutral-900 block">
-                  Stiker & pin polaroid
+                  Stiker
                 </span>
                 <p className="text-[11px] text-neutral-500 mt-0.5">
-                  Tarik & tempel stiker langsung ke kartu ucapan, atau klik untuk memilih.
+                  Tarik ke kartu, atau ketuk untuk menempel. Satu stiker per kartu.
                 </p>
-              </div>
-
-              {/* Drag & Stick Pro-Tip Banner */}
-              <div className="p-3 rounded-2xl bg-neutral-50 border border-neutral-200/80">
-                <div className="flex items-start gap-2.5">
-                  <div className="w-7 h-7 rounded-xl bg-white shadow-xs border border-neutral-200/80 flex items-center justify-center shrink-0 text-neutral-700">
-                    <Sparkles size={14} />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-neutral-900">Drag & stick interaktif</h4>
-                    <p className="text-[11px] text-neutral-600 leading-relaxed mt-0.5">
-                      Tarik stiker di bawah langsung ke atas kartu di kanvas, atau klik untuk menempelkan. Kamu bebas menggeser posisinya ke mana saja.
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Pin Sticker Status on active Polaroid */}
@@ -658,7 +640,7 @@ export function StudioLeftDrawer({
                   {/* Quick Position Presets */}
                   <div className="space-y-1.5 pt-1 border-t border-neutral-100">
                     <span className="text-[11px] font-medium text-neutral-500 block">
-                      Posisi cepat di kartu:
+                      Posisi
                     </span>
                     <div className="grid grid-cols-3 gap-1.5">
                       {[
@@ -692,7 +674,7 @@ export function StudioLeftDrawer({
                   {/* Quick Rotation Buttons */}
                   <div className="space-y-1.5 pt-1 border-t border-neutral-100">
                     <span className="text-[11px] font-medium text-neutral-500 block">
-                      Sudut kemiringan:
+                      Kemiringan
                     </span>
                     <div className="flex items-center gap-1.5">
                       {[-18, -8, 0, 12, 24].map((rot) => (
@@ -723,10 +705,7 @@ export function StudioLeftDrawer({
               ) : (
                 <div className="p-3 rounded-2xl bg-neutral-50/80 border border-dashed border-neutral-200 text-center">
                   <span className="text-[11px] text-neutral-500 block">
-                    Polaroid #{activeCardIndex + 1} belum memiliki stiker.
-                  </span>
-                  <span className="text-[10px] text-neutral-400 block mt-0.5">
-                    Tarik stiker di bawah ke atas kartu atau klik untuk pasang.
+                    Kartu {activeCardIndex + 1} belum punya stiker.
                   </span>
                 </div>
               )}
@@ -783,10 +762,10 @@ export function StudioLeftDrawer({
           <div className="space-y-4">
             <div className="pb-2 border-b border-neutral-100">
               <span className="text-xs font-semibold text-neutral-900 block">
-                Audio latar kado
+                Musik
               </span>
               <p className="text-[11px] text-neutral-400 mt-0.5">
-                Berputar otomatis melalui piringan vinyl saat amplop dibuka.
+                Mulai diputar saat amplop dibuka.
               </p>
             </div>
 
@@ -868,7 +847,7 @@ export function StudioLeftDrawer({
               >
                 <div className="flex items-center gap-1.5">
                   <IosEmoji symbol="🎵" size={14} />
-                  <span>Gunakan Lagu dari YouTube</span>
+                  <span>Pakai lagu dari YouTube</span>
                 </div>
                 {musicId === "youtube" && <Check size={14} className="text-rose-600" />}
               </div>
@@ -883,7 +862,7 @@ export function StudioLeftDrawer({
                     className="w-full text-xs p-2.5 rounded-xl border border-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-900"
                   />
                   <p className="text-[10px] text-neutral-400">
-                    {youtubeId(youtubeUrl) ? "✓ Link YouTube valid" : "Tempel link dari tombol bagikan YouTube"}
+                    {youtubeId(youtubeUrl) ? "Link bisa dipakai" : "Tempel link dari tombol Bagikan di YouTube"}
                   </p>
                 </div>
               )}

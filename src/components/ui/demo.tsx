@@ -1,26 +1,25 @@
-"use client";
-
 import Link from "next/link";
 import { DIcons } from "dicons";
 import { IosEmoji } from "@/components/ui/IosEmoji";
-import ThemeToggle from "@/components/ui/footer";
-import { Component } from "@/components/ui/iphone";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-export function DemoOne() {
-  return (
-    <div className="w-full min-h-[600px] flex items-center justify-center mx-auto relative p-6">
-      <Component />
-      <div
-        className="absolute inset-0 w-full h-full -z-10"
-        style={{
-          backgroundImage:
-            "url('data:image/svg+xml,%3Csvg width=\\'4\\' height=\\'4\\' viewBox=\\'0 0 6 6\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Ccircle cx=\\'6\\' cy=\\'6\\' r=\\'1\\' fill=\\'%23aaa\\' fill-opacity=\\'0.25\\' /%3E%3C/svg%3E')",
-          backgroundColor: "transparent",
-        }}
-      />
-    </div>
-  );
-}
+// Isi `href` dengan URL akun BacaKado yang asli. Ikon hanya tampil jika href terisi.
+const SOCIAL_LINKS: { label: string; href: string; icon: React.ReactNode }[] = [
+  { label: "Email", href: "mailto:contact@bacakado.com", icon: <DIcons.Mail strokeWidth={1.5} className="h-4 w-4" /> },
+  { label: "Instagram", href: "", icon: <DIcons.Instagram className="h-4 w-4" /> },
+  {
+    label: "TikTok",
+    href: "",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+        <path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-2.59-2.6c.27 0 .53.04.78.12V9.77a5.7 5.7 0 0 0-.78-.05 5.69 5.69 0 1 0 5.69 5.69V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.25-1.48Z" />
+      </svg>
+    ),
+  },
+  { label: "WhatsApp", href: "", icon: <DIcons.WhatsApp className="h-4 w-4" /> },
+  { label: "YouTube", href: "", icon: <DIcons.YouTube className="h-4 w-4" /> },
+  { label: "X", href: "", icon: <DIcons.X className="h-4 w-4" /> },
+];
 
 const navigation = {
   categories: [
@@ -34,7 +33,7 @@ const navigation = {
           items: [
             { name: "Ulang Tahun", href: "/buat?theme=ulang-tahun" },
             { name: "Anniversary & Pasangan", href: "/buat?theme=pacar" },
-            { name: "Wisuda & Kelulusan", href: "/buat?theme=wisuda" },
+            { name: "Ucapan & Pencapaian", href: "/buat?theme=ucapan" },
             { name: "Teman & Sahabat", href: "/buat?theme=temen" },
           ],
         },
@@ -52,7 +51,7 @@ const navigation = {
           id: "navigasi",
           name: "Navigasi Cepat",
           items: [
-            { name: "Bikin Kado Sekarang", href: "/buat" },
+            { name: "Bikin kado", href: "/buat" },
             { name: "Galeri Inspirasi", href: "/galeri" },
             { name: "Kado Saya (Dasbor)", href: "/dashboard" },
             { name: "Pratinjau Demo Rara", href: "/untuk-rara" },
@@ -62,10 +61,8 @@ const navigation = {
           id: "info",
           name: "Informasi & Bantuan",
           items: [
-            { name: "Tentang BacaKado", href: "/" },
-            { name: "Tarif QRIS Rp 5.000", href: "/#tarif" },
-            { name: "Bebas Watermark", href: "/#fitur" },
-            { name: "Aktif Selamanya", href: "/#fitur" },
+            { name: "Tarif QRIS Rp 5.000", href: "/#fitur" },
+            { name: "Hubungi Kami", href: "mailto:contact@bacakado.com" },
           ],
         },
       ],
@@ -73,11 +70,9 @@ const navigation = {
   ],
 };
 
-const Underline = `hover:-translate-y-1 border border-dotted border-neutral-300 dark:border-neutral-700 rounded-xl p-2.5 transition-transform text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white bg-neutral-50/50 dark:bg-neutral-900/50`;
-
 export function Footer() {
   return (
-    <footer className="border-neutral-200/80 dark:border-neutral-800 mx-auto w-full border-t bg-white dark:bg-neutral-950 transition-colors">
+    <footer className="border-neutral-200/80 dark:border-neutral-800 mx-auto w-full border-t bg-white dark:bg-[#0F0E0D] transition-colors">
       <div className="max-w-[1440px] mx-auto px-4 sm:pl-[35px] sm:pr-[85px] pt-12 pb-6">
         {/* Brand Header */}
         <div className="relative grid items-center justify-center gap-6 pb-2 md:flex md:justify-between">
@@ -131,61 +126,23 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Social Icons & Theme Toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-4 py-2">
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <Link
-              aria-label="Email"
-              href="mailto:contact@bacakado.com"
-              rel="noreferrer"
-              target="_blank"
-              className={Underline}
-              title="Kirim Email"
-            >
-              <DIcons.Mail strokeWidth={1.5} className="h-4 w-4" />
-            </Link>
-            <Link
-              aria-label="X Twitter"
-              href="https://x.com"
-              rel="noreferrer"
-              target="_blank"
-              className={Underline}
-              title="Twitter"
-            >
-              <DIcons.X className="h-4 w-4" />
-            </Link>
-            <Link
-              aria-label="Instagram"
-              href="https://instagram.com"
-              rel="noreferrer"
-              target="_blank"
-              className={Underline}
-              title="Instagram"
-            >
-              <DIcons.Instagram className="h-4 w-4" />
-            </Link>
-            <Link
-              aria-label="WhatsApp"
-              href="https://wa.me"
-              rel="noreferrer"
-              target="_blank"
-              className={Underline}
-              title="WhatsApp"
-            >
-              <DIcons.WhatsApp className="h-4 w-4" />
-            </Link>
-            <Link
-              aria-label="YouTube"
-              href="https://youtube.com"
-              rel="noreferrer"
-              target="_blank"
-              className={Underline}
-              title="YouTube"
-            >
-              <DIcons.YouTube className="h-4 w-4" />
-            </Link>
+        {/* Sosmed & tema */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            {SOCIAL_LINKS.filter((s) => s.href).map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                aria-label={s.label}
+                title={s.label}
+                target={s.href.startsWith("mailto:") ? undefined : "_blank"}
+                rel="noreferrer"
+                className="w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors"
+              >
+                {s.icon}
+              </a>
+            ))}
           </div>
-
           <ThemeToggle />
         </div>
 
@@ -197,7 +154,7 @@ export function Footer() {
             <span className="font-semibold text-neutral-900 dark:text-white">BacaKado</span>
             <span>·</span>
             <span>Dirancang dengan kehangatan untuk momen terbaikmu di Indonesia</span>
-            <DIcons.Heart className="text-rose-500 mx-1 h-3.5 w-3.5 inline animate-pulse" />
+            <DIcons.Heart className="text-rose-500 mx-1 h-3.5 w-3.5 inline" />
           </div>
           <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
             Tanpa langganan · QRIS Otomatis · Tautan Aktif Selamanya

@@ -44,7 +44,7 @@ export default async function GaleriPage() {
               className="bg-neutral-900 hover:bg-black text-white rounded-full text-xs font-semibold shadow-sm h-8 xs:h-9 px-3 xs:px-3.5 sm:px-4 transition-all active:scale-95 flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Bikin Kado</span>
+              <span>Bikin kado</span>
             </Link>
           </div>
         </div>

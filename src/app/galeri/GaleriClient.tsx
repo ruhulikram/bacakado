@@ -235,7 +235,7 @@ export function GaleriClient({ initialGifts }: GaleriClientProps) {
                   <div className="flex items-center gap-3 text-[11px] text-neutral-400 font-medium">
                     <span className="flex items-center gap-1">
                       <Eye size={12} />
-                      <span>{gift.view_count.toLocaleString()}</span>
+                      <span>{gift.view_count.toLocaleString("id-ID")}</span>
                     </span>
                     <span className="flex items-center gap-1 text-rose-500 font-semibold">
                       <Heart size={12} className="fill-rose-500" />

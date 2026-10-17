@@ -19,33 +19,34 @@ export const Component = ({
     <div
       className={cn(
         "relative flex justify-center w-[280px] sm:w-[320px] h-[580px] sm:h-[640px] border-[8px] sm:border-[10px] border-neutral-900 rounded-[48px] bg-neutral-900 select-none shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] ring-1 ring-white/10 shrink-0",
-        className
+        className,
+        "max-lg:w-full max-lg:max-w-none max-lg:h-auto max-lg:border-0 max-lg:rounded-none max-lg:bg-transparent max-lg:shadow-none max-lg:ring-0"
       )}
     >
       {/* ── Left Side Buttons: Mute/Action, Vol Up, Vol Down ─── */}
       <span
         aria-hidden="true"
-        className="absolute -left-[12px] top-20 w-[4px] h-6 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
+        className="max-lg:hidden absolute -left-[12px] top-20 w-[4px] h-6 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
       />
       <span
         aria-hidden="true"
-        className="absolute -left-[12px] top-32 w-[4px] h-11 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
+        className="max-lg:hidden absolute -left-[12px] top-32 w-[4px] h-11 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
       />
       <span
         aria-hidden="true"
-        className="absolute -left-[12px] top-47 w-[4px] h-11 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
+        className="max-lg:hidden absolute -left-[12px] top-47 w-[4px] h-11 rounded-l-md bg-neutral-700 border-l border-y border-neutral-800"
       />
 
       {/* ── Right Side Button: Power / Lock ──────────────────── */}
       <span
         aria-hidden="true"
-        className="absolute -right-[12px] top-28 w-[4px] h-14 rounded-r-md bg-neutral-700 border-r border-y border-neutral-800"
+        className="max-lg:hidden absolute -right-[12px] top-28 w-[4px] h-14 rounded-r-md bg-neutral-700 border-r border-y border-neutral-800"
       />
 
       {/* ── Top Apple Dynamic Island Notch ──────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-black rounded-full z-40 pointer-events-none flex items-center justify-between px-2.5 shadow-xs"
+        className="max-lg:hidden absolute top-3.5 left-1/2 -translate-x-1/2 w-28 h-4.5 bg-black rounded-full z-40 pointer-events-none flex items-center justify-between px-2.5 shadow-xs"
       >
         {/* Camera Sensor Reflection */}
         <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 border border-neutral-800/80 flex items-center justify-center">
@@ -58,13 +59,13 @@ export const Component = ({
       {/* ── Bottom Home Indicator Bar ───────────────────────── */}
       <div
         aria-hidden="true"
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-black/30 rounded-full z-30 pointer-events-none"
+        className="max-lg:hidden absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-black/30 rounded-full z-30 pointer-events-none"
       />
 
       {/* ── Inner Screen Viewport ────────────────────────────── */}
       <div
         className={cn(
-          "w-full h-full rounded-[38px] overflow-hidden relative flex flex-col",
+          "w-full h-full rounded-[38px] max-lg:rounded-3xl overflow-hidden relative flex flex-col",
           !children && "bg-gradient-to-b from-[#E7DFD5] via-[#DACFC4] to-[#C8BEB1]",
           screenClassName
         )}

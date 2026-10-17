@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Arimo } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
+import { Arimo, Newsreader } from "next/font/google";
 import "./globals.css";
 
 const arimo = Arimo({
   subsets: ["latin"],
   variable: "--font-arimo",
+  display: "swap",
+});
+
+// Serif surat untuk momen emosional (judul amplop, kartu, penutup)
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
   display: "swap",
 });
 
@@ -17,32 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="id"
-      suppressHydrationWarning
-      className={`${arimo.variable} h-full antialiased`}
-    >
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body
-        className="min-h-full flex flex-col font-sans"
-        style={{ fontFamily: "var(--font-arimo), 'Arimo', sans-serif" }}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-      </body>
+    <html lang="id" className={`${arimo.variable} ${newsreader.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }

@@ -12,12 +12,13 @@ import { youtubeId } from "@/lib/utils";
 
 // Custom Studio Components
 import { StudioThemeGate } from "@/components/studio/StudioThemeGate";
-import { StudioHeader, StudioStage, ViewportMode } from "@/components/studio/StudioHeader";
+import { StudioHeader, StudioStage } from "@/components/studio/StudioHeader";
 import { StudioLeftDrawer } from "@/components/studio/StudioLeftDrawer";
 import { StudioCanvas } from "@/components/studio/StudioCanvas";
-import { StudioRightInspector, FontStyle } from "@/components/studio/StudioRightInspector";
+import { StudioRightInspector } from "@/components/studio/StudioRightInspector";
 import { StudioSimulatorModal } from "@/components/studio/StudioSimulatorModal";
-import { Layers, Sliders, X, Check } from "lucide-react";
+import { X, Check } from "lucide-react";
+import { IosEmoji } from "@/components/ui/IosEmoji";
 import { triggerHaptic } from "@/lib/haptics";
 
 const DRAFT_STORAGE_KEY = "bacakado_custom_studio_draft_v2";
@@ -37,7 +38,6 @@ const THEME_STARTERS: Record<
     card1: string;
     card2: string;
     musicId: string;
-    tapeStyle: "washi-tape" | "washi-tape-gold";
   }
 > = {
   ucapan: {
@@ -46,7 +46,6 @@ const THEME_STARTERS: Record<
     card1: "Terima kasih sudah selalu ada dan membawa warna indah dalam hari-hariku. 🌸",
     card2: "Semoga setiap langkahmu selalu dipeluk ketenangan dan hal-hal baik. ✨",
     musicId: "piano-lembut",
-    tapeStyle: "washi-tape-gold",
   },
   "ulang-tahun": {
     opening: (name) => `Ada kejutan spesial buat kamu di hari bahagia ini, ${name || "kamu"} 🎂✨`,
@@ -54,7 +53,6 @@ const THEME_STARTERS: Record<
     card1: "Selamat ulang tahun! Semoga tahun ini membawa ribuan alasan baru untuk tersenyum lebar. 🎂🎉",
     card2: "Teruslah bersinar dan jangan pernah berhenti percaya pada mimpi-mimpimu. 🌟",
     musicId: "akustik-ceria",
-    tapeStyle: "washi-tape-gold",
   },
   pacar: {
     opening: (name) => `Sebuah surat kecil penuh cinta buat orang paling spesial dalam hidupku, ${name || "kamu"} ❤️`,
@@ -62,7 +60,6 @@ const THEME_STARTERS: Record<
     card1: "Setiap momen bersamamu selalu jadi bagian favorit dari hariku. Terima kasih sudah jadi rumah ternyaman. 🌹",
     card2: "Aku bersyukur semesta mempertemukan kita. Semoga kita selalu saling menjaga dan melengkapi. 💕",
     musicId: "piano-lembut",
-    tapeStyle: "washi-tape",
   },
   temen: {
     opening: (name) => `Buat temen terbaikku yang selalu ada di suka dan duka, ${name || "kamu"} ✨💌`,
@@ -70,7 +67,6 @@ const THEME_STARTERS: Record<
     card1: "Makasih udah selalu nemenin dari cerita seru sampai obrolan random tengah malem. Gak pernah bosen temenan sama kamu! 🧸",
     card2: "Apapun tantangan ke depan, kita hadapi bareng-bareng. Sukses terus ya buat kita! 🥂",
     musicId: "lofi-santai",
-    tapeStyle: "washi-tape",
   },
   anniversary: {
     opening: (name) => `Selamat hari jadi kita, ${name || "sayang"} 💍❤️`,
@@ -78,7 +74,6 @@ const THEME_STARTERS: Record<
     card1: "Mengingat kembali hari pertama kita bertemu, aku tahu kamu adalah takdir terindahku. ❤️",
     card2: "Mari terus menua bersama dengan ribuan cerita manis berikutnya. ✨",
     musicId: "piano-lembut",
-    tapeStyle: "washi-tape-gold",
   },
   wisuda: {
     opening: (name) => `Selamat atas kelulusanmu, ${name || "sahabatku"}! Bangga banget 🎓✨`,
@@ -86,7 +81,6 @@ const THEME_STARTERS: Record<
     card1: "Semua perjuangan, lelah, dan air mata akhirnya terbayar tuntas hari ini! 🎓",
     card2: "Dunia luas menunggumu untuk menorehkan karya-karya hebat. Teruslah berkilau! ✨",
     musicId: "sinematik-haru",
-    tapeStyle: "washi-tape-gold",
   },
   lebaran: {
     opening: (name) => `Taqabbalallahu minna wa minkum, selamat Idul Fitri ${name || "sekeluarga"} 🌙✨`,
@@ -94,7 +88,6 @@ const THEME_STARTERS: Record<
     card1: "Semoga hari kemenangan ini membawa hangatnya kebersamaan dan pengampunan. 🌙",
     card2: "Terima kasih atas silaturahmi yang tak pernah putus. Sehat dan bahagia selalu! ✨",
     musicId: "hangat-keluarga",
-    tapeStyle: "washi-tape-gold",
   },
   valentine: {
     opening: (name) => `Happy Valentine's Day untuk orang termanis di hatiku, ${name || "kamu"} 💖🌹`,
@@ -102,7 +95,6 @@ const THEME_STARTERS: Record<
     card1: "Terima kasih sudah membuat dunia terasa lebih indah dan hangat setiap hari. 💖",
     card2: "Kamu adalah hadiah terindah yang pernah kumiliki. Sayang kamu selalu! 🥰",
     musicId: "piano-lembut",
-    tapeStyle: "washi-tape",
   },
 };
 
@@ -132,6 +124,8 @@ export default function BuatPage() {
 
   // Studio Mode: Initial Gate or Interactive Workspace
   const [viewMode, setViewMode] = useState<"gate" | "studio">("gate");
+  const [gateTheme, setGateTheme] = useState<Theme | null>(null);
+  const [resumeName, setResumeName] = useState<string | null>(null);
 
   // Core Gift State
   const [theme, setTheme] = useState<Theme>("ucapan");
@@ -149,11 +143,6 @@ export default function BuatPage() {
   // Studio Controls & Viewport State
   const [activeStage, setActiveStage] = useState<StudioStage>("card");
   const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [viewportMode, setViewportMode] = useState<ViewportMode>("mobile");
-  const [zoomScale, setZoomScale] = useState(1);
-  const [fontStyle, setFontStyle] = useState<FontStyle>("serif");
-  const [cardTilt, setCardTilt] = useState(-1.5);
-  const [tapeStyle, setTapeStyle] = useState<"washi-tape" | "washi-tape-gold">("washi-tape-gold");
 
   // Mobile Drawer Toggle state
   const [mobileDrawer, setMobileDrawer] = useState<"none" | "left" | "right">("none");
@@ -164,54 +153,40 @@ export default function BuatPage() {
   const [editingGiftId, setEditingGiftId] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateToastMessage, setUpdateToastMessage] = useState<string | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
 
-  // Undo / Redo History
-  const [history, setHistory] = useState<Snapshot[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const isUndoRedoAction = useRef(false);
+  // Undo / Redo: snapshot direkam otomatis (debounce) setiap isi kado berubah
+  const [hist, setHist] = useState<{ stack: Snapshot[]; index: number }>({ stack: [], index: -1 });
+  const skipSnapshot = useRef(false);
 
-  const pushSnapshot = useCallback(() => {
-    if (isUndoRedoAction.current) return;
-    const snapshot: Snapshot = {
-      cards: JSON.parse(JSON.stringify(cards)),
-      openingText,
-      closingText,
-      recipientName,
-    };
-    setHistory((prev) => [...prev.slice(0, historyIndex + 1), snapshot]);
-    setHistoryIndex((prev) => prev + 1);
-  }, [cards, openingText, closingText, recipientName, historyIndex]);
-
-  function handleUndo() {
-    if (historyIndex > 0) {
-      triggerHaptic("selection");
-      isUndoRedoAction.current = true;
-      const target = history[historyIndex - 1];
-      setCards(target.cards);
-      setOpeningText(target.openingText);
-      setClosingText(target.closingText);
-      setRecipientName(target.recipientName);
-      setHistoryIndex((i) => i - 1);
-      setTimeout(() => {
-        isUndoRedoAction.current = false;
-      }, 50);
+  useEffect(() => {
+    if (viewMode !== "studio") return;
+    if (skipSnapshot.current) {
+      skipSnapshot.current = false;
+      return;
     }
-  }
+    const timer = setTimeout(() => {
+      const snap: Snapshot = { cards, openingText, closingText, recipientName };
+      setHist((h) => {
+        const last = h.stack[h.index];
+        if (last && JSON.stringify(last) === JSON.stringify(snap)) return h;
+        const stack = [...h.stack.slice(0, h.index + 1), snap].slice(-50);
+        return { stack, index: stack.length - 1 };
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [viewMode, cards, openingText, closingText, recipientName]);
 
-  function handleRedo() {
-    if (historyIndex < history.length - 1) {
-      triggerHaptic("selection");
-      isUndoRedoAction.current = true;
-      const target = history[historyIndex + 1];
-      setCards(target.cards);
-      setOpeningText(target.openingText);
-      setClosingText(target.closingText);
-      setRecipientName(target.recipientName);
-      setHistoryIndex((i) => i + 1);
-      setTimeout(() => {
-        isUndoRedoAction.current = false;
-      }, 50);
-    }
+  function applySnapshot(index: number) {
+    const target = hist.stack[index];
+    if (!target) return;
+    triggerHaptic("selection");
+    skipSnapshot.current = true;
+    setCards(target.cards);
+    setOpeningText(target.openingText);
+    setClosingText(target.closingText);
+    setRecipientName(target.recipientName);
+    setHist((h) => ({ ...h, index }));
   }
 
   // Load template from gallery, edit existing gift, or restore saved draft on initial client mount
@@ -283,21 +258,9 @@ export default function BuatPage() {
         }
       }
 
-      // Check if theme was selected directly via URL
+      // Nuansa dari URL (mis. link footer): pilih di gerbang, nama tetap ditanya
       if (themeParam && THEME_STARTERS[themeParam]) {
-        setTheme(themeParam);
-        const starter = THEME_STARTERS[themeParam];
-        setOpeningText(starter.opening("Kamu"));
-        setClosingText(starter.closing);
-        setMusicId(starter.musicId);
-        setTapeStyle(starter.tapeStyle);
-        setCards([
-          { id: "c1", order_index: 0, text_content: starter.card1 },
-          { id: "c2", order_index: 1, text_content: starter.card2 },
-        ]);
-        setViewMode("studio");
-        setActiveStage("card");
-        setActiveCardIndex(0);
+        setGateTheme(themeParam);
         return;
       }
 
@@ -314,11 +277,10 @@ export default function BuatPage() {
         if (parsed.youtubeUrl) setYoutubeUrl(parsed.youtubeUrl);
         if (parsed.hasPasscode !== undefined) setHasPasscode(parsed.hasPasscode);
         if (parsed.passcode) setPasscode(parsed.passcode);
-        if (parsed.tapeStyle) setTapeStyle(parsed.tapeStyle);
 
-        // If draft already has content, resume directly in studio
+        // Draf lama tidak langsung membuka studio: gerbang menawarkan "Lanjutkan"
         if (parsed.recipientName || parsed.openingText) {
-          setViewMode("studio");
+          setResumeName(parsed.recipientName || "");
         }
       }
     } catch {
@@ -341,7 +303,6 @@ export default function BuatPage() {
           youtubeUrl,
           hasPasscode,
           passcode,
-          tapeStyle,
         };
         localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftObj));
       } catch {
@@ -349,40 +310,36 @@ export default function BuatPage() {
       }
     }, 600);
     return () => clearTimeout(timer);
-  }, [theme, recipientName, openingText, closingText, cards, musicId, youtubeUrl, hasPasscode, passcode, tapeStyle]);
+  }, [theme, recipientName, openingText, closingText, cards, musicId, youtubeUrl, hasPasscode, passcode]);
 
   // Handle Theme Selection from Gate
+  // Nuansa yang dipilih di gerbang = base kado baru: teks, kartu, dan musik selalu dari nuansa itu
   function handleSelectThemeAndContinue(selectedTheme: Theme, recipient: string) {
-    setTheme(selectedTheme);
+    if (
+      resumeName !== null &&
+      !window.confirm(`Draf ${resumeName ? `untuk ${resumeName} ` : ""}akan diganti kado baru. Lanjut?`)
+    ) {
+      return;
+    }
     const starter = THEME_STARTERS[selectedTheme] || THEME_STARTERS.ucapan;
-
-    const finalRecipient = recipient || recipientName || "Kamu";
-    setRecipientName(finalRecipient);
-
-    // Populate default text if empty
-    if (!openingText.trim()) {
-      setOpeningText(starter.opening(finalRecipient));
-    }
-    if (!closingText.trim()) {
-      setClosingText(starter.closing);
-    }
-    if (!musicId) {
-      setMusicId(starter.musicId);
-    }
-    setTapeStyle(starter.tapeStyle);
-
-    // Starter cards if current card is blank
-    if (cards.length === 1 && !cards[0].text_content.trim() && !cards[0].image_url) {
-      setCards([
-        { id: "c1", order_index: 0, text_content: starter.card1 },
-        { id: "c2", order_index: 1, text_content: starter.card2 },
-      ]);
-    }
-
+    const name = recipient || "Kamu";
+    setTheme(selectedTheme);
+    setRecipientName(recipient);
+    setOpeningText(starter.opening(name));
+    setClosingText(starter.closing);
+    setMusicId(starter.musicId);
+    setYoutubeUrl("");
+    setHasPasscode(false);
+    setPasscode("");
+    setCards([
+      { id: "c1", order_index: 0, text_content: starter.card1 },
+      { id: "c2", order_index: 1, text_content: starter.card2 },
+    ]);
+    setHist({ stack: [], index: -1 });
+    setResumeName(null);
     setViewMode("studio");
     setActiveStage("card");
     setActiveCardIndex(0);
-    pushSnapshot();
   }
 
   // Reset / Start fresh draft
@@ -405,10 +362,10 @@ export default function BuatPage() {
     setYoutubeUrl("");
     setHasPasscode(false);
     setPasscode("");
+    setResumeName(null);
     setViewMode("gate");
     setActiveStage("envelope");
-    setHistory([]);
-    setHistoryIndex(-1);
+    setHist({ stack: [], index: -1 });
   }
 
   // Card Manipulation Helpers
@@ -422,7 +379,6 @@ export default function BuatPage() {
     setCards((prev) => [...prev, newCard]);
     setActiveCardIndex(cards.length);
     setActiveStage("card");
-    pushSnapshot();
   }
 
   function handleDuplicateCard(id: string) {
@@ -436,7 +392,6 @@ export default function BuatPage() {
     };
     setCards((prev) => [...prev, dup]);
     setActiveCardIndex(cards.length);
-    pushSnapshot();
   }
 
   function handleRemoveCard(id: string) {
@@ -446,7 +401,6 @@ export default function BuatPage() {
       return filtered.map((c, idx) => ({ ...c, order_index: idx }));
     });
     setActiveCardIndex((prev) => Math.max(0, prev - 1));
-    pushSnapshot();
   }
 
   function handleMoveCard(fromIndex: number, toIndex: number) {
@@ -458,7 +412,6 @@ export default function BuatPage() {
       return next.map((c, i) => ({ ...c, order_index: i }));
     });
     setActiveCardIndex(toIndex);
-    pushSnapshot();
   }
 
   function handleSetCardSticker(sticker: string, position?: { x: number; y: number; rotate?: number }) {
@@ -477,7 +430,6 @@ export default function BuatPage() {
           : c
       )
     );
-    pushSnapshot();
   }
 
   function handleUpdateCardStickerPosition(id: string, x: number, y: number, rotate?: number) {
@@ -509,14 +461,12 @@ export default function BuatPage() {
           : c
       )
     );
-    pushSnapshot();
   }
 
   function handleUpdateCardImagePosition(id: string, pos: "center" | "top" | "bottom") {
     setCards((prev) =>
       prev.map((c) => (c.id === id ? { ...c, image_position: pos } : c))
     );
-    pushSnapshot();
   }
 
   function handleUpdateCardText(id: string, text: string) {
@@ -525,7 +475,6 @@ export default function BuatPage() {
 
   function handleUpdateCardImage(id: string, url: string) {
     setCards((prev) => prev.map((c) => (c.id === id ? { ...c, image_url: url } : c)));
-    pushSnapshot();
   }
 
   function handleApplyPresetText(text: string, target: "opening" | "card" | "closing") {
@@ -539,7 +488,6 @@ export default function BuatPage() {
         handleUpdateCardText(activeCard.id, text);
       }
     }
-    pushSnapshot();
   }
 
   // Active Music Label
@@ -577,10 +525,11 @@ export default function BuatPage() {
     setIsUpdating(false);
     if (res.success) {
       triggerHaptic("success");
-      setUpdateToastMessage("Kado berhasil diperbarui! ✨");
+      setUpdateToastMessage("Perubahan tersimpan");
       setTimeout(() => setUpdateToastMessage(null), 3500);
     } else {
-      alert(res.error || "Gagal memperbarui kado");
+      setErrorToast(res.error || "Kado belum tersimpan. Periksa koneksi lalu coba lagi.");
+      setTimeout(() => setErrorToast(null), 4000);
     }
   }
 
@@ -629,8 +578,14 @@ export default function BuatPage() {
       {/* ── STEP 1: INITIAL THEME GATE ────────────────────────── */}
       {viewMode === "gate" ? (
         <StudioThemeGate
-          initialTheme={theme}
-          initialRecipient={recipientName}
+          key={gateTheme ?? "none"}
+          initialTheme={gateTheme}
+          initialRecipient=""
+          resumeName={resumeName}
+          onResume={() => {
+            setResumeName(null);
+            setViewMode("studio");
+          }}
           onSelectThemeAndContinue={handleSelectThemeAndContinue}
         />
       ) : (
@@ -659,18 +614,12 @@ export default function BuatPage() {
             activeStage={activeStage}
             onStageChange={setActiveStage}
             cardsCount={cards.length}
-            viewportMode={viewportMode}
-            onViewportChange={setViewportMode}
-            zoomScale={zoomScale}
-            onZoomChange={setZoomScale}
-            canUndo={historyIndex > 0}
-            canRedo={historyIndex < history.length - 1}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
+            canUndo={hist.index > 0}
+            canRedo={hist.index < hist.stack.length - 1}
+            onUndo={() => applySnapshot(hist.index - 1)}
+            onRedo={() => applySnapshot(hist.index + 1)}
             onOpenSimulation={() => setShowSimulation(true)}
             onOpenPublish={() => setShowPublish(true)}
-            onOpenThemeGate={() => setViewMode("gate")}
-            onResetDraft={handleResetDraft}
             isEditing={Boolean(editingGiftId)}
             isSavingUpdate={isUpdating}
             onSaveUpdate={handleSaveUpdate}
@@ -739,11 +688,6 @@ export default function BuatPage() {
               closingText={closingText}
               onClosingTextChange={setClosingText}
               theme={theme}
-              fontStyle={fontStyle}
-              cardTilt={cardTilt}
-              tapeStyle={tapeStyle}
-              viewportMode={viewportMode}
-              zoomScale={zoomScale}
               onOpenSimulation={() => setShowSimulation(true)}
             />
 
@@ -751,17 +695,7 @@ export default function BuatPage() {
             <div className="hidden xl:flex">
               <StudioRightInspector
                 theme={theme}
-                onThemeChange={(newTheme) => {
-                  setTheme(newTheme);
-                  const starter = THEME_STARTERS[newTheme];
-                  if (starter) {
-                    setTapeStyle(starter.tapeStyle);
-                  }
-                }}
-                fontStyle={fontStyle}
-                onFontStyleChange={setFontStyle}
-                cardTilt={cardTilt}
-                onCardTiltChange={setCardTilt}
+                onThemeChange={setTheme}
                 hasPasscode={hasPasscode}
                 onTogglePasscode={setHasPasscode}
                 passcode={passcode}
@@ -769,133 +703,135 @@ export default function BuatPage() {
                 recipientName={recipientName}
                 onRecipientNameChange={setRecipientName}
                 musicTitle={activeMusicTitle}
-                tapeStyle={tapeStyle}
-                onTapeStyleChange={setTapeStyle}
+                onResetDraft={handleResetDraft}
               />
             </div>
 
-            {/* ── Mobile Action Buttons (Toggles Drawers) ──────── */}
-            <div className="lg:hidden absolute top-3 left-3 z-30 flex items-center gap-2">
-              <button
-                onClick={() => setMobileDrawer(mobileDrawer === "left" ? "none" : "left")}
-                className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-black/10 shadow-md text-xs font-semibold flex items-center gap-1.5 text-neutral-800"
+            {/* ── Mobile: bottom sheet (Media / Nuansa) ─────────── */}
+            {mobileDrawer !== "none" && (
+              <div
+                className="lg:hidden fixed inset-0 z-50 bg-black/40 flex flex-col justify-end"
+                onClick={() => setMobileDrawer("none")}
               >
-                <Layers size={13} />
-                <span>Kartu & Aset</span>
-              </button>
-            </div>
-
-            <div className="xl:hidden absolute top-3 right-3 z-30 flex items-center gap-2">
-              <button
-                onClick={() => setMobileDrawer(mobileDrawer === "right" ? "none" : "right")}
-                className="px-3 py-1.5 rounded-xl bg-white/90 backdrop-blur-md border border-black/10 shadow-md text-xs font-semibold flex items-center gap-1.5 text-neutral-800"
-              >
-                <Sliders size={13} />
-                <span>Desain</span>
-              </button>
-            </div>
-
-            {/* Mobile Slide-over Drawer (Left) */}
-            {mobileDrawer === "left" && (
-              <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex">
-                <div className="w-80 h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-left duration-200">
-                  <div className="p-3 border-b border-neutral-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-neutral-800">Kartu, Teks & Media</span>
+                <div
+                  role="dialog"
+                  aria-label={mobileDrawer === "left" ? "Kartu, teks & media" : "Nuansa & pengaturan"}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-[75dvh] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-200"
+                >
+                  <div className="px-4 py-3 border-b border-neutral-100 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-neutral-900">
+                      {mobileDrawer === "left" ? "Kartu, teks & media" : "Nuansa & pengaturan"}
+                    </span>
                     <button
                       onClick={() => setMobileDrawer("none")}
-                      className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
+                      aria-label="Tutup"
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-neutral-500 hover:bg-neutral-100"
                     >
-                      <X size={16} />
+                      <X size={18} />
                     </button>
                   </div>
-                  <div className="flex-1 overflow-hidden">
-                    <StudioLeftDrawer
-                      cards={cards}
-                      activeCardIndex={activeCardIndex}
-                      onSelectCard={(idx) => {
-                        setActiveCardIndex(idx);
-                        setMobileDrawer("none");
-                      }}
-                      onAddCard={handleAddCard}
-                      onDuplicateCard={handleDuplicateCard}
-                      onRemoveCard={handleRemoveCard}
-                      onMoveCard={handleMoveCard}
-                      activeStage={activeStage}
-                      onStageChange={(s) => {
-                        setActiveStage(s);
-                        setMobileDrawer("none");
-                      }}
-                      recipientName={recipientName}
-                      openingText={openingText}
-                      closingText={closingText}
-                      onApplyPresetText={handleApplyPresetText}
-                      onSetCardSticker={handleSetCardSticker}
-                      activeCard={cards[activeCardIndex]}
-                      activeCardSticker={cards[activeCardIndex]?.sticker}
-                      onUpdateCardStickerPosition={(x, y, rot) => {
-                        const curr = cards[activeCardIndex];
-                        if (curr) handleUpdateCardStickerPosition(curr.id, x, y, rot);
-                      }}
-                      onRemoveCardSticker={() => {
-                        const curr = cards[activeCardIndex];
-                        if (curr) handleRemoveCardSticker(curr.id);
-                      }}
-                      onUpdateActiveCardImage={(url) => {
-                        const curr = cards[activeCardIndex];
-                        if (curr) handleUpdateCardImage(curr.id, url);
-                      }}
-                      musicId={musicId}
-                      onSelectMusic={setMusicId}
-                      youtubeUrl={youtubeUrl}
-                      onChangeYoutubeUrl={setYoutubeUrl}
-                      theme={theme}
-                    />
-                  </div>
-                </div>
-                <div className="flex-1" onClick={() => setMobileDrawer("none")} />
-              </div>
-            )}
-
-            {/* Mobile Slide-over Drawer (Right) */}
-            {mobileDrawer === "right" && (
-              <div className="xl:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex justify-end">
-                <div className="flex-1" onClick={() => setMobileDrawer("none")} />
-                <div className="w-80 h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
-                  <div className="p-3 border-b border-neutral-100 flex items-center justify-between">
-                    <span className="text-xs font-bold text-neutral-800">Desain & Pengaturan</span>
-                    <button
-                      onClick={() => setMobileDrawer("none")}
-                      className="p-1 rounded-lg text-neutral-400 hover:text-neutral-700"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <StudioRightInspector
-                      theme={theme}
-                      onThemeChange={(newTheme) => {
-                        setTheme(newTheme);
-                        const starter = THEME_STARTERS[newTheme];
-                        if (starter) setTapeStyle(starter.tapeStyle);
-                      }}
-                      fontStyle={fontStyle}
-                      onFontStyleChange={setFontStyle}
-                      cardTilt={cardTilt}
-                      onCardTiltChange={setCardTilt}
-                      hasPasscode={hasPasscode}
-                      onTogglePasscode={setHasPasscode}
-                      passcode={passcode}
-                      onPasscodeChange={setPasscode}
-                      recipientName={recipientName}
-                      onRecipientNameChange={setRecipientName}
-                      musicTitle={activeMusicTitle}
-                      tapeStyle={tapeStyle}
-                      onTapeStyleChange={setTapeStyle}
-                    />
+                  <div className="flex-1 min-h-0 overflow-hidden [&>aside]:h-full [&>aside]:w-full [&>aside]:border-0">
+                    {mobileDrawer === "left" ? (
+                        <StudioLeftDrawer
+                          cards={cards}
+                          activeCardIndex={activeCardIndex}
+                          onSelectCard={(idx) => {
+                            setActiveCardIndex(idx);
+                            setMobileDrawer("none");
+                          }}
+                          onAddCard={handleAddCard}
+                          onDuplicateCard={handleDuplicateCard}
+                          onRemoveCard={handleRemoveCard}
+                          onMoveCard={handleMoveCard}
+                          activeStage={activeStage}
+                          onStageChange={(s) => {
+                            setActiveStage(s);
+                            setMobileDrawer("none");
+                          }}
+                          recipientName={recipientName}
+                          openingText={openingText}
+                          closingText={closingText}
+                          onApplyPresetText={handleApplyPresetText}
+                          onSetCardSticker={handleSetCardSticker}
+                          activeCard={cards[activeCardIndex]}
+                          activeCardSticker={cards[activeCardIndex]?.sticker}
+                          onUpdateCardStickerPosition={(x, y, rot) => {
+                            const curr = cards[activeCardIndex];
+                            if (curr) handleUpdateCardStickerPosition(curr.id, x, y, rot);
+                          }}
+                          onRemoveCardSticker={() => {
+                            const curr = cards[activeCardIndex];
+                            if (curr) handleRemoveCardSticker(curr.id);
+                          }}
+                          onUpdateActiveCardImage={(url) => {
+                            const curr = cards[activeCardIndex];
+                            if (curr) handleUpdateCardImage(curr.id, url);
+                          }}
+                          musicId={musicId}
+                          onSelectMusic={setMusicId}
+                          youtubeUrl={youtubeUrl}
+                          onChangeYoutubeUrl={setYoutubeUrl}
+                          theme={theme}
+                        />
+                    ) : (
+                        <StudioRightInspector
+                          theme={theme}
+                          onThemeChange={setTheme}
+                          hasPasscode={hasPasscode}
+                          onTogglePasscode={setHasPasscode}
+                          passcode={passcode}
+                          onPasscodeChange={setPasscode}
+                          recipientName={recipientName}
+                          onRecipientNameChange={setRecipientName}
+                          musicTitle={activeMusicTitle}
+                    onResetDraft={handleResetDraft}
+                        />
+                    )}
                   </div>
                 </div>
               </div>
             )}
+
+            {/* ── Mobile: bottom tab bar ───────────────────────── */}
+            <nav
+              aria-label="Bagian kado"
+              className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-xl border-t border-black/[0.08] grid grid-cols-5 pb-[env(safe-area-inset-bottom)]"
+            >
+              {([
+                { key: "envelope", label: "Sampul", emoji: "✉️" },
+                { key: "card", label: `Kartu (${cards.length})`, emoji: "📷" },
+                { key: "closing", label: "Penutup", emoji: "✨" },
+                { key: "left", label: "Media", emoji: "🎵" },
+                { key: "right", label: "Nuansa", emoji: "🎨" },
+              ] as const).map((tab) => {
+                const isSheet = tab.key === "left" || tab.key === "right";
+                const active = isSheet ? mobileDrawer === tab.key : mobileDrawer === "none" && activeStage === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => {
+                      triggerHaptic("selection");
+                      if (tab.key === "left" || tab.key === "right") {
+                        setMobileDrawer(tab.key);
+                      } else {
+                        setMobileDrawer("none");
+                        setActiveStage(tab.key);
+                      }
+                    }}
+                    className={`h-16 flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
+                      active ? "text-neutral-900" : "text-neutral-400"
+                    }`}
+                  >
+                    <span className={active ? "" : "opacity-50 grayscale"}>
+                      <IosEmoji symbol={tab.emoji} size={20} />
+                    </span>
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         </div>
       )}

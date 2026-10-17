@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { Gift } from "@/lib/types";
 import { GiftExperience } from "@/components/gift/GiftExperience";
-import { X, Sparkles, Smartphone } from "lucide-react";
+import { X, Smartphone } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 
@@ -68,7 +68,7 @@ export function StudioSimulatorModal({
           onClick={onClose}
           className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-all"
         >
-          ← Lanjut Mengedit di Studio
+          Kembali mengedit
         </button>
 
         <button
@@ -78,9 +78,8 @@ export function StudioSimulatorModal({
           }}
           className="flex-1 py-3 rounded-2xl bg-white text-neutral-900 hover:bg-neutral-100 text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-1.5"
         >
-          <span>Terbitkan Kado</span>
-          <span className="text-[10px] text-neutral-500 font-medium">({PREMIUM_PRICE_LABEL})</span>
-          <Sparkles size={13} className="text-amber-500" />
+          <span>Terbitkan</span>
+          <span className="text-[10px] text-neutral-500 font-medium">{PREMIUM_PRICE_LABEL}</span>
         </button>
       </div>
     </div>

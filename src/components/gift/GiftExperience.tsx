@@ -89,19 +89,12 @@ export function GiftExperience({ gift }: { gift: Gift }) {
         <div className="z-10 flex flex-col items-center max-w-sm sm:max-w-md w-full">
           {/* Header Ucapan Minimalis & Elegan */}
           <div className="text-center mb-1 sm:mb-2 animate-in fade-in duration-500 px-4">
-            <p
-              className={`text-[10px] sm:text-xs uppercase tracking-[0.25em] font-semibold mb-1 ${
-                isDarkTheme ? "text-rose-300" : "text-rose-600"
-              }`}
-            >
-              Sebuah Kado Digital Terindah
-            </p>
             <h1
-              className={`font-serif italic text-3xl sm:text-4xl font-normal tracking-tight ${
+              className={`font-serif text-3xl sm:text-4xl font-normal tracking-tight ${
                 isDarkTheme ? "text-white" : "text-neutral-950"
               }`}
             >
-              Untuk {gift.recipient_name}
+              Ada surat buat kamu, {gift.recipient_name}
             </h1>
           </div>
 
@@ -123,6 +116,14 @@ export function GiftExperience({ gift }: { gift: Gift }) {
             passcodeUnlocked={passcodeUnlocked}
             onRequestUnlock={() => setShowPinModal(true)}
           />
+          <p
+            className={`mt-1 text-sm transition-opacity duration-500 ${
+              isDarkTheme ? "text-white/70" : "text-neutral-500"
+            } ${musicTrigger ? "opacity-0" : "opacity-100"}`}
+            aria-hidden={musicTrigger}
+          >
+            {hasPasscode && !passcodeUnlocked ? "Ketuk segelnya, lalu masukkan PIN" : "Ketuk segel lilinnya untuk membuka"}
+          </p>
         </div>
       )}
 
@@ -142,6 +143,9 @@ export function GiftExperience({ gift }: { gift: Gift }) {
 
             <Input
               type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              aria-label="PIN rahasia"
               autoFocus
               placeholder="Masukkan PIN rahasia"
               value={inputPin}

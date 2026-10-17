@@ -12,8 +12,8 @@ export const MUSIC_OPTIONS = [
 export const THEME_OPTIONS = [
   {
     id: "ucapan",
-    label: "Buat Ucapan",
-    subtitle: "Kartu Kasih & Ungkapan Hangat",
+    label: "Ucapan",
+    subtitle: "Terima kasih, selamat, atau maaf",
     emoji: "💌",
     sealSvg: "/gift/seal-love.svg",
     gradient: "from-[#FFFDF7] via-[#FFF8F2] to-[#FFEFE6]",
@@ -29,8 +29,8 @@ export const THEME_OPTIONS = [
   },
   {
     id: "ulang-tahun",
-    label: "Buat Ulang Tahun",
-    subtitle: "Pesta Ceria, Lilin & Confetti Emas",
+    label: "Ulang tahun",
+    subtitle: "Lilin, kue, dan confetti emas",
     emoji: "🎂",
     sealSvg: "/gift/seal-star.svg",
     gradient: "from-[#FFFDF7] via-[#FEF3C7]/40 to-[#FED7AA]/40",
@@ -46,8 +46,8 @@ export const THEME_OPTIONS = [
   },
   {
     id: "pacar",
-    label: "Buat Pacar",
-    subtitle: "Romantis Penuh Cinta & Mawar",
+    label: "Pacar",
+    subtitle: "Kelopak mawar dan surat cinta",
     emoji: "🌹",
     sealSvg: "/gift/seal-rose.svg",
     gradient: "from-[#FFF5F7] via-[#FCE7F3]/60 to-[#FBCFE8]/40",
@@ -63,8 +63,8 @@ export const THEME_OPTIONS = [
   },
   {
     id: "temen",
-    label: "Buat Temen",
-    subtitle: "Hangat, Seru & Kebersamaan Sahabat",
+    label: "Teman",
+    subtitle: "Santai, lucu, penuh cerita",
     emoji: "✨",
     sealSvg: "/gift/seal-leaf.svg",
     gradient: "from-[#F0FDF4]/50 via-[#F7FEE7] to-[#D1FAE5]/40",

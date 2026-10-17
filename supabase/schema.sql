@@ -292,6 +292,15 @@ revoke execute on function public.set_gift_passcode(uuid, text) from public, ano
 grant execute on function public.set_gift_passcode(uuid, text) to authenticated;
 
 -- Mengembalikan kartu bila PIN benar; null bila salah. Kunci 15 menit setelah 5x salah.
+-- ─── Migrasi 2026-10-17: kolom stiker & fokus foto pada kartu ───────────────
+-- Dipakai Studio (createGift/updateGift) dan ikut dikembalikan unlock_gift.
+alter table public.cards
+  add column if not exists image_position text check (image_position in ('top', 'center', 'bottom')),
+  add column if not exists sticker        text,
+  add column if not exists sticker_x      real,
+  add column if not exists sticker_y      real,
+  add column if not exists sticker_rotate real;
+
 create or replace function public.unlock_gift(p_slug text, p_pin text)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare
@@ -318,7 +327,9 @@ begin
 
   return coalesce((
     select jsonb_agg(jsonb_build_object(
-      'id', id, 'order_index', order_index, 'text_content', text_content, 'image_url', image_url
+      'id', id, 'order_index', order_index, 'text_content', text_content, 'image_url', image_url,
+      'image_position', image_position, 'sticker', sticker,
+      'sticker_x', sticker_x, 'sticker_y', sticker_y, 'sticker_rotate', sticker_rotate
     ) order by order_index)
     from cards where gift_id = v_gift_id
   ), '[]'::jsonb);

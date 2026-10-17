@@ -43,10 +43,9 @@ export function Envelope3D({
   const [isOpen, setIsOpen] = useState(false);
 
   // Posisi kemiringan segel lilin random organik (-14° s/d +14°) layaknya cap stempel lilin artisanal asli
-  const [sealTilt] = useState(() => {
-    const angles = [-12, -9, -7, -4, 5, 8, 11, 13, -10, 7];
-    return angles[Math.floor(Math.random() * angles.length)];
-  });
+  // Diturunkan dari nama (bukan Math.random) agar render server & browser sama — mencegah hydration mismatch
+  const angles = [-12, -9, -7, -4, 5, 8, 11, 13, -10, 7];
+  const sealTilt = angles[[...recipientName].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % angles.length];
 
   function handleSealClick(e: React.MouseEvent) {
     e.stopPropagation();
@@ -106,9 +105,12 @@ export function Envelope3D({
       handleSealClick(e);
       return;
     }
-    // Jika surat sudah terbuka dan ditekan, lanjutkan ke kartu kenangan
-    if (!previewMode) {
-      triggerHaptic("selection");
+    // Jika surat sudah terbuka dan ditekan: penerima lanjut ke kartu, mode preview menutup kembali
+    triggerHaptic("selection");
+    if (previewMode) {
+      setIsOpen(false);
+      onOpeningStateChange?.(false);
+    } else {
       onOpen();
     }
   }
@@ -135,6 +137,15 @@ export function Envelope3D({
         {/* Layer 2: Letter Paper (Meluncur naik dari dalam saku amplop dan menampilkan pesan) */}
         <div
           onClick={handlePaperClick}
+          role="button"
+          tabIndex={isOpen ? 0 : -1}
+          aria-label={previewMode ? "Tutup surat" : "Lanjut ke kartu"}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handlePaperClick(e as unknown as React.MouseEvent);
+            }
+          }}
           className={`absolute inset-0 w-full h-full cursor-pointer transition-all duration-900 ease-out flex flex-col items-center justify-center ${
             isOpen
               ? "-translate-y-[46%] scale-[1.06] drop-shadow-2xl pointer-events-auto"
@@ -222,9 +233,11 @@ export function Envelope3D({
         {/* Layer 5: Wax Seal (Segel lilin proporsional sesuai Referensi Picture 2) */}
         {/* Koordinat Y 61% duduk tepat di ujung lancip flap atas, menutup saku */}
         {/* Tanpa efek cursor pointer, tanpa hover scale, murni seperti lilin asli */}
-        <div
+        <button
+          type="button"
           onClick={handleSealClick}
-          className={`absolute transition-all duration-300 ${
+          aria-label={hasPasscode && !passcodeUnlocked ? "Masukkan PIN untuk membuka amplop" : "Buka amplop"}
+          className={`absolute rounded-full outline-none focus-visible:ring-4 focus-visible:ring-rose-400/60 transition-all duration-300 ${
             isOpen
               ? "opacity-0 pointer-events-none scale-125"
               : "opacity-100 pointer-events-auto scale-100"
@@ -254,7 +267,7 @@ export function Envelope3D({
               </div>
             </div>
           )}
-        </div>
+        </button>
       </div>
     </div>
   );

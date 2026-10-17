@@ -12,3 +12,6 @@ export function youtubeId(url?: string | null): string | null {
     );
   return m ? m[1] : null;
 }
+
+// Kunci localStorage untuk mode gelap landing page (dibaca server script & ThemeToggle)
+export const LANDING_THEME_KEY = "bk-landing-theme";
