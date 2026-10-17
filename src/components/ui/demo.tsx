@@ -4,6 +4,23 @@ import Link from "next/link";
 import { DIcons } from "dicons";
 import { IosEmoji } from "@/components/ui/IosEmoji";
 import ThemeToggle from "@/components/ui/footer";
+import { Component } from "@/components/ui/iphone";
+
+export function DemoOne() {
+  return (
+    <div className="w-full min-h-[600px] flex items-center justify-center mx-auto relative p-6">
+      <Component />
+      <div
+        className="absolute inset-0 w-full h-full -z-10"
+        style={{
+          backgroundImage:
+            "url('data:image/svg+xml,%3Csvg width=\\'4\\' height=\\'4\\' viewBox=\\'0 0 6 6\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Ccircle cx=\\'6\\' cy=\\'6\\' r=\\'1\\' fill=\\'%23aaa\\' fill-opacity=\\'0.25\\' /%3E%3C/svg%3E')",
+          backgroundColor: "transparent",
+        }}
+      />
+    </div>
+  );
+}
 
 const navigation = {
   categories: [

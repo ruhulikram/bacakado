@@ -7,15 +7,14 @@ import { IosEmoji, EmojiText } from "@/components/ui/IosEmoji";
 import { StudioStage, ViewportMode } from "./StudioHeader";
 import { FontStyle } from "./StudioRightInspector";
 import { triggerHaptic } from "@/lib/haptics";
+import { IPhone } from "@/components/ui/iphone";
 import {
   ChevronLeft,
   ChevronRight,
-  Plus,
   Camera,
   Trash2,
   Sparkles,
   Lightbulb,
-  Smile,
   Maximize2,
   RefreshCw,
   Heart,
@@ -281,7 +280,6 @@ export function StudioCanvas({
   onOpenSimulation,
 }: StudioCanvasProps) {
   const [envelopePreviewOpen, setEnvelopePreviewOpen] = useState(false);
-  const [showEmojiPop, setShowEmojiPop] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOverCard, setIsDragOverCard] = useState(false);
   const canvasFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -410,17 +408,10 @@ export function StudioCanvas({
       >
         {viewportMode === "mobile" ? (
           /* Realistic Apple iPhone Mockup Frame */
-          <div className="relative w-full max-w-[340px] sm:max-w-[370px] h-[640px] sm:h-[680px] rounded-[50px] p-3 bg-neutral-900 shadow-2xl border-4 border-neutral-800 flex flex-col transition-all duration-300">
-            {/* Dynamic Island / Notch */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-30 pointer-events-none flex items-center justify-center">
-              <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 mr-2" />
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-950" />
-            </div>
-
-            {/* Screen Inner Viewport */}
-            <div
-              className={`w-full h-full rounded-[40px] overflow-y-auto overflow-x-hidden relative flex flex-col items-center justify-center p-4 bg-gradient-to-b ${currentTheme.gradient} border border-neutral-800/50 shadow-inner`}
-            >
+          <IPhone
+            className="w-full max-w-[340px] sm:max-w-[370px] h-[640px] sm:h-[680px] shadow-2xl transition-all duration-300"
+            screenClassName={`overflow-y-auto overflow-x-hidden flex flex-col items-center justify-center p-4 bg-gradient-to-b ${currentTheme.gradient} border border-neutral-800/50 shadow-inner`}
+          >
               {/* STAGE: ENVELOPE */}
               {activeStage === "envelope" && (
                 <div className="w-full flex flex-col items-center animate-in fade-in duration-300">
@@ -716,8 +707,7 @@ export function StudioCanvas({
                   </button>
                 </div>
               )}
-            </div>
-          </div>
+          </IPhone>
         ) : (
           /* Fluid Canvas Viewport */
           <div className="w-full max-w-xl transition-all duration-300">
@@ -983,69 +973,6 @@ export function StudioCanvas({
             )}
           </div>
         )}
-      </div>
-
-      {/* ── Bottom Floating Quick Dock (Spline / Canva Style) ──── */}
-      <div className="z-20 w-full max-w-lg mt-4">
-        <div className="bg-white/90 backdrop-blur-2xl p-2 rounded-2xl border border-black/[0.08] shadow-xl flex items-center justify-between gap-2">
-          {/* Add Elements quick pills */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => canvasFileInputRef.current?.click()}
-              className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 btn-apple-spring"
-              title="Unggah Foto Langsung"
-            >
-              <Camera size={13} />
-              <span className="hidden sm:inline">Foto</span>
-            </button>
-
-            <button
-              onClick={() => {
-                triggerHaptic("selection");
-                onAddCard();
-                onStageChange("card");
-              }}
-              className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 btn-apple-spring"
-              title="Tambah Polaroid Baru"
-            >
-              <Plus size={13} />
-              <span className="hidden sm:inline">Kartu</span>
-            </button>
-
-            <button
-              onClick={() => setShowEmojiPop((prev) => !prev)}
-              className="px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 btn-apple-spring"
-              title="Buka Emoji Bar"
-            >
-              <Smile size={13} />
-              <span className="hidden sm:inline">Emoji</span>
-            </button>
-          </div>
-
-          {/* Quick Stage Indicator */}
-          <div className="flex items-center gap-1 text-xs text-neutral-400 font-medium px-2">
-            <span className={activeStage === "envelope" ? "text-neutral-900 font-bold" : ""}>
-              Amplop
-            </span>
-            <span>·</span>
-            <span className={activeStage === "card" ? "text-neutral-900 font-bold" : ""}>
-              Kartu ({activeCardIndex + 1}/{cards.length})
-            </span>
-            <span>·</span>
-            <span className={activeStage === "closing" ? "text-neutral-900 font-bold" : ""}>
-              Penutup
-            </span>
-          </div>
-
-          {/* Test Live Play Button */}
-          <button
-            onClick={onOpenSimulation}
-            className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 btn-apple-spring border border-rose-200/80"
-          >
-            <Sparkles size={12} className="text-rose-500" />
-            <span>Simulasi</span>
-          </button>
-        </div>
       </div>
     </div>
   );

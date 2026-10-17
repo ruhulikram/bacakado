@@ -7,6 +7,8 @@ import { X, Sparkles, Smartphone } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { PREMIUM_PRICE_LABEL } from "@/lib/utils";
 
+import { IPhone } from "@/components/ui/iphone";
+
 interface StudioSimulatorModalProps {
   gift: Gift;
   onClose: () => void;
@@ -53,18 +55,12 @@ export function StudioSimulatorModal({
       </div>
 
       {/* ── Phone Mockup Viewport Running GiftExperience ─────── */}
-      <div className="w-full max-w-sm sm:max-w-md h-[calc(100vh-140px)] rounded-[44px] p-2 bg-neutral-900 border-4 border-neutral-700/80 shadow-2xl relative overflow-hidden flex flex-col">
-        {/* Dynamic Island */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-black rounded-full z-40 pointer-events-none flex items-center justify-center">
-          <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 mr-2" />
-          <div className="w-1.5 h-1.5 rounded-full bg-blue-950" />
-        </div>
-
-        {/* Screen */}
-        <div className="w-full h-full rounded-[36px] overflow-hidden bg-white relative">
-          <GiftExperience gift={gift} />
-        </div>
-      </div>
+      <IPhone
+        className="w-full max-w-[340px] sm:max-w-[370px] h-[calc(100vh-160px)] max-h-[720px] shadow-2xl"
+        screenClassName="bg-white"
+      >
+        <GiftExperience gift={gift} />
+      </IPhone>
 
       {/* ── Bottom Controls ───────────────────────────────────── */}
       <div className="w-full max-w-md flex items-center justify-between gap-3 mt-3 z-20">
